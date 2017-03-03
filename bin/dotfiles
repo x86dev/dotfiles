@@ -261,7 +261,19 @@ function do_stuff() {
 
 # Enough with the functions, let's do stuff.
 
+# Is this the first run?
+export new_dotfiles_install=
 export prompt_delay=5
+if [[ ! -d $DOTFILES ]]; then
+  new_dotfiles_install=1
+  prompt_delay=15
+fi
+
+# Keep-alive: update existing sudo time stamp if set, otherwise do nothing.
+# Note that this doesn't work with Homebrew, since brew explicitly invalidates
+# the sudo timestamp, which is probably wise.
+# See https://gist.github.com/cowboy/3118588
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # Install a custom sudoers file that allows "sudo apt-get" to be executed
 # without asking for a password.
@@ -336,10 +348,8 @@ if [[ ! "$(type -P git)" ]]; then
 fi
 
 # Initialize.
-if [[ ! -d $DOTFILES ]]; then
-  # $DOTFILES directory doesn't exist? Clone it!
-  new_dotfiles_install=1
-  prompt_delay=15
+if [[ "$new_dotfiles_install" ]]; then
+  # Dotfiles directory doesn't exist? Clone it!
   e_header "Downloading dotfiles"
   git clone --recursive git://github.com/${DOTFILES_GH_USER:-cowboy}/dotfiles.git $DOTFILES
   cd $DOTFILES
