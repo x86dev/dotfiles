@@ -42,6 +42,7 @@ packages=(
   ansible
   build-essential
   cowsay
+  curl
   git-core
   htop
   id3tool
