@@ -297,6 +297,7 @@ EOF
 # Offer to create the sudoers file if it doesn't exist.
 if is_ubuntu && [[ ! -e $sudoers_file ]]; then
   cat <<EOF
+
 The sudoers file can be updated to allow "sudo apt-get" to be executed
 without asking for a password. You can verify that this worked correctly by
 running "sudo -k apt-get". If it doesn't ask for a password, and the output
