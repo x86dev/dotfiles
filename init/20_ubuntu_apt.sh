@@ -53,6 +53,17 @@ packages=(
   sl
   telnet
   tree
+  vim
+)
+
+is_ubuntu_desktop && packages+=(
+  chromium-browser
+  k4dirstat
+  rofi
+  shutter
+  transgui
+  vim-gnome
+  vlc
 )
 
 packages=($(setdiff "${packages[*]}" "$(dpkg --get-selections | grep -v deinstall | awk '{print $1}')"))
