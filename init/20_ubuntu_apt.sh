@@ -27,12 +27,14 @@ fi
 
 # Add APT sources
 sources=(
-  google-chrome.list
+  aluxian-messenger.list
   charles.list
+  google-chrome.list
 )
 sources_text=(
-  'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main'
+  'deb https://dl.bintray.com/aluxian/deb/ stable main'
   'deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main'
+  'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main'
 )
 sources=($(setdiff "${sources[*]}" "$(cd /etc/apt/sources.list.d; shopt -s nullglob; echo *)"))
 
@@ -80,6 +82,7 @@ is_ubuntu_desktop && packages+=(
   chromium-browser
   google-chrome-stable
   k4dirstat
+  messengerfordesktop
   rofi
   shutter
   transgui
