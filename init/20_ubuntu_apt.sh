@@ -24,8 +24,7 @@ keys=($(setdiff "${keys[*]}" "${keys_exist[*]}"))
 if (( ${#keys[@]} > 0 )); then
   e_header "Adding APT keys: ${keys[*]}"
   for key in "${keys[@]}"; do
-    wget -qO- $key | sudo apt-key add -
-    && echo $key >> $keys_cache
+    wget -qO- $key | sudo apt-key add - && echo $key >> $keys_cache
   done
 fi
 
