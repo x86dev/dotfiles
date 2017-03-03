@@ -5,16 +5,23 @@ is_ubuntu || return 1
 keys=(
   https://dl-ssl.google.com/linux/linux_signing_key.pub
   https://www.charlesproxy.com/packages/apt/PublicKey
+  '--keyserver pool.sks-keyservers.net --recv 6DDA23616E3FE905FFDA152AE61DA9241537994D'
 )
 
 keys_cache=$DOTFILES/caches/init/apt_keys
-IFS=$'\n' GLOBIGNORE='*' command eval 'keys_exist=($(<$keys_cache))'
-keys=($(setdiff "${keys[*]}" "${keys_exist[*]}"))
+IFS=$'\n' GLOBIGNORE='*' command eval 'setdiff_cur=($(<$keys_cache))'
+setdiff_new=("${keys[@]}"); setdiff; keys=("${setdiff_out[@]}")
+unset setdiff_new setdiff_cur setdiff_out
 
 if (( ${#keys[@]} > 0 )); then
-  e_header "Adding APT keys: ${keys[*]}"
+  e_header "Adding APT keys (${#keys[@]})"
   for key in "${keys[@]}"; do
-    wget -qO- $key | sudo apt-key add - && echo $key >> $keys_cache
+    e_arrow "$key"
+    if [[ "$key" =~ -- ]]; then
+      sudo apt-key adv $key
+    else
+      wget -qO- $key | sudo apt-key add -
+    fi && echo "$key" >> $keys_cache
   done
 fi
 
@@ -30,8 +37,9 @@ sources_text=(
 sources=($(setdiff "${sources[*]}" "$(cd /etc/apt/sources.list.d; shopt -s nullglob; echo *)"))
 
 if (( ${#sources[@]} > 0 )); then
-  e_header "Adding APT sources: ${sources[*]}"
+  e_header "Adding APT sources (${#sources[@]})"
   for i in "${!sources[@]}"; do
+    e_arrow "${sources[i]}"
     sudo sh -c "echo '${sources_text[i]}' > /etc/apt/sources.list.d/${sources[i]}"
   done
 fi
@@ -82,8 +90,9 @@ is_ubuntu_desktop && packages+=(
 packages=($(setdiff "${packages[*]}" "$(dpkg --get-selections | grep -v deinstall | awk '{print $1}')"))
 
 if (( ${#packages[@]} > 0 )); then
-  e_header "Installing APT packages: ${packages[*]}"
+  e_header "Installing APT packages (${#packages[@]})"
   for package in "${packages[@]}"; do
+    e_arrow "$package"
     sudo apt-get -qq install "$package"
   done
 fi
