@@ -4,8 +4,10 @@ prompt_delay=5
 
 # Installing this sudoers file makes life easier.
 sudoers_dest=/etc/sudoers.d/sudoers-dotfiles
-read -r -d '' sudoers_text <<'EOF'
-# This file gets created in /etc/sudoers.d/ by the dotfiles script
+# Contents of the sudoers file.
+read -r -d '' sudoers_text <<EOF
+# This file was created by the dotfiles script on $(date)
+# (which will never update it, only recreate it if it's missing)
 # Reference: http://ubuntuforums.org/showthread.php?t=1132821
 
 # Command aliases.
@@ -15,7 +17,23 @@ Cmnd_Alias APT = /usr/bin/apt-get
 %sudo ALL=(ALL) ALL, NOPASSWD:APT
 %admin ALL=(ALL) ALL, NOPASSWD:APT
 EOF
-if [[ ! -e $sudoers_dest || "$(cat $sudoers_dest)" != "$sudoers_text" ]]; then
+current_text="$(cat $sudoers_dest 2>/dev/null)"
+# Bash commands to update the sudoers file.
+read -r -d '' sudoers_code <<EOF
+echo "$sudoers_text" > $sudoers_dest
+if visudo -c; then
+  echo "File $sudoers_dest updated."
+else
+  if [[ "$current_text" ]]; then
+    echo "$current_text" > $sudoers_dest
+  else
+    rm $sudoers_dest
+  fi
+  echo "Unable to update $sudoers_dest file."
+fi
+EOF
+# Actually update the sudoers file if necessary.
+if [[ ! -e $sudoers_dest ]]; then
   cat <<EOF
 The sudoers file can be updated to allow "sudo apt-get" to be executed
 without asking for a password. You can verify that this worked correctly by
@@ -29,11 +47,7 @@ EOF
   read -N 1 -t $prompt_delay -p "Update sudoers file? [y/N] " update_sudoers; echo
   if [[ "$update_sudoers" =~ [Yy] ]]; then
     echo "# Updating sudoers"
-    sudo bash -c "\
-      echo '$sudoers_text' | (EDITOR=tee visudo -f $sudoers_dest) \
-      && visudo -c && echo 'File $sudoers_dest updated.' \
-      || (rm $sudoers_dest && echo 'Unable to update $sudoers_dest file.') \
-    "
+    sudo bash -c "$sudoers_code"
   else
     echo "Skipping."
   fi
