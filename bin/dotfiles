@@ -72,11 +72,11 @@ function prompt_menu() {
   exitcode=0
   if [[ "$2" ]]; then
     _prompt_menu_draws "$1"
-    read -t $2 -n 1 -sp "To edit this list, press any key within $2 seconds. "
+    read -t $2 -n 1 -sp "Press ENTER or wait $2 seconds to continue, or press any other key to edit."
     exitcode=$?
     echo ""
   fi 1>&2
-  if [[ "$exitcode" == 0 ]]; then
+  if [[ "$exitcode" == 0 && "$REPLY" ]]; then
     prompt="Toggle options (Separate options with spaces, ENTER when done): "
     while _prompt_menu_draws "$1" 1 && read -rp "$prompt" nums && [[ "$nums" ]]; do
       _prompt_menu_adds $nums
