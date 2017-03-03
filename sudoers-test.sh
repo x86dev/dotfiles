@@ -21,6 +21,7 @@ current_text="$(cat $sudoers_dest 2>/dev/null)"
 # Bash commands to update the sudoers file.
 read -r -d '' sudoers_code <<EOF
 echo "$sudoers_text" > $sudoers_dest
+chmod 0440 $sudoers_dest
 if visudo -c; then
   echo "File $sudoers_dest updated."
 else
