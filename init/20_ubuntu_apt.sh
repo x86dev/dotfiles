@@ -17,7 +17,7 @@ keys=(
   https://dl-ssl.google.com/linux/linux_signing_key.pub
 )
 
-keys_cache=$DOTFILES/caches/apt_keys
+keys_cache=$DOTFILES/caches/init/apt_keys
 IFS=$'\n' GLOBIGNORE='*' command eval 'keys_exist=($(<$keys_cache))'
 keys=($(setdiff "${keys[*]}" "${keys_exist[*]}"))
 
