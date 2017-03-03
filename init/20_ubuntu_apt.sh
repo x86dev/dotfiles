@@ -4,7 +4,30 @@ is_ubuntu || return 1
 # Update APT.
 e_header "Updating APT"
 sudo apt-get -qq update
-sudo apt-get -qq dist-upgrade
+
+# Only do a dist-upgrade on initial install.
+if [[ "$new_dotfiles_install" ]]; then
+  sudo apt-get -qq dist-upgrade
+else
+  sudo apt-get -qq upgrade
+fi
+
+# Add APT keys.
+keys=(
+  https://dl-ssl.google.com/linux/linux_signing_key.pub
+)
+
+keys_cache=$DOTFILES/caches/apt_keys
+IFS=$'\n' GLOBIGNORE='*' command eval 'keys_exist=($(<$keys_cache))'
+keys=($(setdiff "${keys[*]}" "${keys_exist[*]}"))
+
+if (( ${#keys[@]} > 0 )); then
+  e_header "Adding APT keys: ${keys[*]}"
+  for key in "${keys[@]}"; do
+    wget -qO- $key | sudo apt-key add -
+    && echo $key >> $keys_cache
+  done
+fi
 
 # Install APT packages.
 packages=(
