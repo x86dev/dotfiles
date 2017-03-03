@@ -99,8 +99,8 @@ Why? Because I often completely break this repo while updating. Which means that
 1. Open a terminal/shell and do this (change `cowboy` and `master` as appropriate):
 
 ```sh
-DOTFILES_GH_USER=cowboy
-DOTFILES_GH_BRANCH=master
+export DOTFILES_GH_USER=cowboy
+export DOTFILES_GH_BRANCH=laptop
 bash -c "$(curl -fsSL https://raw.github.com/$DOTFILES_GH_USER/dotfiles/$DOTFILES_GH_BRANCH/bin/dotfiles)" && source ~/.bashrc
 ```
 
