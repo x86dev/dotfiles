@@ -27,12 +27,12 @@ fi
 
 # Add APT sources
 sources=(
-  aluxian-messenger.list
+  aluxian.list
   charles.list
   google-chrome.list
 )
 sources_text=(
-  'deb https://dl.bintray.com/aluxian/deb/ stable main'
+  'deb https://dl.bintray.com/aluxian/deb/ beta main'
   'deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main'
   'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main'
 )
