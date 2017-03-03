@@ -7,7 +7,7 @@ sudoers_file=/etc/sudoers.d/cowboy-dotfiles
 # Contents of the sudoers file.
 function sudoers_text() {
   cat <<EOF
-# This file was created by the dotfiles script on $(date)
+# This file was created by cowboy's dotfiles script on $(date -I)
 # (which will never update it, only recreate it if it's missing)
 # Reference: http://ubuntuforums.org/showthread.php?t=1132821
 
