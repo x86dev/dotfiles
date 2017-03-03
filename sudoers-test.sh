@@ -23,14 +23,14 @@ read -r -d '' sudoers_code <<EOF
 echo "$sudoers_text" > $sudoers_dest
 chmod 0440 $sudoers_dest
 if visudo -c; then
-  echo "File $sudoers_dest updated."
+  echo; echo "File $sudoers_dest created."
 else
   if [[ "$current_text" ]]; then
     echo "$current_text" > $sudoers_dest
   else
     rm $sudoers_dest
   fi
-  echo "Unable to update $sudoers_dest file."
+  echo; echo "Unable to create $sudoers_dest file."
 fi
 EOF
 # Actually update the sudoers file if necessary.
@@ -47,7 +47,8 @@ This will be skipped if "Y" isn't pressed within the next $prompt_delay seconds.
 EOF
   read -N 1 -t $prompt_delay -p "Update sudoers file? [y/N] " update_sudoers; echo
   if [[ "$update_sudoers" =~ [Yy] ]]; then
-    echo "# Updating sudoers"
+    echo "# Creating sudoers file"
+    echo
     sudo bash -c "$sudoers_code"
   else
     echo "Skipping."
