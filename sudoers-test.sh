@@ -3,9 +3,10 @@
 prompt_delay=5
 
 # Installing this sudoers file makes life easier.
-sudoers_dest=/etc/sudoers.d/sudoers-dotfiles
+sudoers_file=/etc/sudoers.d/cowboy-dotfiles
 # Contents of the sudoers file.
-read -r -d '' sudoers_text <<EOF
+function sudoers_text() {
+  cat <<EOF
 # This file was created by the dotfiles script on $(date)
 # (which will never update it, only recreate it if it's missing)
 # Reference: http://ubuntuforums.org/showthread.php?t=1132821
@@ -17,24 +18,22 @@ Cmnd_Alias APT = /usr/bin/apt-get
 %sudo ALL=(ALL) ALL, NOPASSWD:APT
 %admin ALL=(ALL) ALL, NOPASSWD:APT
 EOF
-current_text="$(cat $sudoers_dest 2>/dev/null)"
+}
 # Bash commands to update the sudoers file.
-read -r -d '' sudoers_code <<EOF
-echo "$sudoers_text" > $sudoers_dest
-chmod 0440 $sudoers_dest
+function sudoers_code() {
+  cat <<EOF
+echo "$(sudoers_text)" > $sudoers_file
+chmod 0440 $sudoers_file
 if visudo -c; then
-  echo; echo "File $sudoers_dest created."
+  echo; echo "Sudoers file created."
 else
-  if [[ "$current_text" ]]; then
-    echo "$current_text" > $sudoers_dest
-  else
-    rm $sudoers_dest
-  fi
-  echo; echo "Unable to create $sudoers_dest file."
+  rm $sudoers_file
+  echo; echo "Unable to create sudoers file."
 fi
 EOF
-# Actually update the sudoers file if necessary.
-if [[ ! -e $sudoers_dest ]]; then
+}
+# Offer to create the sudoers file if it doesn't exist.
+if [[ ! -e $sudoers_file ]]; then
   cat <<EOF
 The sudoers file can be updated to allow "sudo apt-get" to be executed
 without asking for a password. You can verify that this worked correctly by
@@ -49,7 +48,7 @@ EOF
   if [[ "$update_sudoers" =~ [Yy] ]]; then
     echo "# Creating sudoers file"
     echo
-    sudo bash -c "$sudoers_code"
+    sudo bash -c "$(sudoers_code)"
   else
     echo "Skipping."
   fi
