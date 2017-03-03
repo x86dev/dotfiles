@@ -29,10 +29,10 @@ EOF
   read -N 1 -t $prompt_delay -p "Update sudoers file? [y/N] " update_sudoers; echo
   if [[ "$update_sudoers" =~ [Yy] ]]; then
     echo "# Updating sudoers"
-    sudo bash -c "
-      echo '$sudoers_text' | (EDITOR=tee visudo -f $sudoers_dest)
-      && visudo -c && echo 'File $sudoers_dest updated.'
-      || (rm $sudoers_dest && echo 'Unable to update $sudoers_dest file.')
+    sudo bash -c "\
+      echo '$sudoers_text' | (EDITOR=tee visudo -f $sudoers_dest) \
+      && visudo -c && echo 'File $sudoers_dest updated.' \
+      || (rm $sudoers_dest && echo 'Unable to update $sudoers_dest file.') \
     "
   else
     echo "Skipping."
