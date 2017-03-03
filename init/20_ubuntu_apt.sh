@@ -15,6 +15,7 @@ fi
 # Add APT keys.
 keys=(
   https://dl-ssl.google.com/linux/linux_signing_key.pub
+  https://www.charlesproxy.com/packages/apt/PublicKey
 )
 
 keys_cache=$DOTFILES/caches/init/apt_keys
