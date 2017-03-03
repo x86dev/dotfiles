@@ -273,7 +273,8 @@ fi
 # Note that this doesn't work with Homebrew, since brew explicitly invalidates
 # the sudo timestamp, which is probably wise.
 # See https://gist.github.com/cowboy/3118588
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+# while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+while true; do sudo -n bash -c 'echo keepalive: $USER'; sleep 60; kill -0 "$$" || exit; done &
 
 # Install a custom sudoers file that allows "sudo apt-get" to be executed
 # without asking for a password.
