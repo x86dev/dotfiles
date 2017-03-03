@@ -1,17 +1,6 @@
 # Ubuntu-only stuff. Abort if not Ubuntu.
 is_ubuntu || return 1
 
-# Update APT.
-e_header "Updating APT"
-sudo apt-get -qq update
-
-# Only do a dist-upgrade on initial install.
-if [[ "$new_dotfiles_install" ]]; then
-  sudo apt-get -qq dist-upgrade
-else
-  sudo apt-get -qq upgrade
-fi
-
 # Add APT keys.
 keys=(
   https://dl-ssl.google.com/linux/linux_signing_key.pub
@@ -27,6 +16,35 @@ if (( ${#keys[@]} > 0 )); then
   for key in "${keys[@]}"; do
     wget -qO- $key | sudo apt-key add - && echo $key >> $keys_cache
   done
+fi
+
+# Add APT sources
+sources=(
+  google-chrome.list
+  charles.list
+)
+sources_text=(
+  'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main'
+  'deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main'
+)
+sources=($(setdiff "${sources[*]}" "$(cd /etc/apt/sources.list.d; shopt -s nullglob; echo *)"))
+
+if (( ${#sources[@]} > 0 )); then
+  e_header "Adding APT sources: ${sources[*]}"
+  for i in "${!sources[@]}"; do
+    sudo sh -c "echo '${sources_text[i]}' > /etc/apt/sources.list.d/${sources[i]}"
+  done
+fi
+
+# Update APT.
+e_header "Updating APT"
+sudo apt-get -qq update
+
+# Only do a dist-upgrade on initial install, otherwise do an upgrade.
+if [[ "$new_dotfiles_install" ]]; then
+  sudo apt-get -qq dist-upgrade
+else
+  sudo apt-get -qq upgrade
 fi
 
 # Install APT packages.
@@ -50,7 +68,9 @@ packages=(
 )
 
 is_ubuntu_desktop && packages+=(
+  charles-proxy
   chromium-browser
+  google-chrome-stable
   k4dirstat
   rofi
   shutter
