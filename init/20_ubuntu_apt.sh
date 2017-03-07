@@ -154,7 +154,7 @@ if (( ${#bins_i[@]} > 0 )); then
   e_header "Installing deb files (${#bins_i[@]})"
   for i in "${bins_i[@]}"; do
     e_arrow "${bins[i]}"
-    deb=${debs[i]}
+    deb="${debs[i]}"
     echo "<$deb>"
     installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
     echo "<$installer_file>"
