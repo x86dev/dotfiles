@@ -147,6 +147,12 @@ debs=(
 
 function __temp() { ! type -t "$1"; }
 bins_i=($(array_filter_i bins __temp))
+echo bins
+array_print bins
+echo debs
+array_print debs
+echo bins_i
+array_print bins_i
 
 if (( ${#bins_i[@]} > 0 )); then
   installers_path="$DOTFILES/caches/installers"
