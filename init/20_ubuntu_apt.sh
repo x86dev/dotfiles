@@ -62,7 +62,7 @@ if (( ${#source_i[@]} > 0 )); then
     source_text=${source_texts[i]}
     e_arrow "$source_file"
     if [[ "$source_text" =~ ppa: ]]; then
-      sudo add-apt-repository $source_text
+      sudo add-apt-repository -y $source_text
     else
       sudo sh -c "echo '$source_text' > /etc/apt/sources.list.d/$source_file.list"
     fi
