@@ -41,7 +41,7 @@ function assert() {
 # It's a new install if the "src" function doesn't exist yet (it's created at
 # the end of a successful install and for each new shell).
 function is_fresh_install() {
-  [[ "$(type -t src)" == function ]] || return 1
+  [[ "$(type -t src)" != function ]] || return 1
 }
 
 # OS detection
