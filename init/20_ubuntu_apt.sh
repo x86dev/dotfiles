@@ -153,8 +153,9 @@ if (( ${#bins_i[@]} > 0 )); then
   mkdir -p "$installers_path"
   e_header "Installing deb files (${#bins_i[@]})"
   for i in "${bins_i[@]}"; do
+    echo "$i"
     e_arrow "${bins[i]}"
-    echo "${debs[i]}"
+    e_arrow 1 "${debs[i]}"
     deb="${debs[i]}"
     echo "<$deb>"
     installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
