@@ -142,7 +142,7 @@ bins=(
 )
 debs=(
   https://release.gitkraken.com/linux/gitkraken-amd64.deb
-  https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb
+  "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb"
 )
 
 function __temp() { ! type -t "$1"; }
