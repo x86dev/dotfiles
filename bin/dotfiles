@@ -397,8 +397,6 @@ elif [[ "$1" != "restart" ]]; then
   git pull
   git submodule update --init --recursive --quiet
   if [[ "$(git rev-parse HEAD)" != "$prev_head" ]]; then
-    echo "<$0>"
-    echo "<$(basename $0)>"
     if [[ "$(basename $0)" != dotfiles ]]; then
       e_header "Changes detected, please re-run script"
       exit
