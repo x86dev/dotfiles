@@ -108,6 +108,7 @@ is_ubuntu_desktop && packages+=(
   handbrake-gtk
   k4dirstat
   messengerfordesktop
+  python-gtk2
   rofi
   shutter
   spotify-client
