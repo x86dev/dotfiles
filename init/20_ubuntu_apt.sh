@@ -82,6 +82,19 @@ fi
 
 # Install APT packages.
 packages=(
+  # https://github.com/rbenv/ruby-build/wiki
+  autoconf
+  bison
+  build-essential
+  libssl-dev
+  libyaml-dev
+  libreadline6-dev
+  libncurses5-dev
+  libffi-dev
+  libgdbm3
+  libgdbm-dev
+  zlib1g-dev
+  # Other
   ansible
   build-essential
   cowsay
@@ -91,7 +104,6 @@ packages=(
   htop
   id3tool
   jq
-  libssl-dev
   mercurial
   nmap
   silversearcher-ag
