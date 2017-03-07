@@ -38,6 +38,12 @@ function assert() {
   ${modes[success]} "\"$actual\" ${equals[success]} \"$expected\""
 }
 
+# It's a new install if the "src" function doesn't exist yet (it's created at
+# the end of a successful install and for each new shell).
+function is_fresh_install() {
+  [[ "$(type -t src)" == function ]] || return 1
+}
+
 # OS detection
 function is_osx() {
   [[ "$OSTYPE" =~ ^darwin ]] || return 1
@@ -49,7 +55,7 @@ function is_ubuntu_desktop() {
   dpkg -l ubuntu-desktop >/dev/null 2>&1 || return 1
 }
 function get_os() {
-  for os in osx ubuntu; do
+  for os in osx ubuntu ubuntu_desktop; do
     is_$os; [[ $? == ${1:-0} ]] && echo $os
   done
 }
@@ -128,6 +134,38 @@ function _prompt_menu_add() {
   done
   [[ ! "$match" && "$state" == 1 || "$keep" ]] || return
   _prompt_menu_result=("${_prompt_menu_result[@]}" "${menu_options[i]}")
+}
+
+# Array mapper. Calls map_fn for each item ($1) and index ($2) in array.
+# Usage: array_map array_name map_fn
+function array_map() {
+  local __arr
+  eval __arr=\("\${$1[@]}"\); shift
+  for i in "${!__arr[@]}"; do
+    "$@" "${__arr[i]}" $i
+  done
+}
+
+# Print out bash array for debugging purposes
+function array_print() { array_map $1 __array_print; }
+function __array_print() { echo "$2 <$1>"; }
+
+# Array filter. Calls map_fn for each item ($1) and index ($2) in array.
+# Returns filtered array containing array values.
+# Usage: array_filter array_name filter_fn
+function array_filter() { __array_filter 1 "$@"; }
+# Returns filtered array containing array indices.
+# Usage: array_filter_i array_name filter_fn
+function array_filter_i() { __array_filter 0 "$@"; }
+
+function __array_filter() {
+  local __arr __mode __output
+  __mode=$1; shift
+  eval __arr=\("\${$1[@]}"\); shift
+  for i in "${!__arr[@]}"; do
+    __output=$i; [[ "$__mode" == 1 ]] && __output="${__arr[i]}"
+    "$@" "${__arr[i]}" $i >/dev/null && echo "$__output"
+  done
 }
 
 # Given strings containing space-delimited words A and B, "setdiff A B" will
@@ -261,13 +299,8 @@ function do_stuff() {
 
 # Enough with the functions, let's do stuff.
 
-# Is this the first run?
-export new_dotfiles_install=
-export prompt_delay=5
-if [[ ! -d $DOTFILES ]]; then
-  new_dotfiles_install=1
-  prompt_delay=15
-fi
+# Set the prompt delay to be longer for the very first run.
+export prompt_delay=5; is_fresh_install && prompt_delay=15
 
 # Keep-alive: update existing sudo time stamp if set, otherwise do nothing.
 # Note that this doesn't work with Homebrew, since brew explicitly invalidates
@@ -348,7 +381,7 @@ if [[ ! "$(type -P git)" ]]; then
 fi
 
 # Initialize.
-if [[ "$new_dotfiles_install" ]]; then
+if [[ ! -d $DOTFILES ]]; then
   # Dotfiles directory doesn't exist? Clone it!
   e_header "Downloading dotfiles"
   git clone --recursive git://github.com/${DOTFILES_GH_USER:-cowboy}/dotfiles.git $DOTFILES

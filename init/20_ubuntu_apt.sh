@@ -1,11 +1,16 @@
 # Ubuntu-only stuff. Abort if not Ubuntu.
 is_ubuntu || return 1
 
+# Ubuntu distro release name, eg. "xenial"
+release_name=$(lsb_release -c | awk '{print $2}')
+
 # Add APT keys.
 keys=(
   https://dl-ssl.google.com/linux/linux_signing_key.pub
   https://www.charlesproxy.com/packages/apt/PublicKey
   '--keyserver pool.sks-keyservers.net --recv 6DDA23616E3FE905FFDA152AE61DA9241537994D'
+  '--keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886'
+  https://www.virtualbox.org/download/oracle_vbox.asc
 )
 
 keys_cache=$DOTFILES/caches/init/apt_keys
@@ -26,23 +31,41 @@ if (( ${#keys[@]} > 0 )); then
 fi
 
 # Add APT sources
-sources=(
-  aluxian.list
-  charles.list
-  google-chrome.list
+source_files=(
+  stebbins-ubuntu-handbrake-releases-$release_name
 )
-sources_text=(
-  'deb https://dl.bintray.com/aluxian/deb/ beta main'
-  'deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main'
-  'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main'
+source_texts=(
+  ppa:stebbins/handbrake-releases
 )
-sources=($(setdiff "${sources[*]}" "$(cd /etc/apt/sources.list.d; shopt -s nullglob; echo *)"))
 
-if (( ${#sources[@]} > 0 )); then
-  e_header "Adding APT sources (${#sources[@]})"
-  for i in "${!sources[@]}"; do
-    e_arrow "${sources[i]}"
-    sudo sh -c "echo '${sources_text[i]}' > /etc/apt/sources.list.d/${sources[i]}"
+is_ubuntu_desktop && source_files+=(
+  aluxian
+  charles
+  google-chrome
+  spotify
+  virtualbox
+) && source_texts+=(
+  "deb https://dl.bintray.com/aluxian/deb/ beta main"
+  "deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main"
+  "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+  "deb http://repository.spotify.com stable non-free"
+  "deb http://download.virtualbox.org/virtualbox/debian $release_name contrib"
+)
+
+function __temp() { [[ ! -e /etc/apt/sources.list.d/$1.list ]]; }
+source_i=($(array_filter_i source_files __temp))
+
+if (( ${#source_i[@]} > 0 )); then
+  e_header "Adding APT sources (${#source_i[@]})"
+  for i in "${source_i[@]}"; do
+    source_file=${source_files[i]}
+    source_text=${source_texts[i]}
+    e_arrow "$source_file"
+    if [[ "$source_text" =~ ppa: ]]; then
+      sudo add-apt-repository $source_text
+    else
+      sudo sh -c "echo '$source_text' > /etc/apt/sources.list.d/$source_file.list"
+    fi
   done
 fi
 
@@ -51,7 +74,7 @@ e_header "Updating APT"
 sudo apt-get -qq update
 
 # Only do a dist-upgrade on initial install, otherwise do an upgrade.
-if [[ "$new_dotfiles_install" ]]; then
+if is_fresh_install; then
   sudo apt-get -qq dist-upgrade
 else
   sudo apt-get -qq upgrade
@@ -64,6 +87,7 @@ packages=(
   cowsay
   curl
   git-core
+  handbrake-cli
   htop
   id3tool
   jq
@@ -81,10 +105,12 @@ is_ubuntu_desktop && packages+=(
   charles-proxy
   chromium-browser
   google-chrome-stable
+  handbrake-gtk
   k4dirstat
   messengerfordesktop
   rofi
   shutter
+  spotify-client
   transgui
   vim-gnome
   vlc
@@ -107,4 +133,31 @@ if [[ ! "$(type -P git-extras)" ]]; then
     cd $DOTFILES/vendor/git-extras &&
     sudo make install
   )
+fi
+
+# Install debs via dpkg
+bins=(
+  gitkraken
+  dropbox
+)
+debs=(
+  https://release.gitkraken.com/linux/gitkraken-amd64.deb
+  https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb
+)
+
+function __temp() { ! type -t "$1"; }
+bins_i=($(array_filter_i bins __temp))
+
+if (( ${#bins_i[@]} > 0 )); then
+  installers_path="$DOTFILES/caches/installers"
+  mkdir -p "$installers_path"
+  e_header "Installing deb (${#bins_i[@]})"
+  for i in "${bins_i[@]}"; do
+    bin=${bins[i]}
+    deb=${debs[i]}
+    e_arrow "$bin"
+    installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
+    wget -O "$installer_file" "$deb"
+    sudo dpkg -i "$installer_file"
+  done
 fi
