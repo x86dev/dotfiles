@@ -10,7 +10,7 @@ keys=(
   https://www.charlesproxy.com/packages/apt/PublicKey
   '--keyserver pool.sks-keyservers.net --recv 6DDA23616E3FE905FFDA152AE61DA9241537994D'
   '--keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886'
-  https://www.virtualbox.org/download/oracle_vbox.asc
+  https://www.virtualbox.org/download/oracle_vbox_2016.asc
 )
 
 keys_cache=$DOTFILES/caches/init/apt_keys
@@ -114,6 +114,7 @@ is_ubuntu_desktop && packages+=(
   spotify-client
   transgui
   vim-gnome
+  virtualbox-5.1
   vlc
 )
 
