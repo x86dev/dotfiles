@@ -109,6 +109,7 @@ is_ubuntu_desktop && packages+=(
   k4dirstat
   messengerfordesktop
   python-gtk2
+  python-gpgme
   rofi
   shutter
   spotify-client
