@@ -29,13 +29,9 @@ function nave_install() {
 # Global npm modules to install.
 npm_globals=(
   babel-cli
-  bower
   grunt-cli
-  grunt-init
-  linken
   node-inspector
   pushstate-server
-  yo
 )
 
 # Because "rm -rf node_modules && npm install" takes WAY too long. Not sure
