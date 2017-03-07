@@ -74,10 +74,10 @@ e_header "Updating APT"
 sudo apt-get -qq update
 
 # Only do a dist-upgrade on initial install, otherwise do an upgrade.
-if is_fresh_install; then
-  sudo apt-get -qq dist-upgrade
-else
+if is_dotfiles_bin; then
   sudo apt-get -qq upgrade
+else
+  sudo apt-get -qq dist-upgrade
 fi
 
 # Install APT packages.
@@ -147,25 +147,15 @@ debs=(
 
 function __temp() { ! type -t "$1"; }
 bins_i=($(array_filter_i bins __temp))
-echo bins
-array_print bins
-echo debs
-array_print debs
-echo bins_i
-array_print bins_i
 
 if (( ${#bins_i[@]} > 0 )); then
   installers_path="$DOTFILES/caches/installers"
   mkdir -p "$installers_path"
   e_header "Installing deb files (${#bins_i[@]})"
   for i in "${bins_i[@]}"; do
-    echo "$i"
     e_arrow "${bins[i]}"
-    e_arrow 1 "${debs[i]}"
     deb="${debs[i]}"
-    echo "<$deb>"
     installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
-    echo "<$installer_file>"
     wget -O "$installer_file" "$deb"
     sudo dpkg -i "$installer_file"
   done

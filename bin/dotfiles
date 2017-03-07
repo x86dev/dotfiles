@@ -50,10 +50,9 @@ function is_dotfiles_running() {
   [[ "$DOTFILES_SCRIPT_RUNNING" ]] || return 1
 }
 
-# It's a new install if the "src" function doesn't exist yet (it's created at
-# the end of a successful install and for each new shell).
-function is_fresh_install() {
-  [[ "$(type -t src)" != function ]] || return 1
+# Test if this script was run via the "dotfiles" bin script (vs. via curl/wget)
+function is_dotfiles_bin() {
+  [[ "$(basename $0 2>/dev/null)" == dotfiles ]] || return 1
 }
 
 # OS detection
@@ -312,7 +311,7 @@ function do_stuff() {
 # Enough with the functions, let's do stuff.
 
 # Set the prompt delay to be longer for the very first run.
-export prompt_delay=5; is_fresh_install && prompt_delay=15
+export prompt_delay=5; is_dotfiles_bin || prompt_delay=15
 
 # Keep-alive: update existing sudo time stamp if set, otherwise do nothing.
 # Note that this doesn't work with Homebrew, since brew explicitly invalidates
@@ -409,12 +408,12 @@ elif [[ "$1" != "restart" ]]; then
   git pull
   git submodule update --init --recursive --quiet
   if [[ "$(git rev-parse HEAD)" != "$prev_head" ]]; then
-    if [[ "$(basename $0)" != dotfiles ]]; then
-      e_header "Changes detected, please re-run script"
-      exit
-    else
+    if is_dotfiles_bin; then
       e_header "Changes detected, restarting script"
       exec "$0" "restart"
+    else
+      e_header "Changes detected, please re-run script"
+      exit
     fi
   fi
 fi
