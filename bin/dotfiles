@@ -23,6 +23,12 @@ exit; fi
 # Where the magic happens.
 export DOTFILES=~/.dotfiles
 
+# Cleanup on exit
+function cleanup {
+  unset DOTFILES_SCRIPT_RUNNING
+}
+trap cleanup EXIT
+
 # Logging stuff.
 function e_header()   { echo -e "\n\033[1m$@\033[0m"; }
 function e_success()  { echo -e " \033[1;32m✔\033[0m  $@"; }
@@ -36,6 +42,12 @@ function assert() {
   actual="$("$@")"
   [[ "$actual" == "$expected" ]] && success=1 || success=0
   ${modes[success]} "\"$actual\" ${equals[success]} \"$expected\""
+}
+
+# Test if the dotfiles script is currently
+DOTFILES_SCRIPT_RUNNING=1
+function is_dotfiles_running() {
+  [[ "$DOTFILES_SCRIPT_RUNNING" ]] || return 1
 }
 
 # It's a new install if the "src" function doesn't exist yet (it's created at

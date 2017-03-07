@@ -151,12 +151,13 @@ bins_i=($(array_filter_i bins __temp))
 if (( ${#bins_i[@]} > 0 )); then
   installers_path="$DOTFILES/caches/installers"
   mkdir -p "$installers_path"
-  e_header "Installing deb (${#bins_i[@]})"
+  e_header "Installing deb files (${#bins_i[@]})"
   for i in "${bins_i[@]}"; do
-    bin=${bins[i]}
+    e_arrow "${bins[i]}"
     deb=${debs[i]}
-    e_arrow "$bin"
+    echo "<$deb>"
     installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
+    echo "<$installer_file>"
     wget -O "$installer_file" "$deb"
     sudo dpkg -i "$installer_file"
   done
