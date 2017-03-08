@@ -88,6 +88,37 @@ else
   sudo apt-get -qq dist-upgrade
 fi
 
+# Install debs via dpkg
+debs=(
+  https://release.gitkraken.com/linux/gitkraken-amd64.deb
+  "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb"
+  # https://github.com/raelgc/scudcloud#ubuntukubuntu-and-mint
+  # http://askubuntu.com/a/852727
+  http://ftp.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb
+)
+# The existence of these files signifies the package was installed
+installed_file=(
+  /usr/bin/gitkraken
+  /usr/bin/dropbox
+  /usr/share/fonts/truetype/msttcorefonts
+)
+
+function __temp() { [[ ! -e "$1" ]]; }
+installed_file_i=($(array_filter_i installed_file __temp))
+
+if (( ${#installed_file_i[@]} > 0 )); then
+  installers_path="$DOTFILES/caches/installers"
+  mkdir -p "$installers_path"
+  e_header "Installing deb installed_file (${#installed_file_i[@]})"
+  for i in "${installed_file_i[@]}"; do
+    e_arrow "${installed_file[i]}"
+    deb="${debs[i]}"
+    installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
+    wget -O "$installer_file" "$deb"
+    sudo dpkg -i "$installer_file"
+  done
+fi
+
 # Install APT packages.
 packages=(
   # https://github.com/rbenv/ruby-build/wiki
@@ -154,8 +185,15 @@ is_ubuntu_desktop && packages+=(
   vlc
 )
 
+# https://github.com/raelgc/scudcloud#ubuntukubuntu-and-mint
 function preinstall_scudcloud() {
   echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+}
+function postinstall_scudcloud() {
+  sudo dpkg-divert --add --rename --divert /usr/share/pixmaps/scudcloud.png.real /usr/share/pixmaps/scudcloud.png
+  sudo cp $DOTFILES/conf/ubuntu/scudcloud.png /usr/share/pixmaps/
+  sudo chmod +r /usr/share/pixmaps/scudcloud.png
+  sudo update-desktop-database
 }
 
 packages=($(setdiff "${packages[*]}" "$(dpkg --get-selections | grep -v deinstall | awk '{print $1}')"))
@@ -177,30 +215,4 @@ if [[ ! "$(type -P git-extras)" ]]; then
     cd $DOTFILES/vendor/git-extras &&
     sudo make install
   )
-fi
-
-# Install debs via dpkg
-bins=(
-  gitkraken
-  dropbox
-)
-debs=(
-  https://release.gitkraken.com/linux/gitkraken-amd64.deb
-  "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb"
-)
-
-function __temp() { ! type -t "$1"; }
-bins_i=($(array_filter_i bins __temp))
-
-if (( ${#bins_i[@]} > 0 )); then
-  installers_path="$DOTFILES/caches/installers"
-  mkdir -p "$installers_path"
-  e_header "Installing deb files (${#bins_i[@]})"
-  for i in "${bins_i[@]}"; do
-    e_arrow "${bins[i]}"
-    deb="${debs[i]}"
-    installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
-    wget -O "$installer_file" "$deb"
-    sudo dpkg -i "$installer_file"
-  done
 fi
