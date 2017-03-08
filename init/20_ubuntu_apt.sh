@@ -31,28 +31,34 @@ if (( ${#keys[@]} > 0 )); then
 fi
 
 # Add APT sources
-source_files=(
-  stebbins-ubuntu-handbrake-releases-$release_name
-)
-source_texts=(
-  ppa:stebbins/handbrake-releases
-)
+function add_ppa() {
+  source_texts+=($1)
+  IFS=':/' eval 'local parts=($1)'
+  source_files+=("${parts[1]}-ubuntu-${parts[2]}-$release_name")
+}
 
-is_ubuntu_desktop && source_files+=(
-  aluxian
-  charles
-  google-chrome
-  rael-gc-ubuntu-scudcloud-$release_name
-  spotify
-  virtualbox
-) && source_texts+=(
-  "deb https://dl.bintray.com/aluxian/deb/ beta main"
-  "deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main"
-  "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
-  ppa:rael-gc/scudcloud
-  "deb http://repository.spotify.com stable non-free"
-  "deb http://download.virtualbox.org/virtualbox/debian $release_name contrib"
-)
+source_files=()
+source_texts=()
+add_ppa ppa:stebbins/handbrake-releases
+
+if is_ubuntu_desktop; then
+  add_ppa ppa:rael-gc/scudcloud
+  add_ppa ppa:webupd8team/y-ppa-manager
+  source_files+=(
+    aluxian
+    charles
+    google-chrome
+    spotify
+    virtualbox
+  )
+  source_texts+=(
+    "deb https://dl.bintray.com/aluxian/deb/ beta main"
+    "deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main"
+    "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+    "deb http://repository.spotify.com stable non-free"
+    "deb http://download.virtualbox.org/virtualbox/debian $release_name contrib"
+  )
+fi
 
 function __temp() { [[ ! -e /etc/apt/sources.list.d/$1.list ]]; }
 source_i=($(array_filter_i source_files __temp))
@@ -96,7 +102,7 @@ packages=(
   libgdbm3
   libgdbm-dev
   zlib1g-dev
-  # Other
+  # Mine
   ansible
   build-essential
   byobu
@@ -106,6 +112,7 @@ packages=(
   handbrake-cli
   htop
   id3tool
+  imagemagick
   jq
   mercurial
   nmap
@@ -117,6 +124,17 @@ packages=(
 )
 
 is_ubuntu_desktop && packages+=(
+  # https://github.com/colinkeenan/silentcast/#ubuntu
+  libav-tools
+  x11-xserver-utils
+  xdotool
+  wininfo
+  wmctrl
+  python-gobject
+  python-cairo
+  xdg-utils
+  yad
+  # Mine
   charles-proxy
   chromium-browser
   fonts-mplus
@@ -136,13 +154,19 @@ is_ubuntu_desktop && packages+=(
   vlc
 )
 
+function preinstall_scudcloud() {
+  echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+}
+
 packages=($(setdiff "${packages[*]}" "$(dpkg --get-selections | grep -v deinstall | awk '{print $1}')"))
 
 if (( ${#packages[@]} > 0 )); then
   e_header "Installing APT packages (${#packages[@]})"
   for package in "${packages[@]}"; do
     e_arrow "$package"
-    sudo apt-get -qq install "$package"
+    [[ "$(type -t preinstall_$package)" == function ]] && preinstall_$package
+    sudo apt-get -qq install "$package" && \
+    [[ "$(type -t postinstall_$package)" == function ]] && postinstall_$package
   done
 fi
 
