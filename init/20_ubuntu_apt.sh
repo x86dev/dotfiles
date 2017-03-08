@@ -5,11 +5,18 @@ is_ubuntu || return 1
 release_name=$(lsb_release -c | awk '{print $2}')
 
 # Add APT keys.
-keys=(
+keys=()
+
+is_ubuntu_desktop && keys+=(
+  # https://www.ubuntuupdates.org/ppa/google_chrome
   https://dl-ssl.google.com/linux/linux_signing_key.pub
+  # https://www.charlesproxy.com/documentation/installation/apt-repository/
   https://www.charlesproxy.com/packages/apt/PublicKey
+  # https://github.com/aluxian/Messenger-for-Desktop#linux
   '--keyserver pool.sks-keyservers.net --recv 6DDA23616E3FE905FFDA152AE61DA9241537994D'
+  # https://www.spotify.com/us/download/linux/
   '--keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886'
+  # https://tecadmin.net/install-oracle-virtualbox-on-ubuntu/
   https://www.virtualbox.org/download/oracle_vbox_2016.asc
 )
 
@@ -86,37 +93,6 @@ if is_dotfiles_bin; then
   sudo apt-get -qq upgrade
 else
   sudo apt-get -qq dist-upgrade
-fi
-
-# Install debs via dpkg
-debs=(
-  https://release.gitkraken.com/linux/gitkraken-amd64.deb
-  "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb"
-  # https://github.com/raelgc/scudcloud#ubuntukubuntu-and-mint
-  # http://askubuntu.com/a/852727
-  http://ftp.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb
-)
-# The existence of these files signifies the package was installed
-installed_file=(
-  /usr/bin/gitkraken
-  /usr/bin/dropbox
-  /usr/share/fonts/truetype/msttcorefonts
-)
-
-function __temp() { [[ ! -e "$1" ]]; }
-installed_file_i=($(array_filter_i installed_file __temp))
-
-if (( ${#installed_file_i[@]} > 0 )); then
-  installers_path="$DOTFILES/caches/installers"
-  mkdir -p "$installers_path"
-  e_header "Installing deb installed_file (${#installed_file_i[@]})"
-  for i in "${installed_file_i[@]}"; do
-    e_arrow "${installed_file[i]}"
-    deb="${debs[i]}"
-    installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
-    wget -O "$installer_file" "$deb"
-    sudo dpkg -i "$installer_file"
-  done
 fi
 
 # Install APT packages.
@@ -215,4 +191,42 @@ if [[ ! "$(type -P git-extras)" ]]; then
     cd $DOTFILES/vendor/git-extras &&
     sudo make install
   )
+fi
+
+# Install debs via dpkg
+debs=()
+installed_file=()
+
+if is_ubuntu_desktop; then
+  debs+=(
+    # https://support.gitkraken.com/how-to-install
+    https://release.gitkraken.com/linux/gitkraken-amd64.deb
+    # https://www.dropbox.com/install-linux
+    "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb"
+    # https://github.com/raelgc/scudcloud#ubuntukubuntu-and-mint
+    # http://askubuntu.com/a/852727
+    http://ftp.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb
+  )
+  # The existence of these files signifies the package was installed
+  installed_file+=(
+    /usr/bin/gitkraken
+    /usr/bin/dropbox
+    /usr/share/fonts/truetype/msttcorefonts
+  )
+fi
+
+function __temp() { [[ ! -e "$1" ]]; }
+installed_file_i=($(array_filter_i installed_file __temp))
+
+if (( ${#installed_file_i[@]} > 0 )); then
+  installers_path="$DOTFILES/caches/installers"
+  mkdir -p "$installers_path"
+  e_header "Installing deb installed_file (${#installed_file_i[@]})"
+  for i in "${installed_file_i[@]}"; do
+    e_arrow "${installed_file[i]}"
+    deb="${debs[i]}"
+    installer_file="$installers_path/$(echo "$deb" | sed 's#.*/##')"
+    wget -O "$installer_file" "$deb"
+    sudo dpkg -i "$installer_file"
+  done
 fi
