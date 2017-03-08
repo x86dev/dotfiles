@@ -42,12 +42,14 @@ is_ubuntu_desktop && source_files+=(
   aluxian
   charles
   google-chrome
+  rael-gc-ubuntu-scudcloud-$release_name
   spotify
   virtualbox
 ) && source_texts+=(
   "deb https://dl.bintray.com/aluxian/deb/ beta main"
   "deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main"
   "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+  ppa:rael-gc/scudcloud
   "deb http://repository.spotify.com stable non-free"
   "deb http://download.virtualbox.org/virtualbox/debian $release_name contrib"
 )
@@ -97,6 +99,7 @@ packages=(
   # Other
   ansible
   build-essential
+  byobu
   cowsay
   curl
   git-core
@@ -116,6 +119,7 @@ packages=(
 is_ubuntu_desktop && packages+=(
   charles-proxy
   chromium-browser
+  fonts-mplus
   google-chrome-stable
   handbrake-gtk
   k4dirstat
@@ -123,6 +127,7 @@ is_ubuntu_desktop && packages+=(
   python-gtk2
   python-gpgme
   rofi
+  scudcloud
   shutter
   spotify-client
   transgui
