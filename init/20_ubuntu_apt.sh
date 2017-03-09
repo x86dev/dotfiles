@@ -50,6 +50,7 @@ add_ppa ppa:stebbins/handbrake-releases
 
 if is_ubuntu_desktop; then
   add_ppa ppa:rael-gc/scudcloud
+  add_ppa ppa:webupd8team/java
   add_ppa ppa:webupd8team/y-ppa-manager
   source_files+=(
     aluxian
@@ -112,11 +113,14 @@ packages=(
   zlib1g-dev
   # Mine
   ansible
+  awscli
   build-essential
   byobu
+  cmatrix
   cowsay
   curl
   git-core
+  groff
   handbrake-cli
   htop
   id3tool
@@ -124,6 +128,7 @@ packages=(
   jq
   mercurial
   nmap
+  postgresql
   silversearcher-ag
   sl
   telnet
@@ -143,24 +148,35 @@ is_ubuntu_desktop && packages+=(
   xdg-utils
   yad
   # Mine
+  adb
   charles-proxy
   chromium-browser
+  fastboot
   fonts-mplus
   google-chrome-stable
   handbrake-gtk
   k4dirstat
   messengerfordesktop
+  oracle-java8-installer
   python-gtk2
   python-gpgme
   rofi
   scudcloud
   shutter
   spotify-client
+  steam
   transgui
   vim-gnome
   virtualbox-5.1
   vlc
+  zenmap
 )
+
+# http://askubuntu.com/a/190674
+function preinstall_oracle-java8-installer() {
+  echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+  echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+}
 
 # https://github.com/raelgc/scudcloud#ubuntukubuntu-and-mint
 function preinstall_scudcloud() {
@@ -171,6 +187,12 @@ function postinstall_scudcloud() {
   sudo cp $DOTFILES/conf/ubuntu/scudcloud.png /usr/share/pixmaps/
   sudo chmod +r /usr/share/pixmaps/scudcloud.png
   sudo update-desktop-database
+}
+
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=772598
+function preinstall_steam() {
+  echo steam steam/question select I AGREE | sudo debconf-set-selections
+  echo steam steam/license note | sudo debconf-set-selections
 }
 
 packages=($(setdiff "${packages[*]}" "$(dpkg --get-selections | grep -v deinstall | awk '{print $1}')"))
