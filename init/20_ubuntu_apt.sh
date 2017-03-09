@@ -75,10 +75,11 @@ if (( ${#source_i[@]} > 0 )); then
   for i in "${source_i[@]}"; do
     source_file=${source_files[i]}
     source_text=${source_texts[i]}
-    e_arrow "$source_file"
     if [[ "$source_text" =~ ppa: ]]; then
+      e_arrow "$source_text"
       sudo add-apt-repository -y $source_text
     else
+      e_arrow "$source_file"
       sudo sh -c "echo '$source_text' > /etc/apt/sources.list.d/$source_file.list"
     fi
   done
