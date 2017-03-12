@@ -1,11 +1,14 @@
 [submodule "git-extras"]
 	path = vendor/git-extras
+	shallow = true
 	url = git://github.com/visionmedia/git-extras.git
 
 [submodule "dircolors-solarized"]
 	path = vendor/dircolors-solarized
+	shallow = true
 	url = git://github.com/seebi/dircolors-solarized.git
 
 [submodule "vim-colors-solarized"]
 	path = vendor/vim-colors-solarized
+	shallow = true
 	url = git://github.com/altercation/vim-colors-solarized.git
