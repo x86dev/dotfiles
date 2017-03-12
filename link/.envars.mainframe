@@ -1,0 +1,21 @@
+
+# Path: Prefix
+# Link: console-colors.de
+PATH="$PATH"
+
+# Path: Suffix
+PATH="$PATH:~/scripts"
+
+export EDITOR=/usr/bin/vim
+export VISUAL=/usr/bin/code
+export BROWSER=/usr/bin/firefox
+
+# Latex stuff
+export TEXINPUTS=".:~/documents/latex/:"
+
+# Needed for LAMPP/Zend Framework development (App.ini settings block to use)
+export PATH=$PATH:/opt/lampp/bin
+export APP_ENV=development
+
+# To see more of "glxinfo" output.
+export LIBGL_DEBUG=verbose

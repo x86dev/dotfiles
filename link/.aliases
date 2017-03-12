@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Removes all exited Docker containers.
+alias docker_rm='docker rm -v $(docker ps --filter status=exited -q 2>/dev/null) 2>/dev/null'
+# Removes all dangling / unnamed Docker images.
+alias docker_rmi='docker rmi $(docker images --filter dangling=true -q 2>/dev/null) 2>/dev/null'
+# Kill all running Docker containers.
+alias docker_killall='docker kill $(docker ps -q)'
+# List every docker's name, IP and port mapping.
+alias docker_ip='docker inspect --format "{{ .Name }} # {{ .NetworkSettings.IPAddress }} # {{ .NetworkSettings.Ports }}" $(docker ps -q) | tr -s "#" "\t"'
