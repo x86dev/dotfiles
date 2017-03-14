@@ -1,6 +1,8 @@
 # dotfiles
 Yum yum, dotfiles! For *NIX-OSes only.
 
+**Important: Make sure to check the source files instead of blindly using this repository!**
+
 
 ### Git-free install
 
@@ -10,20 +12,21 @@ To install these dotfiles without Git:
 bash -c "$(curl -fsSL https://raw.github.com/x86dev/dotfiles/master/bin/dotfiles)" && source ~/.bashrc
 ```
 
-### Using Git and the bootstrap script
-
-You can clone the repository wherever you want. (I like to keep it in `~/Projects/dotfiles`, with `~/dotfiles` as a symlink.) The bootstrapper script will pull in the latest version and copy the files to your home folder.
+### Install using Git
 
 ```bash
-git clone --recursive https://github.com/x86dev/dotfiles.git && cd dotfiles && source bootstrap.sh
+cd; git clone --recursive https://github.com/x86dev/dotfiles.git .dotfiles && source ~/.dotfiles/bin/dotfiles
 ```
 
-To update, `cd` into your local `dotfiles` repository and then:
+### Update
+
+To update, just do:
 
 ```bash
-source bootstrap.sh
+dotfiles
 ```
 
 ### Credits
 
 This is a customized fork of [Ben Alman's](https://github.com/cowboy/dotfiles) excellent dotfiles.
+There you also will find an extensive user guide about how all this stuff works.
