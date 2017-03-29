@@ -1,0 +1,60 @@
+version: '2'
+services:
+  
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /srv/nginx-proxy/nginx-proxy.conf:/etc/nginx/conf.d/nginx-proxy.conf:ro
+      - /srv/nginx-proxy/vhost.d:/etc/nginx/vhost.d:ro
+      - /srv/letsencrypt/acme-challenge:/srv/letsencrypt/acme-challenge:ro
+      - /srv/letsencrypt/certs:/etc/nginx/certs:ro
+
+  ttrss:
+    container_name: ttrss
+    image: x86dev/docker-ttrss
+    links:
+      - ttrss-data:db
+    expose:
+      - "80"
+      - "443"
+    environment:
+      - UID=1000
+      - GID=1000
+      - VIRTUAL_HOST=ttrss.localhost
+
+  ttrss-data:
+    container_name: ttrss-data
+    image: nornagon/postgres
+
+  nextcloud:
+    container_name: nextcloud
+    image: wonderfall/nextcloud
+    links:
+      - nextcloud-data:db_nextcloud
+    expose:
+      - "80"
+      - "443"
+    environment:
+      - UID=1000
+      - GID=1000
+      - VIRTUAL_HOST=nextcloud.localhost
+    volumes:
+      - /srv/nextcloud/data:/data
+      - /srv/nextcloud/config:/config
+      - /srv/nextcloud/apps:/apps2
+
+  nextcloud-data:
+    container_name: nextcloud_db
+    image: mariadb:10
+    volumes:
+      - /srv/nextcloud/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=changeme
