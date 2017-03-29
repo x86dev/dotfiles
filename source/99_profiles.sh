@@ -7,6 +7,7 @@
 
 # .profile is sourced at login by sh, ksh and bash. The zsh sources .zshrc.
 # To get the same behaviour from zsh as well I did "cd; ln .profile .zshrc"
+echo "File: ~${LOGNAME}/.profile"   # Tell the world who is responsible
 
 # How do we suppress echo's newline on this system?
 if test "x`echo -n`" = x-n; then
@@ -57,8 +58,8 @@ if test -z "${_OS}"; then
 		HP*)       _OS=hp-ux;;
 		Linux*)    _OS=linux;;
 		*)         _OS=generic
-			echo "warning: can't map \"`uname -sr`\" to an OS string,"
-			echo "assuming ${_OS}. Edit your .profile if this is wrong."
+			echo "Warning: can't map \"`uname -sr`\" to an OS string, assuming ${_OS}."
+			echo "Edit your .profile if this is wrong."
 		;;
 	esac
 fi
@@ -88,7 +89,7 @@ case "${_SHELL}" in
 		;;
 esac
 
-echo 'OS: ${_OS}'
+echo "OS: ${_OS}"
 
 # Set umask
 umask u=rwx,g=rx,o=rx
