@@ -1,0 +1,3 @@
+if [ -f ~/.functions.work ]; then
+  source ~/.functions.work
+fi

@@ -1,0 +1,34 @@
+#!/bin/sh
+
+vbx_log_filter()
+{
+    MY_FILE1=${1}
+    MY_FILE2=${2}
+    MY_FILTER_INCLUDE=${3}
+    MY_FILTER_EXCLUDE=${4}
+
+    #MY_FILTER_INCLUDE="ProcessInt\|DMARead\|WriteSDSTS\|ReadINT\|TransferUpdate\|hdaTransfer\|UpdateInt\|MMIORead\|MMIOWrite"
+
+    MY_TRIM_COL_START=26
+    MY_LIMIT_LINES=5000
+
+    MY_FILE1_FILTERED=filtered_$(basename $MY_FILE1)
+    MY_FILE1_TRIMMED=trimmed_$(basename $MY_FILE1)
+
+    MY_FILE2_FILTERED=filtered_$(basename $MY_FILE2)
+    MY_FILE2_TRIMMED=trimmed_$(basename $MY_FILE2)
+
+    head -n ${MY_LIMIT_LINES} ${MY_FILE1} | egrep -v "$MY_FILTER_EXCLUDE" | grep -i "$MY_FILTER_INCLUDE" > ${MY_FILE1_FILTERED}
+    head -n ${MY_LIMIT_LINES} ${MY_FILE2} | egrep -v "$MY_FILTER_EXCLUDE" | grep -i "$MY_FILTER_INCLUDE" > ${MY_FILE2_FILTERED}
+
+    cut -b$MY_TRIM_COL_START- ${MY_FILE1_FILTERED} > ${MY_FILE1_TRIMMED}
+    cut -b$MY_TRIM_COL_START- ${MY_FILE2_FILTERED} > ${MY_FILE2_TRIMMED}
+
+    tkdiff ${MY_FILE1_TRIMMED} ${MY_FILE2_TRIMMED}
+
+    rm ${MY_FILE1_FILTERED}
+    rm ${MY_FILE1_TRIMMED}
+
+    rm ${MY_FILE2_FILTERED}
+    rm ${MY_FILE2_TRIMMED}
+}
