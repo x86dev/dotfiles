@@ -1,0 +1,3 @@
+#!/bin/sh
+
+alias vbx_mods='ls /dev | grep -i "vbox"'

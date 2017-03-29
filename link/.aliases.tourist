@@ -1,2 +1,7 @@
-# Work
-vbxm = ls /dev | grep -i "vbox"
+#!/bin/sh
+
+if [ -f ~/.functions.work ]; then
+  source ~/.aliases.work
+fi
+
+alias vs='/opt/slickedit/bin/vs'
