@@ -20,21 +20,28 @@ g_cVerbosity     = 0;
 
 tFileDupe = namedtuple('tFileDupe', 'ext, prio');
 
-arrVideoTypes = [ tFileDupe('mkv' , 0), 
-                  tFileDupe('avi' , 10),
-                  tFileDupe('mp4' , 20),
-                  tFileDupe('divx', 30),
-                  tFileDupe('wmv' , 50) ];
+g_arrVideoTypes = [ tFileDupe('mkv' , 0),
+                   tFileDupe('avi' , 10),
+                   tFileDupe('mp4' , 20),
+                   tFileDupe('divx', 30),
+                   tFileDupe('wmv' , 50) ];
 
-arrDirsToDelete = [ '.*/_UNPACK_*' ];
+# Minimum size a video file must have (in bytes).
+# This is useful for not treating a video file as the newest (=best) file
+# if this file is just e.g. a sample / demo file.
+#
+# Set to 0 to disable this check.
+g_cbVideoSizeMin = 700 * (1024 * 1024); ## @todo Use a constant for MB as bytes?
 
-arrFileExtsToDelete = [ 'url', 'nzb', 'sample', 'par', 'exe', 'com', 'bat', 'cmd', 'scr', 'rar', 'zip', '7z' ];
+g_arrDirsToDelete = [ '.*/_UNPACK_*' ];
+
+g_arrFileExtsToDelete = [ 'url', 'nzb', 'exe', 'com', 'bat', 'cmd', 'sample', 'scr', 'rar', 'zip', '7z' ];
 
 # Taken from: http://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
 # Slightly modified to handle byte sizes as well.
-def convertSize(size):
+def fileSizeToStr(size):
     if size:
-        size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");   
+        size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
         i = int(math.floor(math.log(size,1024)));
         p = math.pow(1024,i);
         s = round(size/p,2);
@@ -58,7 +65,7 @@ def deleteFile(sFile):
 
 def deleteDir(sDir, fRecursive):
     global g_fDryRun;
-    print("\tDeleting directory: %s" % sDir);    
+    print("\tDeleting directory: %s" % sDir);
     if g_fDryRun:
         return;
     try:
@@ -85,24 +92,26 @@ def cleanupDupes(sDir, fRecursive):
             sName, sExt = os.path.splitext(sFileAbs);
             sName = sName.lower();
             sExt = sExt.lower().translate(None, ".");
-            for curType in arrVideoTypes:
-                if curType.ext == sExt:                
+            for curType in g_arrVideoTypes:
+                if curType.ext == sExt:
                     arrDupes.append(sFileAbs);
-            for curExt in arrFileExtsToDelete:
+            for curExt in g_arrFileExtsToDelete:
                 if curExt == sExt:
                     print("File \"%s\" is junk" % sFileAbs);
                     deleteFile(sFileAbs);
 
         if len(arrDupes) >= 2:
             print("Directory \"%s\" contains %d entries:" % (sCurDir, len(arrDupes)));
-            newestTime = datetime.datetime(1970, 01, 01);
-            sFileNewest = '';
+            tsFileNewest = datetime.datetime(1970, 01, 01);
+            sFileNewest  = '';
             for curDupe in arrDupes:
-                modTime = getModTime(curDupe);
-                print("\t%s (%s)" % (curDupe, modTime));
-                if modTime > newestTime:
-                    sFileNewest = curDupe;
-                    newestTime  = modTime;
+                tsFileLastMod = getModTime(curDupe);
+                cbFileSize    = os.path.getsize(curDupe);
+                print("\t%s (last modified %s, %s)" % (curDupe, tsFileLastMod, fileSizeToStr(cbFileSize)));
+                if tsFileLastMod >  tsFileNewest \
+                and cbFileSize   >= g_cbVideoSizeMin:
+                    sFileNewest  = curDupe;
+                    tsFileNewest = tsFileLastMod;
             if sFileNewest:
                 print("\tNewest file: %s" % sFileNewest);
                 for curDupe in arrDupes:
@@ -115,17 +124,17 @@ def cleanupDupes(sDir, fRecursive):
                 print("\tWarning: Unable to determine newest file!");
 
         # Delete unwanted junk.
-        for sRegEx in arrDirsToDelete:
+        for sRegEx in g_arrDirsToDelete:
             if   re.compile(sRegEx).match(sCurDir) \
             and  sCurDir \
             and  sCurDir != "/":
                 print("Directory \"%s\" is junk" % sCurDir);
                 deleteDir(sCurDir, True);
-        
+
         # Delete empty directories.
         if os.path.isdir(sCurDir) and len(os.listdir(sCurDir)) == 0:
             print("Directory \"%s\" is empty" % sCurDir);
-            deleteDir(sCurDir, False);           
+            deleteDir(sCurDir, False);
             sCurDir = None;
 
         # Re-apply directory modification time.
@@ -186,7 +195,7 @@ def main():
         print("Processing: %s" % sDir);
         cleanupDupes(sDir, g_fRecursive);
 
-    print("Total dupes: %ld (%s)" % (g_cDupesTotal, convertSize(g_cbDupesTotal)));
+    print("Total dupes: %ld (%s)" % (g_cDupesTotal, fileSizeToStr(g_cbDupesTotal)));
 
     if g_fDryRun:
         print("*** Dryrun mode -- no files/directories deleted! ***");
