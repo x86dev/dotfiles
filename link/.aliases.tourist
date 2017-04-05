@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -f ~/.functions.work ]; then
+if [ -f ~/.aliases.work ]; then
   source ~/.aliases.work
 fi
 
