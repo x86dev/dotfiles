@@ -1,5 +1,10 @@
 #!/bin/sh
 
+vbx_dbg_restore()
+{
+    ./VBoxManage snapshot "$1" restorecurrent && gdb --args ./VirtualBox --startvm "$1"
+}
+
 vbx_log_filter()
 {
     MY_FILE1=${1}
