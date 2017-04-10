@@ -12,3 +12,8 @@
 	path = vendor/vim-colors-solarized
 	shallow = true
 	url = git://github.com/altercation/vim-colors-solarized.git
+
+[submodule "fzf"]
+	path = vendor/fzf
+	shallow = true
+	url = git://github.com/junegunn/fzf.git
