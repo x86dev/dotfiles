@@ -2,12 +2,12 @@
 
 vbx_dbg()
 {
-    gdb --args ./VirtualBox --startvm "$1"
+    gdb -ex run --args ./VirtualBox --startvm "$1"
 }
 
 vbx_dbg_restore()
 {
-    ./VBoxManage snapshot "$1" restorecurrent && gdb --args ./VirtualBox --startvm "$1"
+    ./VBoxManage snapshot "$1" restorecurrent && gdb -ex run --args ./VirtualBox --startvm "$1"
 }
 
 vbx_log_filter()
