@@ -94,7 +94,7 @@ def embyCleanup():
         if  g_tdOlderThan.days > 0 \
         and movie_date_premiere is None:
             fUseProvider = True
-        
+
         if fUseProvider:
             # Do we want to query OMDB for a rating?
             if g_sProvider == 'omdb':
@@ -120,7 +120,7 @@ def embyCleanup():
                 tsPremiere = datetime.datetime.strptime(movie_date_premiere[:19], '%Y-%m-%dT%H:%M:%S')
                 tdAge      = tsNow - tsPremiere
                 if tdAge.days > g_tdOlderThan.days:
-                    sItem = sItem + ("\tToo old (%s days)\n" % tdAge.days)        
+                    sItem = sItem + ("\tToo old (%s days)\n" % tdAge.days)
                     fDelete = True
             else:
                 sItem = sItem + ("\tWarning: No premiere date found!\n")
@@ -159,7 +159,7 @@ def printHelp():
     print("--host <http://host:port>")
     print("    Hostname to connect to.")
     print("--older-than-days <days>")
-    print("    Selects items which are older than the specified days since its premiere.")    
+    print("    Selects items which are older than the specified days since its premiere.")
     print("--password <password>")
     print("    Password to authenticate with.")
     print("--provider <type>")
@@ -216,7 +216,7 @@ def main():
         elif o in ("--rating-min"):
             g_dbRatingMin = float(a)
         elif o in ("--username"):
-            g_sUsername = a           
+            g_sUsername = a
         elif o in ("-v"):
             g_cVerbosity += 1
         else:
@@ -241,11 +241,14 @@ def main():
         print("Must specify --rating-min and/or no --rating-none\n")
         sys.exit(1)
 
+    today = datetime.datetime.today()
+    print("Started: %02d/%02d/%02d %02d:%02d:%02d" % (today.year, today.month, today.day, today.hour, today.minute, today.second))
+
     if g_cVerbosity:
-        if  g_dbRatingMin > 0.0:        
+        if  g_dbRatingMin > 0.0:
             print("Selecting: All items with a rating < %.1f" % (g_dbRatingMin))
-        if  g_fRatingNone:        
-            print("Selecting: All items which don't have a rating (yet)")            
+        if  g_fRatingNone:
+            print("Selecting: All items which don't have a rating (yet)")
 
     if g_fDryRun:
         print("*** Dryrun mode -- no items changed! ***")
