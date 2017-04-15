@@ -188,6 +188,9 @@ def main():
         print("No source directory specified!");
         sys.exit(2);
 
+    today = datetime.datetime.today()
+    print("Started: %02d/%02d/%02d %02d:%02d:%02d" % (today.year, today.month, today.day, today.hour, today.minute, today.second))
+
     if g_fDryRun:
         print("*** Dryrun mode -- no files/directories deleted! ***");
 
