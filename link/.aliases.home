@@ -1,0 +1,5 @@
+#!/bin/sh
+alias nas='ssh root@192.168.1.120'
+alias nas_sshfs='sshfs root@192.168.1.120:/ /media/nas/sshfs/ -o uid=0,gid=0,umask=0,allow_other && /media/nas/sshfs/'
+alias router='ssh root@192.168.0.2'
+alias beelink='ssh root@192.168.0.170'
