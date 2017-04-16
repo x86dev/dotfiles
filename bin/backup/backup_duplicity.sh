@@ -359,6 +359,10 @@ shift
 case "$SCRIPT_CMD" in
     backup)
         ;;
+    repo-status)
+        ;;
+    repo-verify)
+        ;;        
     setup)
         ;;
     test)
@@ -443,8 +447,8 @@ else
     BACKUP_DUPLICITY_PATH_PREFIX=file://
     BACKUP_RSYNC_PATH_PREFIX=
 fi
-BACKUP_DEST_DIR=${PROFILE_DEST_DIR}
 
+BACKUP_DEST_DIR=${PROFILE_DEST_DIR}
 BACKUP_DEST_DIR_MONTHLY="${BACKUP_DEST_DIR}/backup_$(date +%y%m)"
 
 BACKUP_TIMESTAMP=$(date "+%Y-%m-%d_%H%M%S")
@@ -502,6 +506,13 @@ case "$SCRIPT_CMD" in
                 backup_send_email_failure
             fi
         fi
+        ;;
+    repo-status)
+        # Note: The additional / in the path needs to be there to use an absolute path.
+        #       Otherwise duplcity won't find the repo on the remote side.
+        ${LOCAL_DUPLICITY_BIN} -v2 collection-status ${BACKUP_DUPLICITY_PATH_PREFIX}/${BACKUP_DEST_DIR_MONTHLY}/${LOCAL_REPO_NAME}
+        ;;
+    repo-verify)
         ;;
     test)
         ## @todo Implement this.
