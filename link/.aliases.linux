@@ -4,7 +4,7 @@
 alias ..='cd ..'
 
 alias ls='ls --color=auto'
-alias ll='ls --color=auto --format=long'
+alias ll='ls --color=auto -hal'
 
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
