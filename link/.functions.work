@@ -1,5 +1,16 @@
 #!/bin/sh
 
+vbx_test_loop()
+{
+    export VBOX_ASSERT=panic
+    while true; do
+        ${1}
+        if [ $? -ne 0 ]; then
+            exit
+        fi
+    done
+}
+
 vbx_dbg()
 {
     gdb -ex run --args ./VirtualBox --startvm "$1"
