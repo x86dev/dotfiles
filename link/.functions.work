@@ -11,6 +11,15 @@ __vbx_env()
         MY_VBOX_HOME=${HOME}/vbox
     fi
 
+    if [ -z "$MY_VBOX_TARGET" ]; then
+        MY_VBOX_TARGET_ARCH=linux
+    fi
+
+    if [ -z "$MY_VBOX_TARGET_ARCH" ]; then
+        ## @todo Detect via $(uname -m)?
+        MY_VBOX_TARGET_ARCH=amd64
+    fi
+
     VBOX_PATH=${MY_VBOX_HOME}/${VBOX_BRANCH}
 }
 
@@ -80,11 +89,11 @@ vbx_switch()
 {
     __vbx_env ${1}
 
-    cd ${VBOX_PATH}/out/linux.amd64/release/bin/src/ &&
+    cd ${VBOX_PATH}/out/${MY_VBOX_TARGET}.${MY_VBOX_TARGET_ARCH}/release/bin/src/ &&
     make &&
     sudo make load &&
     sudo chmod 666 /dev/vbox* &&
-    cd ${VBOX_PATH}/out/linux.amd64/debug/bin/
+    cd ${VBOX_PATH}/out/${MY_VBOX_TARGET}.${MY_VBOX_TARGET_ARCH}/debug/bin/
 }
 
 vbx_test_loop()
