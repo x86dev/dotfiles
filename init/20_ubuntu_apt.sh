@@ -37,22 +37,18 @@ e_header "Updating APT"
 sudo apt-get -qq update
 sudo apt-get -qq dist-upgrade
 
-# Add additional PPA repositories
-sudo add-apt-repository ppa:nextcloud-devs/client
-sudo add-apt-repository ppa:pbek/qownnotes
-
 # Install APT packages.
 packages=(
   build-essential
   etckeeper
+  gdb
   git-core
   htop
   mc
   meld
   ncdu
-  nextcloud-client
-  qownnotes
   screen
+  strace
   vim
   wget
 )
