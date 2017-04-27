@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -x
-
 __vbx_env()
 {
     VBOX_BRANCH=${1}
