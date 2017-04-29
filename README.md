@@ -29,4 +29,4 @@ dotfiles
 ### Credits
 
 This is a customized fork of [Ben Alman's](https://github.com/cowboy/dotfiles) excellent dotfiles.
-There you also will find an extensive user guide about how all this stuff works.
+Take a look at Ben's [README.md](https://github.com/cowboy/dotfiles/blob/master/README.md) -- there you also will find an extensive user guide about how all this stuff works.
