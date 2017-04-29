@@ -12,5 +12,8 @@
 # Don't commit Vim plugins, vim-plug will install them.
 /link/.vim/plugged
 
-# Ignore any file with LOCAL in the name (good for per-machine vars/functions)
+# Ignore any file with LOCAL in the name (good for per-machine vars/functions).
 *LOCAL*
+
+# Ignore explicitly as private marked files (*.private).
+*.private
