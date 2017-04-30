@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2015-2016 by Andreas Loeffler (x86dev).
+# Copyright 2015-2017 by Andreas Loeffler (x86dev).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -397,23 +397,25 @@ while [ $# != 0 ]; do
 done
 
 if [ -z "$SCRIPT_PROFILE_FILE" ]; then
-    ${ECHO} "ERROR: Must specify a profile name using --profile (e.g. --profile foo.conf), exiting"
+    ${ECHO} "ERROR: Must specify a profile name using --profile (e.g. --profile /path/to/profile.conf), exiting"
     exit 1
 fi
 
-SCRIPT_PROFILE_FILE=${SCRIPT_PATH}/${SCRIPT_PROFILE_FILE}
-if [ ! -f "$SCRIPT_PROFILE_FILE" ]; then
-    CUR_PROFILE=${SCRIPT_PROFILE_FILE}
-    if [ ! -f "$SCRIPT_PROFILE_FILE" ]; then
-        ${ECHO} "Profile \"$SCRIPT_PROFILE_FILE\" not found, exiting"
+# First, see if the profile file is a relative path.
+SCRIPT_PROFILE_FILE_ABS=${SCRIPT_PATH}/${SCRIPT_PROFILE_FILE}
+if [ ! -f "$SCRIPT_PROFILE_FILE_ABS" ]; then
+    # Not found -- must be an absolute path then.
+    SCRIPT_PROFILE_FILE_ABS=${SCRIPT_PROFILE_FILE}
+    if [ ! -f "$SCRIPT_PROFILE_FILE_ABS" ]; then
+        ${ECHO} "Profile \"$SCRIPT_PROFILE_FILE_ABS\" not found, exiting"
         exit 1
     fi
 fi
 
 SCRIPT_TS_START=$($DATE +%s)
 
-${ECHO} "Using profile: $SCRIPT_PROFILE_FILE"
-. ${SCRIPT_PROFILE_FILE}
+${ECHO} "Using profile: $SCRIPT_PROFILE_FILE_ABS"
+. ${SCRIPT_PROFILE_FILE_ABS}
 
 if [ "$PROFILE_DEST_HOST" = "localhost" ]; then
     BACKUP_TO_REMOTE=0
