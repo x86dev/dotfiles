@@ -3,6 +3,12 @@ is_ubuntu || return 1
 
 #!/bin/sh
 # Install Visual Studio Code.
-sudo curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg
+set -e
+
+curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
 sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
-sudo apt-get update && apt-get install -y code
+sudo apt-get -qq update && sudo apt-get install -y code
+
+# Set Visual Studio Code as default editor.
+sudo update-alternatives --set editor /usr/bin/code
