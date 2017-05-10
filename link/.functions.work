@@ -42,6 +42,13 @@ vbx_build_drivers()
     ( cd ${VBOX_PATH} && kmk BUILD_TYPE=release ${VBOX_DEPS} )
 }
 
+vbx_build_all()
+{
+    __vbx_env ${1}
+
+    ( cd ${VBOX_PATH} && kmk && vbx_build_drivers )
+}
+
 vbx_dbg()
 {
     gdb -ex run --args ./VirtualBox --startvm "$1"
