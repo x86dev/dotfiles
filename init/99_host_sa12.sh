@@ -1,9 +1,12 @@
 # Ubuntu-only stuff. Abort if not Ubuntu.
 is_ubuntu || return 1
 
+#!/bin/sh
+
+# Apply power tweaks for Switch Alpha 12.
 MY_POWER_FILE=/etc/pm/power.d/sa12
 
-sudo cat > ${MY_POWER_FILE} << EOF
+sudo tee ${MY_POWER_FILE} > /dev/null << EOF
 #!/bin/sh
 # Enable HDA codec power management.
 echo 'auto' > '/sys/class/sound/controlC0/device/power/control';
