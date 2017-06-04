@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Sets the display resolution / scaling for the Acer Switch Alpha 12.
+#
+# As the display is fairly high res for a 12" size (2160 x 1440) and
+# e.g. Gnome only allows integer values for the scaling value being set,
+# apply a scaling factor which is slightly bigger as wanted first and
+# then set a zoom out factor using xrandr as a second step.
+gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "[{'Gdk/WindowScalingFactor', <2>}]"
+xrandr -q
+xrandr --output eDP-1 --scale 1.25x1.25 --panning 2160x1440
