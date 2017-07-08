@@ -1,5 +1,5 @@
-# Ubuntu-only stuff. Abort if not Ubuntu.
-is_ubuntu || return 1
+# Debian-only stuff. Abort if not Debian.
+is_debian || return 1
 
 # If the old files isn't removed, the duplicate APT alias will break sudo!
 sudoers_old="/etc/sudoers.d/sudoers-cowboy"; [[ -e "$sudoers_old" ]] && sudo rm "$sudoers_old"

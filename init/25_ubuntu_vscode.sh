@@ -1,5 +1,5 @@
-# Ubuntu-only stuff. Abort if not Ubuntu.
-is_ubuntu || return 1
+# Debian-only stuff. Abort if not Debian.
+is_debian || return 1
 
 #!/bin/sh
 # Install Visual Studio Code.
