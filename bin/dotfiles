@@ -46,7 +46,7 @@ function is_debian() {
   [[ -f /etc/debian_version ]] || return 1
 }
 function get_os() {
-  for os in osx ubuntu; do
+  for os in osx debian; do
     is_$os; [[ $? == ${1:-0} ]] && echo $os
   done
 }
