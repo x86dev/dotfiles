@@ -17,3 +17,8 @@
 	path = vendor/fzf
 	shallow = true
 	url = git://github.com/junegunn/fzf.git
+
+[submodule "svn-stash"]
+	path = vendor/svn-stash
+	shallow = true
+	url = git://github.com/frankcortes/svn-stash.git
