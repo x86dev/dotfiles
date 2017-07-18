@@ -293,7 +293,7 @@ elif [[ "$1" != "restart" ]]; then
   cd $DOTFILES
   prev_head="$(git rev-parse HEAD)"
   git pull
-  git submodule update --init --recursive --quiet
+  git submodule init && git submodule update --init --recursive --remote --quiet && git submodule status
   if [[ "$(git rev-parse HEAD)" != "$prev_head" ]]; then
     e_header "Changes detected, restarting script"
     exec "$0" "restart"
