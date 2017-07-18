@@ -99,7 +99,7 @@ vbx_switch()
     cd ${VBOX_PATH}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/src/ &&
     make &&
     sudo make load &&
-    sudo chmod 666 /dev/vbox* &&
+    sudo chmod 777 /dev/vbox* &&
     cd ${VBOX_PATH}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
 }
 
