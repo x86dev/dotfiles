@@ -17,6 +17,7 @@
 
 BASENAME=basename
 CHMOD=chmod
+CP=cp
 DATE=date
 ECHO=echo
 GPG=gpg
@@ -194,6 +195,9 @@ backup_copy_file()
     else
         backup_log "Copying file '$1' to '$2'"
         ${CP} "$1" "$2"
+        if [ $? -ne "0" ]; then
+            LOCAL_RC=1
+        fi
     fi
 
     return ${LOCAL_RC}
