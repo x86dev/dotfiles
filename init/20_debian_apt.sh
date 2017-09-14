@@ -5,8 +5,8 @@ is_debian || return 1
 sudoers_old="/etc/sudoers.d/sudoers-cowboy"; [[ -e "$sudoers_old" ]] && sudo rm "$sudoers_old"
 
 # Installing this sudoers file makes life easier.
-sudoers_file="sudoers-dotfiles"
-sudoers_src=$DOTFILES/conf/debian/etc/sudoers.d/$sudoers_file
+sudoers_file=sudoers-dotfile
+sudoers_src="$DOTFILES/conf/debian/etc/sudoers.d/$sudoers_file"
 sudoers_dest="/etc/sudoers.d/$sudoers_file"
 if [[ ! -e "$sudoers_dest" || "$sudoers_dest" -ot "$sudoers_src" ]]; then
   cat <<EOF
@@ -66,7 +66,7 @@ fi
 if [[ ! "$(type -P git-extras)" ]]; then
   e_header "Installing Git Extras"
   (
-    cd $DOTFILES/vendor/git-extras &&
+    cd "$DOTFILES/vendor/git-extras" &&
     sudo make install
   )
 fi
