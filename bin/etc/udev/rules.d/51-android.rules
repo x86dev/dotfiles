@@ -1,3 +1,14 @@
+# 
+#
+# export LIBMTP_DEBUG=12
+# ./mtp-detect
+#
+# Add quriks to usb-storage module:
+#       /etc/modprobe.d/no-usb-storage.conf
+#           options usb-storage quirks=<VID>:<PID>:i
+#       sudo update-initramfs -u
+#
+
 ACTION!="add", GOTO="android_usb_rules_end"
 SUBSYSTEM!="usb", GOTO="android_usb_rules_end"
 
