@@ -472,7 +472,7 @@ case "$SCRIPT_CMD" in
         LANG_OLD=${LANG}
         export LANG=en_US.UTF-8
         export PASSPHRASE=notused
-        backup_log "Backup started."
+        backup_log "Backup started at: $(date --rfc-3339=seconds)"
         backup_log "Running monthly backups ..."
         backup_create_dir "$BACKUP_DEST_HOST" "$BACKUP_DEST_DIR"
         if [ $? -ne "0" ]; then
@@ -519,6 +519,7 @@ case "$SCRIPT_CMD" in
                 backup_send_email_failure
             fi
         fi
+        backup_log "Backup ended at: $(date --rfc-3339=seconds)"
         ;;
     repo-status)
         # Note: The additional / in the path needs to be there to use an absolute path.
