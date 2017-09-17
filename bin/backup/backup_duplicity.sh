@@ -172,11 +172,16 @@ backup_create_dir()
         backup_log "Creating remote directory: '$2'"
         ${SSH} ${BACKUP_SSH_OPTS} ${BACKUP_DEST_HOST} "mkdir -p $2"
         if [ $? -ne "0" ]; then
+            backup_log "Creating remote directory '$2' failed"
             LOCAL_RC=1
         fi
     else
         backup_log "Creating local directory: '$2'"
         ${MKDIR} -p "$2"
+        if [ $? -ne "0" ]; then
+            backup_log "Creating local directory '$2' failed"
+            LOCAL_RC=1
+        fi
     fi
 
     return ${LOCAL_RC}
@@ -187,7 +192,7 @@ backup_copy_file()
     LOCAL_RC=0
     if [ "$BACKUP_TO_REMOTE" = "1" ]; then
         LOCAL_FILE=${BACKUP_DEST_HOST}:${2}/$($BASENAME ${1})
-        backup_log "Moving file '$1' to remote '$LOCAL_FILE'"
+        backup_log "Copying file '$1' to remote '$LOCAL_FILE'"
         ${SCP} ${BACKUP_SCP_OPTS} "$1" "$LOCAL_FILE"
         if [ $? -ne "0" ]; then
             LOCAL_RC=1
@@ -205,7 +210,7 @@ backup_copy_file()
 
 backup_duplicity_run()
 {
-    LOCAL_RET=0
+    LOCAL_RC=0
 
     LOCAL_HOST=${1}
     LOCAL_SOURCES=${2}
@@ -219,7 +224,7 @@ backup_duplicity_run()
     # It can happen if a stale lockfile still is around if something weird happened before.
     LOCAL_DUPLICITY_LOCKFILE="$HOME/.cache/duplicity/$PROFILE_NAME/lockfile.lock"
     if [ -e "$LOCAL_DUPLICITY_LOCKFILE" ]; then
-        backup_log "Old lockfile around, removing ..."
+        backup_log "Old Duplicity lockfile around, removing ..."
         rm ${LOCAL_DUPLICITY_LOCKFILE}
     fi
 
@@ -264,7 +269,8 @@ backup_duplicity_run()
         backup_create_dir "$LOCAL_HOST" "$CUR_TARGET_DIR"
         ${LOCAL_DUPLICITY_BIN} ${LOCAL_DUPLICITY_BACKUP_TYPE} ${LOCAL_DUPLICITY_OPTS} ${CUR_SOURCE} ${BACKUP_DUPLICITY_PATH_PREFIX}/${CUR_TARGET_DIR} > ${CUR_LOG_FILE} 2>&1
         if [ $? -ne "0" ]; then
-            LOCAL_RET=1
+            backup_log "Failed running Duplcity for source '$CUR_SOURCE' (see $CUR_LOG_FILE)"
+            LOCAL_RC=1
         fi
         backup_copy_file "$CUR_LOG_FILE" "$CUR_TARGET_DIR"
     done
@@ -292,12 +298,12 @@ backup_duplicity_run()
 
     # ??? gpg -d duplicity-backup-2014-06-10.tar.gpg | tar x
 
-    return ${LOCAL_RET}
+    return ${LOCAL_RC}
 }
 
 backup_rsync_run()
 {
-    LOCAL_RET=0
+    LOCAL_RC=0
 
     LOCAL_RSYNC_BIN=rsync
     LOCAL_RSYNC_OPTS="\
@@ -326,12 +332,13 @@ backup_rsync_run()
         backup_create_dir "$LOCAL_HOST" "$CUR_TARGET_DIR"
         ${LOCAL_RSYNC_BIN} ${LOCAL_RSYNC_OPTS} ${CUR_SOURCE} ${BACKUP_RSYNC_PATH_PREFIX}/${CUR_TARGET_DIR} > ${CUR_LOG_FILE} 2>&1
         if [ $? -ne "0" ]; then
-            LOCAL_RET=1
+            backup_log "Failed running Rsync for source '$CUR_SOURCE' (see $CUR_LOG_FILE)"
+            LOCAL_RC=1
         fi
         backup_copy_file "$CUR_LOG_FILE" "$CUR_TARGET_DIR"
     done
 
-    return $LOCAL_RET
+    return $LOCAL_RC
 }
 
 backup_debian()
