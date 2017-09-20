@@ -92,6 +92,12 @@ vbx_log_filter()
     rm ${MY_FILE2_TRIMMED}
 }
 
+vbx_kill()
+{
+    pkill -e VirtualBox
+    pkill -e VBoxSVC
+}
+
 vbx_switch()
 {
     __vbx_env ${1}
