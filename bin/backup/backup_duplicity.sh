@@ -48,7 +48,7 @@ PROFILE_DEST_USERNAME=$USER
 PROFILE_DEST_DIR="/tmp"
 
 PROFILE_GPG_KEY=""
-PROFILE_GPG_PASSPHRASE=""
+PROFILE_PASSPHRASE=""
 
 PROFILE_EMAIL_ENABLED=0
 PROFILE_EMAIL_FROM_ADDRESS=""
@@ -252,8 +252,8 @@ backup_duplicity_run()
             --encrypt-key=$PROFILE_GPG_KEY"
     fi
 
-    if [ -n "$PROFILE_GPG_PASSPHRASE" ]; then
-        export PASSPHRASE=${PROFILE_GPG_PASSPHRASE}
+    if [ -n "$PROFILE_PASSPHRASE" ]; then
+        export PASSPHRASE=${PROFILE_PASSPHRASE}
     fi
 
     for CUR_SOURCE in ${LOCAL_SOURCES}; do
@@ -275,7 +275,7 @@ backup_duplicity_run()
         backup_copy_file "$CUR_LOG_FILE" "$CUR_TARGET_DIR"
     done
 
-    if [ -n "$PROFILE_GPG_PASSPHRASE" ]; then
+    if [ -n "$PROFILE_PASSPHRASE" ]; then
         unset PASSPHRASE
     fi
 
