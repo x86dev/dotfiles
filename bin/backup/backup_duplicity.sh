@@ -68,8 +68,8 @@ SCRIPT_EXITCODE=0
 backup_send_email()
 {
     echo "$2" | ${MAILX} \
-        -r "$PROFILE_EMAIL_FROM_ADDRESS" \
         -s "$1" \
+        -S from="$PROFILE_EMAIL_FROM_ADDRESS"
         -S smtp="$PROFILE_EMAIL_SMTP" \
         -S smtp-use-starttls \
         -S smtp-auth=login \
@@ -353,7 +353,7 @@ show_help()
     ${ECHO} "Requires duplicity and rsync."
     ${ECHO} ""
     ${ECHO} "Usage: $0 [--help|-h|-?]"
-    ${ECHO} "       backup"
+    ${ECHO} "       backup|test"
     ${ECHO} "       [--profile <profile.conf>]"
     ${ECHO} ""
     exit 1
@@ -529,7 +529,12 @@ case "$SCRIPT_CMD" in
     repo-verify)
         ;;
     test)
-        ## @todo Implement this.
+        backup_log "Testing profile ..."
+        if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
+            backup_send_email "Backup test" "The E-Mail test was successful. Have a nice day."
+        else
+            backup_log "Sending E-Mail not configured."
+        fi
         ;;
     setup)
         backup_setup
