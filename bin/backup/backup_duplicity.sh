@@ -267,7 +267,7 @@ backup_duplicity_run()
         ${ECHO} "      Temp: $LOCAL_DUPLICITY_TEMPDIR"
         ${ECHO} "       Log: $CUR_LOG_FILE"
         backup_create_dir "$LOCAL_HOST" "$CUR_TARGET_DIR"
-        ${LOCAL_DUPLICITY_BIN} ${LOCAL_DUPLICITY_BACKUP_TYPE} ${LOCAL_DUPLICITY_OPTS} ${CUR_SOURCE} ${BACKUP_DUPLICITY_PATH_PREFIX}/${CUR_TARGET_DIR} > ${CUR_LOG_FILE} 2>&1
+        ${LOCAL_DUPLICITY_BIN} ${LOCAL_DUPLICITY_BACKUP_TYPE} ${LOCAL_DUPLICITY_OPTS} ${CUR_SOURCE} ${BACKUP_DUPLICITY_PATH_PREFIX}${CUR_TARGET_DIR} > ${CUR_LOG_FILE} 2>&1
         if [ $? -ne "0" ]; then
             backup_log "Failed running Duplcity for source '$CUR_SOURCE' (see $CUR_LOG_FILE)"
             LOCAL_RC=1
@@ -330,7 +330,7 @@ backup_rsync_run()
         ${ECHO} "       To: $CUR_TARGET_DIR"
         ${ECHO} "      Log: $CUR_LOG_FILE"
         backup_create_dir "$LOCAL_HOST" "$CUR_TARGET_DIR"
-        ${LOCAL_RSYNC_BIN} ${LOCAL_RSYNC_OPTS} ${CUR_SOURCE} ${BACKUP_RSYNC_PATH_PREFIX}/${CUR_TARGET_DIR} > ${CUR_LOG_FILE} 2>&1
+        ${LOCAL_RSYNC_BIN} ${LOCAL_RSYNC_OPTS} ${CUR_SOURCE} ${BACKUP_RSYNC_PATH_PREFIX}${CUR_TARGET_DIR} > ${CUR_LOG_FILE} 2>&1
         if [ $? -ne "0" ]; then
             backup_log "Failed running Rsync for source '$CUR_SOURCE' (see $CUR_LOG_FILE)"
             LOCAL_RC=1
