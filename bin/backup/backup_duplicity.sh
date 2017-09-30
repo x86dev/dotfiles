@@ -127,6 +127,29 @@ backup_log()
     ${ECHO} "$1"
 }
 
+backup_test()
+{
+    backup_log "Testing profile ..."
+
+    # Check if mailx is the heirloom-mailx version which supports more
+    # features like -S for the SMTP stuff.
+    #
+    ## @todo For now we ASSUME that only the heirloom version returns
+    #        an exit code 0, whereas the dumb versions don't.
+    mailx -v
+    if [ $? -ne "0" ]; then
+        echo "Either no mailx or wrong (old) mailx version installed, aborting."
+        return 1
+    fi
+
+    backup_log "Trying to send test mail ..."
+    if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
+        backup_send_email "Backup test" "The E-Mail test was successful. Have a nice day."
+    else
+        backup_log "Sending E-Mail not configured."
+    fi
+}
+
 backup_setup()
 {
     #${ECHO} "Testing key: ${PROFILE_GPG_KEY}"
@@ -373,7 +396,7 @@ case "$SCRIPT_CMD" in
     repo-status)
         ;;
     repo-verify)
-        ;;        
+        ;;
     setup)
         ;;
     test)
@@ -529,11 +552,10 @@ case "$SCRIPT_CMD" in
     repo-verify)
         ;;
     test)
-        backup_log "Testing profile ..."
-        if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
-            backup_send_email "Backup test" "The E-Mail test was successful. Have a nice day."
-        else
-            backup_log "Sending E-Mail not configured."
+        backup_test
+        if [ $? -ne "0" ]; then
+            SCRIPT_EXITCODE=1
+            break
         fi
         ;;
     setup)
