@@ -69,7 +69,7 @@ backup_send_email()
 {
     echo "$2" | ${MAILX} \
         -s "$1" \
-        -S from="$PROFILE_EMAIL_FROM_ADDRESS"
+        -S from="$PROFILE_EMAIL_FROM_ADDRESS" \
         -S smtp="$PROFILE_EMAIL_SMTP" \
         -S smtp-use-starttls \
         -S smtp-auth=login \
