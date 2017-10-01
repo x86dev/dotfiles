@@ -69,6 +69,7 @@ def embyCleanup():
 
     cItemsPurged = 0
     cItemsProc   = 0
+    cErrors      = 0
 
     tsNow = datetime.datetime.now()
 
@@ -144,10 +145,19 @@ def embyCleanup():
                     resp = requests.delete(get_url, headers=get_header)
                     if resp.ok:
                         print("\tSucessfully deleted")
+                    else:
+                        resp.raise_for_status()
+                        cErrors += 1
+                else:
+                    print("\tID for item not found")
+                    cErrors += 1
 
             cItemsPurged += 1
 
         cItemsProc += 1
+
+    if cErrors:
+        print("Warning: %ld errors occurred" % cErrors)
 
     print("Deleted %ld / %ld items" % (cItemsPurged, cItemsProc))
 
