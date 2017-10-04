@@ -21,7 +21,7 @@ CP=cp
 DATE=date
 ECHO=echo
 GPG=gpg
-MAILX=mailx
+MAILX=$(which mailx)
 MKDIR=mkdir
 MV=mv
 RM=rm
@@ -57,6 +57,7 @@ PROFILE_EMAIL_SMTP=""
 ## @todo Does not work on OS X -- flag "-f" does not exist there.
 SCRIPT_PATH=$(readlink -f $0 | xargs dirname)
 SCRIPT_EXITCODE=0
+SCRIPT_HAS_MAILX=0
 
 # Important: https://bugs.launchpad.net/duplicity/+bug/687295
 # Currently the locale *must* be set to en_US.UTF-8 in order to get encryption with a public key working!
@@ -67,6 +68,10 @@ SCRIPT_EXITCODE=0
 
 backup_send_email()
 {
+    if [ "$SCRIPT_HAS_MAILX" = "0" ]; then
+        return
+    fi
+
     echo "$2" | ${MAILX} \
         -s "$1" \
         -S from="$PROFILE_EMAIL_FROM_ADDRESS" \
@@ -134,19 +139,23 @@ backup_test()
     # Check if mailx is the heirloom-mailx version which supports more
     # features like -S for the SMTP stuff.
     #
-    ## @todo For now we ASSUME that only the heirloom version returns
+    ## @todo For now we ASSUME that only the heirloom version (-V) returns
     #        an exit code 0, whereas the dumb versions don't.
-    mailx -v
-    if [ $? -ne "0" ]; then
-        echo "Either no mailx or wrong (old) mailx version installed, aborting."
-        return 1
-    fi
+    if [ "$SCRIPT_HAS_MAILX" = "1" ]; then
+        ${MAILX} -V
+        if [ $? -ne "0" ]; then
+            backup_log "Either no mailx or wrong (old) mailx version installed, aborting."
+            return 1
+        fi
 
-    backup_log "Trying to send test mail ..."
-    if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
-        backup_send_email "Backup test" "The E-Mail test was successful. Have a nice day."
+        backup_log "Trying to send test mail ..."
+        if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
+            backup_send_email "Backup test" "The E-Mail test was successful. Have a nice day."
+        else
+            backup_log "Sending E-Mail not configured."
+        fi
     else
-        backup_log "Sending E-Mail not configured."
+        backup_log "No mailx found / installed, skipping mail test"
     fi
 }
 
@@ -447,6 +456,11 @@ if [ ! -f "$SCRIPT_PROFILE_FILE_ABS" ]; then
 fi
 
 SCRIPT_TS_START=$($DATE +%s)
+
+# Detect mailx.
+if [ -x ${MAILX} ]; then
+    SCRIPT_HAS_MAILX=1
+fi
 
 ${ECHO} "Using profile: $SCRIPT_PROFILE_FILE_ABS"
 . ${SCRIPT_PROFILE_FILE_ABS}
