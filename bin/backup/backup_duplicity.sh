@@ -134,28 +134,28 @@ backup_log()
 
 backup_test()
 {
-    backup_log "Testing profile ..."
+    backup_log "Testing profile '$PROFILE_NAME' ..."
 
     # Check if mailx is the heirloom-mailx version which supports more
     # features like -S for the SMTP stuff.
     #
     ## @todo For now we ASSUME that only the heirloom version (-V) returns
     #        an exit code 0, whereas the dumb versions don't.
-    if [ "$SCRIPT_HAS_MAILX" = "1" ]; then
-        ${MAILX} -V
-        if [ $? -ne "0" ]; then
-            backup_log "Either no mailx or wrong (old) mailx version installed, aborting."
-            return 1
-        fi
+    if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then    
+        if [ "$SCRIPT_HAS_MAILX" = "1" ]; then
+            ${MAILX} -V 2>&1 > /dev/null
+            if [ $? -ne "0" ]; then
+                backup_log "Either wrong or old mailx version installed, aborting."
+                return 1
+            fi
 
-        backup_log "Trying to send test mail ..."
-        if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
-            backup_send_email "Backup test" "The E-Mail test was successful. Have a nice day."
+            backup_log "mailx found, trying to send test mail ..."
+            backup_send_email "Backup TEST: $PROFILE_NAME" "The mail test for '$PROFILE_NAME' was successful. Have a nice day."
         else
-            backup_log "Sending E-Mail not configured."
+            backup_log "No mailx found / installed, skipping mail test"
         fi
     else
-        backup_log "No mailx found / installed, skipping mail test"
+        backup_log "Sending mail not configured, skipping mail test"
     fi
 }
 
