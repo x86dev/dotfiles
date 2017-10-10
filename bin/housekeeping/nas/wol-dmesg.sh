@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2016 by Andreas Loeffler (x86dev).
+# Copyright 2016-2017 by Andreas Loeffler (x86dev).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -61,7 +61,9 @@ while true; do
     LOG_DMESG=$(dmesg | grep "$LOG_TOKEN" | tail -n1)
     LOG_MSG_ID_NEW=$(echo $LOG_DMESG | sed -n 's/.*ID=\([0-9]*\).*/\1/p')
     LOG_SRC_IP=$(echo $LOG_DMESG | sed -n 's/.*SRC=\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')
-    LOG_SRC_NAME=$(nslookup $LOG_SRC_IP | tail -1 | sed -n "s/.*$LOG_SRC_IP \(.*\)/\1/p");
+    if [ -z "$LOG_SRC_IP" ]; then
+        LOG_SRC_NAME=$(nslookup $LOG_SRC_IP | tail -1 | sed -n "s/.*$LOG_SRC_IP \(.*\)/\1/p");
+    fi
     LOG_DST_PORT=$(echo $LOG_DMESG | sed -n 's/.*DPT=\([0-9]*\).*/\1/p')
 
     if [ "$LOG_MSG_ID_NEW" != "" -a "$LOG_MSG_ID_NEW" != "$LOG_MSG_ID_OLD" ]; then
