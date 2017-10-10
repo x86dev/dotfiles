@@ -1,0 +1,22 @@
+#!/bin/sh /etc/rc.common
+
+#
+# Controls the wol-dmesg.sh script.
+# This script ASSUMES that it's installed within root's .dotfiles.
+#
+# Otherwise you need to tweak the script path below.
+#
+
+SCRIPT_NAME=wol-dmesg.sh
+SCRIPT_PATH=/root/.dotfiles/bin/housekeeping/nas/$SCRIPT_NAME
+
+START=10
+STOP=15
+ 
+start() {        
+    ${SCRIPT_PATH} 2>&1 > /dev/null &
+}                 
+
+stop() {          
+    kill $(pidof $SCRIPT_NAME)
+}
