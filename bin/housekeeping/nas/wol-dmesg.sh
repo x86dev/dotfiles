@@ -39,7 +39,7 @@ echo "Using config: ${CFG_FILE}"
 
 PING_RETRIES=1
 
-LOG_FILE="/tmp/nas-wol.log"
+LOG_FILE="/tmp/wol-dmesg.log"
 LOG_TOKEN="<NAS WOL>"
 
 SLEEP_SEC_ALIVE=30
