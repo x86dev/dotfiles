@@ -1,0 +1,8 @@
+
+pdf_compress()
+{
+    TEMP_FILE=$(mktemp /tmp/pdf-compress.XXXXXX)
+    pdf2ps ${1} ${TEMP_FILE}
+    ps2pdf -dPDFSETTINGS=/screen -dDownsampleColorImages=true -dColorImageResolution=200 -dColorImageDownsampleType=/Bicubic ${TEMP_FILE} ${1}
+    rm ${TEMP_FILE}
+}
