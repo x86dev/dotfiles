@@ -62,7 +62,7 @@ while true; do
     LOG_MSG_ID_NEW=$(echo $LOG_DMESG | sed -n 's/.*ID=\([0-9]*\).*/\1/p')
     LOG_SRC_IP=$(echo $LOG_DMESG | sed -n 's/.*SRC=\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')
     if [ -n "$LOG_SRC_IP" ]; then
-        LOG_SRC_NAME=$(nslookup $LOG_SRC_IP | tail -1 | sed -n "s/.*$LOG_SRC_IP \(.*\)/\1/p");
+        LOG_SRC_NAME=$(nslookup $LOG_SRC_IP | sed -n 's/.*arpa.*name = \(.*\)/\1/p');
     fi
     LOG_DST_PORT=$(echo $LOG_DMESG | sed -n 's/.*DPT=\([0-9]*\).*/\1/p')
 
