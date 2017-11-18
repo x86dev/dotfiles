@@ -8,15 +8,23 @@
 #
 
 SCRIPT_NAME=wol-dmesg.sh
-SCRIPT_PATH=/root/.dotfiles/bin/housekeeping/nas/$SCRIPT_NAME
+SCRIPT_PATH=/root/.dotfiles/bin/housekeeping/nas
+SCRIPT_PID_FILE=/var/run/wol-dmesg.pid
+
+USE_PROCD=1
+PROCD_DEBUG=1
 
 START=10
 STOP=15
- 
-start() {        
-    ${SCRIPT_PATH} 2>&1 > /dev/null &
-}                 
 
-stop() {          
-    kill $(pidof $SCRIPT_NAME)
+start_service() {
+    procd_open_instance     "wol-dmesg"
+    procd_set_param command "$SCRIPT_PATH/$SCRIPT_NAME"
+    procd_set_param pidfile "$SCRIPT_PID_FILE"
+    procd_close_instance
+}
+
+stop_service() {
+    kill $(pidof ${SCRIPT_NAME})
+    rm "$SCRIPT_PID_FILE"
 }
