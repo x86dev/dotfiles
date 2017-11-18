@@ -34,8 +34,12 @@ CUR_EXITCODE=0
 
 CFG_FILE=${CUR_PATH}/wol-dmesg.conf
 
-echo "Using config: ${CFG_FILE}"
-. ${CFG_FILE}
+if [ -f "$CFG_FILE" ]; then
+    . ${CFG_FILE}
+else
+    echo "Error: Config file '$CFG_FILE' does not exist. Exiting."
+    exit 1
+fi
 
 PING_RETRIES=1
 
@@ -49,10 +53,16 @@ WOL=/usr/bin/etherwake
 WOL_INTERFACE=eth0.2
 WOL_OPTS="-i $WOL_INTERFACE"
 
-# Clear the dmesg log before we begin.
-dmesg -c
+log()
+{
+    echo "[`date`] $1" | tee ${LOG_FILE}
+}
 
-echo "["`date`"] Script started." > ${LOG_FILE}
+# Clear the dmesg log before we begin.
+dmesg -c 2>&1 > /dev/null
+
+log "Script started."
+log "Using config: $CFG_FILE"
 
 LOG_MSG_ID_OLD=""
 
@@ -62,21 +72,23 @@ while true; do
     LOG_MSG_ID_NEW=$(echo $LOG_DMESG | sed -n 's/.*ID=\([0-9]*\).*/\1/p')
     LOG_SRC_IP=$(echo $LOG_DMESG | sed -n 's/.*SRC=\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')
     if [ -n "$LOG_SRC_IP" ]; then
-        LOG_SRC_NAME=$(nslookup $LOG_SRC_IP | sed -n 's/.*arpa.*name = \(.*\)/\1/p');
+        LOG_SRC_NAME=$(nslookup $LOG_SRC_IP | sed -n 's/.*arpa.*name = \(.*\)/\1/p')
     fi
     LOG_DST_PORT=$(echo $LOG_DMESG | sed -n 's/.*DPT=\([0-9]*\).*/\1/p')
 
     if [ "$LOG_MSG_ID_NEW" != "" -a "$LOG_MSG_ID_NEW" != "$LOG_MSG_ID_OLD" ]; then
-        if ping -qc ${PING_RETRIES} ${TARGET_IP} > /dev/null; then
-            echo "["`date`"] Accessed by $LOG_SRC_NAME ($LOG_SRC_IP) (port $LOG_DST_PORT) and is already alive"
+        if ping -qc ${PING_RETRIES} ${TARGET_IP} 2>&1 > /dev/null; then
+            log "Accessed by $LOG_SRC_NAME ($LOG_SRC_IP) (port $LOG_DST_PORT) and is already alive"
         else
-            echo "["`date`"] $LOG_SRC_NAME ($LOG_SRC_IP) causes wake on lan (port $LOG_DST_PORT)." >> ${LOG_FILE}
-            ${WOL} ${WOL_OPTS} ${TARGET_MAC} 2>&1 >> ${LOG_FILE}
+            log "$LOG_SRC_NAME ($LOG_SRC_IP) causes wake on lan (port $LOG_DST_PORT)."
+            ${WOL} ${WOL_OPTS} ${TARGET_MAC} 2>&1 > /dev/null
        fi
-       LOG_MSG_ID_OLD=$LOG_MSG_ID_NEW
-       echo "["`date`"] Sleeping for $SLEEP_SEC_ALIVE seconds ..."
+       LOG_MSG_ID_OLD=${LOG_MSG_ID_NEW}
+       log "Sleeping for $SLEEP_SEC_ALIVE seconds ..."
        sleep ${SLEEP_SEC_ALIVE}
-       dmesg -c
+       dmesg -c 2>&1 > /dev/null
     fi
     sleep ${SLEEP_SEC_CHECK}
 done
+
+exit 0
