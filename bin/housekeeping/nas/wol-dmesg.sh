@@ -55,7 +55,7 @@ WOL_OPTS="-i $WOL_INTERFACE"
 
 log()
 {
-    echo "[`date`] $1" | tee ${LOG_FILE}
+    echo "[`date`] $1" | tee -a ${LOG_FILE}
 }
 
 # Clear the dmesg log before we begin.
