@@ -61,7 +61,7 @@ log()
 # Clear the dmesg log before we begin.
 dmesg -c 2>&1 > /dev/null
 
-log "Script started."
+log "Script started"
 log "Using config: $CFG_FILE"
 
 LOG_MSG_ID_OLD=""
@@ -80,7 +80,7 @@ while true; do
         if ping -qc ${PING_RETRIES} ${TARGET_IP} 2>&1 > /dev/null; then
             log "Accessed by $LOG_SRC_NAME ($LOG_SRC_IP) (port $LOG_DST_PORT) and is already alive"
         else
-            log "$LOG_SRC_NAME ($LOG_SRC_IP) causes wake on lan (port $LOG_DST_PORT)."
+            log "$LOG_SRC_NAME ($LOG_SRC_IP) causes wake on lan (port $LOG_DST_PORT)"
             ${WOL} ${WOL_OPTS} ${TARGET_MAC} 2>&1 > /dev/null
        fi
        LOG_MSG_ID_OLD=${LOG_MSG_ID_NEW}
