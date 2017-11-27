@@ -7,6 +7,8 @@ __vbx_env()
         VBOX_BRANCH="trunk"
     fi
 
+    export VBOX_BRANCH
+
     if [ -z "$MY_VBOX_HOME" ]; then
         MY_VBOX_HOME=${HOME}/vbox
     fi
@@ -20,43 +22,45 @@ __vbx_env()
         MY_VBOX_TARGET_ARCH=amd64
     fi
 
-    VBOX_PATH=${MY_VBOX_HOME}/${VBOX_BRANCH}
+    VBOX_PATH_ROOT=${MY_VBOX_HOME}/${VBOX_BRANCH}
+    export VBOX_PATH_ROOT
+
+    VBOX_PATH_OUT=${VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
+    export VBOX_PATH_OUT
 }
 
 vbx_build_drivers()
 {
-    __vbx_env ${1}
-
     VBOX_DEPS="\
         RuntimeR0 \
         RuntimeR3 \
         RuntimeBldProg \
         VBoxRT \
-        vboxdrv-mod \
         VBoxNetFlt-src \
         VBoxNetFlt-sh \
         VBoxNetAdp-src \
         VBoxPci-src \
-        HostDrivers-scripts"
+        HostDrivers-scripts \
+        vboxdrv-mod"
 
-    ( cd ${VBOX_PATH} && kmk BUILD_TYPE=release ${VBOX_DEPS} )
+    ( cd ${VBOX_PATH_ROOT} && kmk BUILD_TYPE=release ${VBOX_DEPS} )
 }
 
 vbx_build_all()
 {
     __vbx_env ${1}
 
-    ( cd ${VBOX_PATH} && kmk && vbx_build_drivers )
+    ( cd ${VBOX_PATH_ROOT} && kmk && vbx_build_drivers )
 }
 
 vbx_dbg()
 {
-    gdb -ex run --args ./VirtualBox --startvm "$1"
+    ( cd ${VBOX_PATH_OUT} && gdb -ex run --args ./VirtualBox --startvm "$1" )
 }
 
 vbx_dbg_restore()
 {
-    ./VBoxManage snapshot "$1" restorecurrent && gdb -ex run --args ./VirtualBox --startvm "$1"
+    ( cd ${VBOX_PATH_OUT} && ./VBoxManage snapshot "$1" restorecurrent && gdb -ex run --args ./VirtualBox --startvm "$1" )
 }
 
 vbx_log_filter()
@@ -102,11 +106,11 @@ vbx_switch()
 {
     __vbx_env ${1}
 
-    cd ${VBOX_PATH}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/src/ &&
+    cd ${VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/src/ &&
     make &&
     sudo make load &&
     sudo chmod 777 /dev/vbox* &&
-    cd ${VBOX_PATH}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
+    cd ${VBOX_PATH_OUT}/
     ./VirtualBox &
 }
 
