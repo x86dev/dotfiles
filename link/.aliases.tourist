@@ -4,4 +4,4 @@ if [ -f ~/.aliases.work ]; then
   source ~/.aliases.work
 fi
 
-alias vs='/opt/slickedit/bin/vs'
+alias vs='${HOME}/opt/slickedit/bin/vs'
