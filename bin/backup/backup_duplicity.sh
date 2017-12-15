@@ -84,6 +84,28 @@ backup_send_email()
         ${PROFILE_EMAIL_TO_ADDRESS}
 }
 
+backup_send_email_start()
+{
+    EMAIL_SUCCESS_SUBJECT="Backup started: $PROFILE_NAME"
+    EMAIL_SUCCESS_CONTENT="Backup has been started.
+
+    Profile: $PROFILE_NAME
+
+    Monthly tasks:
+        $PROFILE_SOURCES_MONTHLY
+
+    Mirror tasks:
+        $PROFILE_SOURCES_ONCE
+
+    Started on: $($DATE)
+
+    ---"
+
+    if [ ${PROFILE_EMAIL_ENABLED} -gt "1" ]; then
+        backup_send_email "$EMAIL_SUCCESS_SUBJECT" "$EMAIL_SUCCESS_CONTENT"
+    fi
+}
+
 backup_send_email_success()
 {
     EMAIL_SUCCESS_SUBJECT="Backup successful: $PROFILE_NAME"
@@ -509,6 +531,7 @@ case "$SCRIPT_CMD" in
         LANG_OLD=${LANG}
         export LANG=en_US.UTF-8
         export PASSPHRASE=notused
+        backup_send_email_start
         backup_log "Backup started at: $(date --rfc-3339=seconds)"
         backup_log "Running monthly backups ..."
         backup_create_dir "$BACKUP_DEST_HOST" "$BACKUP_DEST_DIR"
