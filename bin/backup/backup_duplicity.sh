@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2015-2017 by Andreas Loeffler (x86dev).
+# Copyright 2015-2018 by Andreas Loeffler (x86dev).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -86,8 +86,8 @@ backup_send_email()
 
 backup_send_email_start()
 {
-    EMAIL_SUCCESS_SUBJECT="Backup started: $PROFILE_NAME"
-    EMAIL_SUCCESS_CONTENT="Backup has been started.
+    EMAIL_SUBJECT="Backup started: $PROFILE_NAME"
+    EMAIL_BODY="Backup has been started.
 
     Profile: $PROFILE_NAME
 
@@ -102,14 +102,14 @@ backup_send_email_start()
     ---"
 
     if [ ${PROFILE_EMAIL_ENABLED} -gt "1" ]; then
-        backup_send_email "$EMAIL_SUCCESS_SUBJECT" "$EMAIL_SUCCESS_CONTENT"
+        backup_send_email "$EMAIL_SUBJECT" "$EMAIL_BODY"
     fi
 }
 
 backup_send_email_success()
 {
-    EMAIL_SUCCESS_SUBJECT="Backup successful: $PROFILE_NAME"
-    EMAIL_SUCCESS_CONTENT="Backup successfully finished.
+    EMAIL_SUBJECT="Backup successful: $PROFILE_NAME"
+    EMAIL_BODY="Backup successfully finished.
 
     Profile: $PROFILE_NAME
 
@@ -125,14 +125,14 @@ backup_send_email_success()
     ---"
 
     if [ ${PROFILE_EMAIL_ENABLED} -gt "1" ]; then
-        backup_send_email "$EMAIL_SUCCESS_SUBJECT" "$EMAIL_SUCCESS_CONTENT"
+        backup_send_email "$EMAIL_SUBJECT" "$EMAIL_BODY"
     fi
 }
 
 backup_send_email_failure()
 {
-    EMAIL_FAILURE_SUBJECT="Backup FAILED: $PROFILE_NAME"
-    EMAIL_FAILURE_CONTENT="*** BACKUP FAILED (See details in log below) ***
+    EMAIL_SUBJECT="Backup FAILED: $PROFILE_NAME"
+    EMAIL_BODY="*** BACKUP FAILED (See details in log below) ***
 
     Profile   : $PROFILE_NAME
     Started at: $($DATE)
@@ -141,11 +141,15 @@ backup_send_email_failure()
     ---
 
     <TODO: Implement sending logfile>
+
+    ---
     "
 
+    EMAIL_DF=$(df -H | grep -vE '^Filesystem|tmpfs|cdrom')
+    EMAIL_BODY="$EMAIL_BODY\n\n$EMAIL_DF"
+
     if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
-        EMAIL_FAILURE_CONTENT_LOG="$EMAIL_FAILURE_CONTENT"
-        backup_send_email "$EMAIL_FAILURE_SUBJECT" "$EMAIL_FAILURE_CONTENT_LOG"
+        backup_send_email "$EMAIL_SUBJECT" "$EMAIL_BODY"
     fi
 }
 
@@ -163,7 +167,7 @@ backup_test()
     #
     ## @todo For now we ASSUME that only the heirloom version (-V) returns
     #        an exit code 0, whereas the dumb versions don't.
-    if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then    
+    if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
         if [ "$SCRIPT_HAS_MAILX" = "1" ]; then
             ${MAILX} -V 2>&1 > /dev/null
             if [ $? -ne "0" ]; then
