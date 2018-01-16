@@ -48,7 +48,7 @@ PROFILE_DEST_USERNAME=$USER
 PROFILE_DEST_DIR="/tmp"
 
 PROFILE_GPG_KEY=""
-PROFILE_PASSPHRASE=""
+PROFILE_GPG_PASSPHRASE=""
 
 PROFILE_EMAIL_ENABLED=0
 PROFILE_EMAIL_FROM_ADDRESS=""
@@ -304,14 +304,15 @@ backup_duplicity_run()
     #        $LOCAL_DUPLICITY_OPTS --ssh-options=\"-oIdentityFile=${PROFILE_DEST_SSH_IDENTITY_FILE}\""
     #fi
 
+    # Symmetric encryption wanted?
     if [ -n "$PROFILE_GPG_KEY" ]; then
         LOCAL_DUPLICITY_OPTS="\
             $LOCAL_DUPLICITY_OPTS \
             --encrypt-key=$PROFILE_GPG_KEY"
     fi
 
-    if [ -n "$PROFILE_PASSPHRASE" ]; then
-        export PASSPHRASE=${PROFILE_PASSPHRASE}
+    if [ -n "$PROFILE_GPG_PASSPHRASE" ]; then
+        export PASSPHRASE=${PROFILE_GPG_PASSPHRASE}
     fi
 
     for CUR_SOURCE in ${LOCAL_SOURCES}; do
@@ -333,9 +334,8 @@ backup_duplicity_run()
         backup_copy_file "$CUR_LOG_FILE" "$CUR_TARGET_DIR"
     done
 
-    if [ -n "$PROFILE_PASSPHRASE" ]; then
-        unset PASSPHRASE
-    fi
+    # Make sure to unset the passphrase in any case.
+    unset PASSPHRASE
 
     # Taken from: https://lists.gnu.org/archive/html/duplicity-talk/2008-05/msg00061.html
     #
@@ -491,6 +491,11 @@ fi
 ${ECHO} "Using profile: $SCRIPT_PROFILE_FILE_ABS"
 . ${SCRIPT_PROFILE_FILE_ABS}
 
+if [ -z "$PROFILE_GPG_PASSPHRASE" ]; then
+    ${ECHO} "No passphrase (PROFILE_GPG_PASSPHRASE) set, cannot continue. Aborting."
+    exit 1
+fi
+
 if [ "$PROFILE_DEST_HOST" = "localhost" ]; then
     BACKUP_TO_REMOTE=0
 else
@@ -534,7 +539,7 @@ case "$SCRIPT_CMD" in
     backup)
         LANG_OLD=${LANG}
         export LANG=en_US.UTF-8
-        export PASSPHRASE=notused
+        unset PASSPHRASE
         backup_send_email_start
         backup_log "Backup started at: $(date --rfc-3339=seconds)"
         backup_log "Running monthly backups ..."
