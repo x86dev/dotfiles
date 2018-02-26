@@ -31,17 +31,19 @@ __vbx_env()
 
 vbx_build_drivers()
 {
+    __vbx_env ${1}
+
     VBOX_DEPS="\
+        RuntimeBldProg \
         RuntimeR0 \
         RuntimeR3 \
-        RuntimeBldProg \
         VBoxRT \
         VBoxNetFlt-src \
         VBoxNetFlt-sh \
         VBoxNetAdp-src \
         VBoxPci-src \
         HostDrivers-scripts \
-        vboxdrv-mod"
+        vboxdrv-src"
 
     ( cd ${VBOX_PATH_ROOT} && kmk BUILD_TYPE=release ${VBOX_DEPS} )
 }
