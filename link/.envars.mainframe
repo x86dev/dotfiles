@@ -7,7 +7,7 @@ PATH="$PATH"
 PATH="$PATH:~/scripts"
 
 export EDITOR=/usr/bin/vim
-export VISUAL=/usr/bin/code
+export VISUAL="/usr/bin/code -w"
 export BROWSER=/usr/bin/firefox
 
 # Latex stuff
