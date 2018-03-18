@@ -8,9 +8,6 @@ else
     set background=dark
 endif
 
-set t_Co=16
-let g:solarized_termcolors=16
-
 " Allow color schemes to do bright colors without forcing bold.
 if &t_Co == 8 && $TERM !~# '^linux'
   set t_Co=16
