@@ -25,10 +25,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
       - ${MY_SRV_ROOT}/nginx-proxy/etc/vhost.d:/etc/nginx/vhost.d
-      - ${MY_SRV_ROOT}/letsencrypt/acme-challenge:/srv/letsencrypt/acme-challenge:ro
+      - ${MY_SRV_ROOT}/nginx-proxy/html:/usr/share/nginx/html
       - ${MY_SRV_ROOT}/letsencrypt/certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
 
   ttrss-data:
     container_name: ttrss-data
