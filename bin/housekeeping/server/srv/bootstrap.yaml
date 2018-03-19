@@ -11,7 +11,8 @@ services:
     image: jrcs/letsencrypt-nginx-proxy-companion
     container_name: letsencrypt-nginx-proxy-companion
     volumes:
-      - ${MY_SRV_ROOT}/nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - ${MY_SRV_ROOT}/nginx-proxy/etc/vhost.d:/etc/nginx/vhost.d
+      - ${MY_SRV_ROOT}/nginx-proxy/html:/usr/share/nginx/html
       - ${MY_SRV_ROOT}/letsencrypt/certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
@@ -26,7 +27,7 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ${MY_SRV_ROOT}/nginx-proxy/etc/dhparam/dhparam.pem:/etc/nginx/dhparam/dhparam.pem:ro
-      - ${MY_SRV_ROOT}/nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - ${MY_SRV_ROOT}/nginx-proxy/etc/vhost.d:/etc/nginx/vhost.d
       - ${MY_SRV_ROOT}/letsencrypt/acme-challenge:/srv/letsencrypt/acme-challenge:ro
       - ${MY_SRV_ROOT}/letsencrypt/certs:/etc/nginx/certs:ro
 
