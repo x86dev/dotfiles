@@ -1,6 +1,6 @@
 #
 # docker-compose pull
-# docker-compose up -d
+# docker-compose up -d [--no-deps] [<service>]
 #
 
 version: '2'
@@ -17,13 +17,15 @@ services:
   nginx-proxy:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ${MY_SRV_ROOT}/nginx-proxy/nginx-proxy.conf:/etc/nginx/conf.d/nginx-proxy.conf:ro
-      - ${MY_SRV_ROOT}/nginx-proxy/vhost.d:/etc/nginx/vhost.d:ro
+      - ${MY_SRV_ROOT}/nginx-proxy/etc/dhparam/dhparam.pem:/etc/nginx/dhparam/dhparam.pem:ro
+      - ${MY_SRV_ROOT}/nginx-proxy/vhost.d:/etc/nginx/vhost.d
       - ${MY_SRV_ROOT}/letsencrypt/acme-challenge:/srv/letsencrypt/acme-challenge:ro
       - ${MY_SRV_ROOT}/letsencrypt/certs:/etc/nginx/certs:ro
 
