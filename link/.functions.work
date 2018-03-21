@@ -65,6 +65,11 @@ vbx_dbg_restore()
     ( cd ${VBOX_PATH_OUT} && ./VBoxManage snapshot "$1" restorecurrent && gdb -ex run --args ./VirtualBox --startvm "$1" )
 }
 
+vbx_env_set()
+{
+    __vbx_env ${1}
+}
+
 vbx_log_filter()
 {
     MY_FILE1=${1}
