@@ -40,6 +40,7 @@ sudo apt-get -qq dist-upgrade
 # Install APT packages.
 packages=(
   build-essential
+  cifs-utils
   etckeeper
   gdb
   git-core
