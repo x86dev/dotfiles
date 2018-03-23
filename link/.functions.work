@@ -176,6 +176,9 @@ vbx_vakit_prepare()
 
     vbx_kill
 
+    ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
+      python tdAddGuestCtrl.py -v -v -d --vbox-use-svc-defaults --test-vms tst-xppro --quick --no-wipe-clean cleanup-before verify config )
+
     ( cd ${VBOX_PATH_OUT} && ./VirtualBox & )
 }
 
@@ -184,14 +187,12 @@ vbx_vakit_run()
     __vbx_vakit_env ${1}
 
     ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
-      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
+      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --vbox-use-svc-defaults --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
 }
 
 vbx_vakit_run_dbg()
 {
     __vbx_vakit_env ${1}
 
-    ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
-      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean execute )
+    vbx_vakit_run ${1}
 }
-
