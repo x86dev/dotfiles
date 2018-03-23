@@ -37,6 +37,9 @@ __vbx_env()
 
     VBOX_PATH_OUT=${VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
     export VBOX_PATH_OUT
+
+    # Drop straight into gdb if an assertion happened.
+    export VBOX_ASSERT=gdb
 }
 
 vbx_build_drivers()
