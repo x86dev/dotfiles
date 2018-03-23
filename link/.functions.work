@@ -142,13 +142,53 @@ vbx_test_loop()
     done
 }
 
-vbx_vakit_setup()
+__vbx_vakit_env()
 {
     __vbx_env ${1}
 
     export VBOX_INSTALL_PATH=${VBOX_PATH_OUT}
-    export TESTBOX_PATH_SCRATCH=${HOME}/machines/ValidationKit/scratch
+    export VBOX_VALIDATIONKIT_PATH=${HOME}/machines/ValidationKit
+
+    export TESTBOX_PATH_SCRATCH=${VBOX_VALIDATIONKIT_PATH}/scratch
+    export TESTBOX_PATH_RESOURCES=${VBOX_VALIDATIONKIT_PATH}/res
+
+    export VBOX_USER_HOME=${TESTBOX_PATH_SCRATCH}/VBoxUserHome
+
+    # Testcases could trigger (valid) assertions which we want to skip when running debug versions.
+    # Drop straight into gdb then.
+    export VBOX_ASSERT=gdb
+}
+
+vbx_vakit_setup()
+{
+    __vbx_vakit_env ${1}
 
     # Install / setup Python bindings.
     ( cd ${VBOX_PATH_OUT}/sdk/installer && sudo -E python ${VBOX_PATH_OUT}/sdk/installer/vboxapisetup.py install )
 }
+
+vbx_vakit_prepare()
+{
+    __vbx_vakit_env ${1}
+
+    vbx_kill
+
+    ( cd ${VBOX_PATH_OUT} && ./VirtualBox & )
+}
+
+vbx_vakit_run()
+{
+    __vbx_vakit_env ${1}
+
+    ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
+      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
+}
+
+vbx_vakit_run_dbg()
+{
+    __vbx_vakit_env ${1}
+
+    ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
+      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean execute )
+}
+
