@@ -1,8 +1,28 @@
 
 pdf_compress()
 {
-    TEMP_FILE=$(mktemp /tmp/pdf-compress.XXXXXX)
-    pdf2ps ${1} ${TEMP_FILE}
-    ps2pdf -dPDFSETTINGS=/screen -dDownsampleColorImages=true -dColorImageResolution=200 -dColorImageDownsampleType=/Bicubic ${TEMP_FILE} ${1}
-    rm ${TEMP_FILE}
+    MY_TEMP_FILE=$(mktemp /tmp/pdf-compress.XXXXXX)
+    pdf2ps ${1} ${MY_TEMP_FILE}
+    ps2pdf -dPDFSETTINGS=/screen -dDownsampleColorImages=true -dColorImageResolution=200 -dColorImageDownsampleType=/Bicubic ${MY_TEMP_FILE} ${1}
+    rm ${MY_TEMP_FILE}
+}
+
+handbrake_transcode()
+{
+    if [ -z "$1" ] ; then
+        MY_TRANSCODE_PATH="."
+    else
+        MY_TRANSCODE_PATH="$1"
+    fi
+
+    if [ -z "$2" ] ; then
+        MY_PRESET_NAME="op3"
+    else
+        MY_PRESET_NAME="$2"
+    fi
+
+    MY_PRESET_FILE="$DOTFILES/bin/handbrake/profiles/$MY_PRESET_NAME.json"
+
+    ( cd ${MY_TRANSCODE_PATH} && find . -type f -print0 | xargs --null -I{} \
+      HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i '{}' -o 'transcoded_{}' --preset="$MY_PRESET_NAME" __ {} \; )
 }
