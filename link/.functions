@@ -79,6 +79,9 @@ handbrake_transcode_dir()
 
     MY_PRESET_FILE="$DOTFILES/bin/handbrake/profiles/$MY_PRESET_NAME.json"
 
-    ( cd ${MY_TRANSCODE_PATH} && find . -type f -print0 | xargs --null -I{} \
-      HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i '{}' -o 'transcoded_{}' --preset="$MY_PRESET_NAME" __ {} \; )
+    ( cd ${MY_TRANSCODE_PATH} && find . -type f -print0 | while IFS= read -r -d $'\0' MY_FILENAME; \
+      do \
+        MY_FILENAME_BASE=$(basename $MY_FILENAME); \
+        HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME" -o "transcoded_$MY_FILENAME_BASE" --preset="$MY_PRESET_NAME"; \
+      done )
 }
