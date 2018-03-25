@@ -16,7 +16,7 @@ rescue_mount()
 # Renames a set of files with same file extension to another
 # file extension: rename JPG jpg
 #
-rename_ext()
+files_rename_ext()
 {
     for file in *.${1}
         do
@@ -24,6 +24,14 @@ rename_ext()
         # Another way: mv $file `echo $file | sed 's/\(.*\.\)html/\1php/'`
         # And another: mv $file `basename $file htm` html"
         done
+}
+
+#
+# Returns the total size of a specific file / wildcard in the current directory.
+#
+files_get_size()
+{
+    find . -iname "$1" -print0 | du --files0-from=- -hc | tail -n1
 }
 
 pdf_compress()
@@ -34,7 +42,28 @@ pdf_compress()
     rm ${MY_TEMP_FILE}
 }
 
-handbrake_transcode()
+handbrake_transcode_file()
+{
+    if [ -z "$1" ] ; then
+        echo "No file to transcode specified"
+        return
+    else
+        MY_TRANSCODE_FILE="$1"
+    fi
+
+    if [ -z "$2" ] ; then
+        MY_PRESET_NAME="op3"
+    else
+        MY_PRESET_NAME="$2"
+    fi
+
+    MY_PRESET_FILE="$DOTFILES/bin/handbrake/profiles/$MY_PRESET_NAME.json"
+
+    ( cd $(dirname "$MY_TRANSCODE_FILE") && \
+      HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_TRANSCODE_FILE" -o transcoded_$(basename "$MY_TRANSCODE_FILE") --preset="$MY_PRESET_NAME" )
+}
+
+handbrake_transcode_dir()
 {
     if [ -z "$1" ] ; then
         MY_TRANSCODE_PATH="."
