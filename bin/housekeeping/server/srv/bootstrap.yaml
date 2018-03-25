@@ -30,12 +30,14 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
   ttrss-data:
-    container_name: ttrss-data
     image: nornagon/postgres
+    container_name: ttrss-data
+    restart: always
 
   ttrss:
-    container_name: ttrss
     image: x86dev/docker-ttrss
+    container_name: ttrss
+    restart: always
     links:
       - ttrss-data:db
     environment:
@@ -50,8 +52,9 @@ services:
       - VIRTUAL_PORT=8080
 
   nextcloud:
-    container_name: nextcloud
     image: wonderfall/nextcloud
+    container_name: nextcloud
+    restart: always
     links:
       - nextcloud-data:db_nextcloud
     expose:
@@ -80,8 +83,9 @@ services:
       - ${MY_SRV_ROOT}/nextcloud/apps:/apps2
 
   nextcloud-data:
-    container_name: nextcloud_db
     image: mariadb:10
+    container_name: nextcloud_db
+    restart: always
     volumes:
       - ${MY_SRV_ROOT}/nextcloud/db:/var/lib/mysql
     environment:
@@ -91,8 +95,9 @@ services:
       - MYSQL_PASSWORD=${MY_NEXTCLOUD_DB_PASSWORD}
 
   ipsec-vpn-server:
-    container_name: ipsec-vpn-server
     image: hwdsl2/ipsec-vpn-server
+    container_name: ipsec-vpn-server
+    restart: always
     privileged: true
     environment:
       - VPN_IPSEC_PSK=${MY_VPN_IPSEC_PSK}
@@ -103,3 +108,20 @@ services:
       - "4500:4500/udp"
     volumes:
       - /lib/modules:/lib/modules:ro
+
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    container_name: gitlab
+    restart: always
+    hostname: 'gitlab.${MY_DOMAIN}'
+    environment:
+      - VIRTUAL_HOST=gitlab.${MY_DOMAIN}
+      - VIRTUAL_PORT=8081
+    ports:
+      - '8081:80'
+      - '4444:443'
+      - '2222:22'
+    volumes:
+      - ${MY_SRV_ROOT}/gitlab/config:/etc/gitlab
+      - ${MY_SRV_ROOT}/gitlab/logs:/var/log/gitlab
+      - ${MY_SRV_ROOT}/gitlab/data:/var/opt/gitlab
