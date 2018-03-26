@@ -38,6 +38,8 @@ __vbx_env()
     VBOX_PATH_OUT=${VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
     export VBOX_PATH_OUT
 
+    export VBOX_LOG_DEST=file=${MY_VBOX_HOME}/Logs/VBox.log
+
     # Drop straight into gdb if an assertion happened.
     export VBOX_ASSERT=gdb
 }
@@ -150,7 +152,14 @@ __vbx_vakit_env()
     __vbx_env ${1}
 
     export VBOX_INSTALL_PATH=${VBOX_PATH_OUT}
+
     export VBOX_VALIDATIONKIT_PATH=${HOME}/machines/ValidationKit
+    export VBOX_VALIDATIONKIT_LOG_DEST=${VBOX_LOG_DEST}
+    export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="\
+        -v -v -d --vbox-session-type gui --quick \
+        --vbox-session-log \"main_guestprocess.e.l.l2.l3.f+main_guestsession.e.l.l2.l3.f+main_guestdirectory.e.l.l2.l3.f+guest_control.e.l.l2.l3.f+guest.e.l.l2.l3.f\" \
+        --vbox-session-log-flags \"buffered\" \
+        --vbox-session-log-dest ${VBOX_LOG_DEST}"
 
     export TESTBOX_PATH_SCRATCH=${VBOX_VALIDATIONKIT_PATH}/scratch
     export TESTBOX_PATH_RESOURCES=${VBOX_VALIDATIONKIT_PATH}/res
@@ -176,7 +185,8 @@ vbx_vakit_prepare()
     vbx_kill
 
     ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
-      python tdAddGuestCtrl.py -v -v -d --vbox-use-svc-defaults --test-vms tst-xppro --quick --no-wipe-clean cleanup-before verify config )
+      python tdAddGuestCtrl.py ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
+      --test-vms tst-xppro --no-wipe-clean cleanup-before verify config )
 
     ( cd ${VBOX_PATH_OUT} && ./VirtualBox & )
 }
@@ -191,7 +201,8 @@ vbx_vakit_run()
     # Start the test driver with debug arguments.
     # Note: Needs xterm installed!
     ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
-      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
+      python tdAddGuestCtrl.py ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
+      --test-vms tst-xppro --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
 }
 
 vbx_vakit_run_dbg()
@@ -204,5 +215,6 @@ vbx_vakit_run_dbg()
     # Start the test driver with debug arguments.
     # Note: Needs xterm installed!
     ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
-      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --vbox-svc-debug --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
+      python tdAddGuestCtrl.py ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
+      --test-vms tst-xppro --vbox-svc-debug --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
 }
