@@ -157,9 +157,8 @@ __vbx_vakit_env()
 
     export VBOX_USER_HOME=${TESTBOX_PATH_SCRATCH}/VBoxUserHome
 
-    # Testcases could trigger (valid) assertions which we want to skip when running debug versions.
-    # Drop straight into gdb then.
-    export VBOX_ASSERT=gdb
+    # Override the default "gdb" to let the test driver debugger logic do its thing.
+    export VBOX_ASSERT=disabled
 }
 
 vbx_vakit_setup()
@@ -186,13 +185,24 @@ vbx_vakit_run()
 {
     __vbx_vakit_env ${1}
 
+    # Make sure no VBoxSVC is around anymore.
+    vbx_kill
+
+    # Start the test driver with debug arguments.
+    # Note: Needs xterm installed!
     ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
-      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --vbox-use-svc-defaults --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
+      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
 }
 
 vbx_vakit_run_dbg()
 {
     __vbx_vakit_env ${1}
 
-    vbx_vakit_run ${1}
+    # Make sure no VBoxSVC is around anymore.
+    vbx_kill
+
+    # Start the test driver with debug arguments.
+    # Note: Needs xterm installed!
+    ( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
+      python tdAddGuestCtrl.py -v -v -d --vbox-session-type gui --vbox-svc-debug --test-vms tst-xppro --quick --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
 }
