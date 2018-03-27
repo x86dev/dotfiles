@@ -6,9 +6,9 @@ rescue_mount()
 
     mkdir -p ${MY_MOUNT_POINT}
     mount /dev/${1} ${MY_MOUNT_POINT}
-    for dir in /dev /dev/pts /proc /sys /run; do sudo mount --bind $dir ${MY_MOUNT_POINT}/$dir; done 
+    for dir in /dev /dev/pts /proc /sys /run; do sudo mount --bind $dir ${MY_MOUNT_POINT}/$dir; done
     sudo cp /proc/mounts ${MY_MOUNT_POINT}/etc/mtab
-    mount -o bind /etc/resolv.conf ${MY_MOUNT_POINT}/etc/resolv.conf 
+    mount -o bind /etc/resolv.conf ${MY_MOUNT_POINT}/etc/resolv.conf
     chroot ${MY_MOUNT_POINT} /bin/bash
 }
 
@@ -83,9 +83,10 @@ handbrake_transcode_dir()
 
     ( cd ${MY_TRANSCODE_PATH} && find . -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX*" \) -print0 | \
       while IFS= read -r -d $'\0' MY_FILENAME; do \
-        MY_FILENAME_SRC=$(basename $MY_FILENAME); \
-        MY_FILENAME_DST=${MY_FILENAME_PREFIX}${MY_FILENAME_SRC}
-        echo "Transcoding: $MY_FILENAME_SRC- > $MY_FILENAME_DST"        
+        cd $(dirname $MY_FILENAME) && \
+        MY_FILENAME_SRC=$(basename $MY_FILENAME) && \
+        MY_FILENAME_DST=${MY_FILENAME_PREFIX}${MY_FILENAME_SRC} && \
+        echo "Transcoding: $MY_FILENAME_SRC -> $MY_FILENAME_DST" && \
         HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME"; \
       done )
 }
