@@ -77,6 +77,13 @@ handbrake_transcode_dir()
         MY_PRESET_NAME="$2"
     fi
 
+    MY_LOCK_FILE=/tmp/handbrake_transcode_dir.lock
+
+    if [ -f "$MY_LOCK_FILE" ]; then
+        echo "Transcoding job already running, exiting."
+    fi
+    touch ${MY_LOCK_FILE}
+
     MY_FILENAME_EXT=".*\.\(avi\|wmv\|flv\|mp4\|mkv\)"
     MY_FILENAME_PREFIX=transcoded_
     MY_PRESET_FILE="$DOTFILES/bin/handbrake/profiles/$MY_PRESET_NAME.json"
@@ -93,4 +100,6 @@ handbrake_transcode_dir()
         echo "Transcoding: $MY_FILENAME_SRC -> $MY_FILENAME_DST"
         HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME";
       done )
+
+      rm ${MY_LOCK_FILE}
 }
