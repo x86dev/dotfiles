@@ -82,11 +82,15 @@ handbrake_transcode_dir()
     MY_PRESET_FILE="$DOTFILES/bin/handbrake/profiles/$MY_PRESET_NAME.json"
 
     ( cd ${MY_TRANSCODE_PATH} && find . -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX*" \) -print0 | \
-      while IFS= read -r -d $'\0' MY_FILENAME; do \
-        cd $(dirname $MY_FILENAME) && \
-        MY_FILENAME_SRC=$(basename $MY_FILENAME) && \
-        MY_FILENAME_DST=${MY_FILENAME_PREFIX}${MY_FILENAME_SRC} && \
-        echo "Transcoding: $MY_FILENAME_SRC -> $MY_FILENAME_DST" && \
-        HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME"; \
+      while IFS= read -r -d $'\0' MY_FILENAME; do
+        cd $(dirname $MY_FILENAME)
+        MY_FILENAME_SRC=$(basename $MY_FILENAME)
+        MY_FILENAME_DST=${MY_FILENAME_PREFIX}${MY_FILENAME_SRC}
+        if [ -f ${MY_FILENAME_DST} ]; then
+            echo "Already transcoded, skipping: $MY_FILENAME_SRC" 
+            continue
+        fi
+        echo "Transcoding: $MY_FILENAME_SRC -> $MY_FILENAME_DST"
+        HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME";
       done )
 }
