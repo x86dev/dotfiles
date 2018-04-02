@@ -78,6 +78,7 @@ handbrake_transcode_dir()
     fi
 
     MY_LOCK_FILE=/tmp/handbrake_transcode_dir.lock
+    MY_TRANSCODE_LIST=/tmp/handbrake_transcode_dir.list
 
     if [ -f "$MY_LOCK_FILE" ]; then
         echo "Transcoding job already running, exiting."
@@ -90,8 +91,9 @@ handbrake_transcode_dir()
 
     echo "Started: $(date)"
 
-    ( cd ${MY_TRANSCODE_PATH} && find . -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX*" \) -print0 | \
-      while IFS= read -r -d $'\0' MY_FILENAME; do
+    find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX*" \) -print0 > ${MY_TRANSCODE_LIST}
+
+    while IFS= read -r -d '' MY_FILENAME <&3; do
         MY_FILENAME_PATH=$(dirname $MY_FILENAME)
         MY_FILENAME_NAME=$(basename $MY_FILENAME)
         MY_FILENAME_SRC=${MY_FILENAME_PATH}/${MY_FILENAME_NAME}
@@ -101,10 +103,11 @@ handbrake_transcode_dir()
             continue
         fi
         echo "Transcoding: $MY_FILENAME_SRC -> $MY_FILENAME_DST"
-        HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME" > /dev/null 2>&1;
-      done )
+        HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME" > /dev/null 2>&1
+    done 3< ${MY_TRANSCODE_LIST};
 
-      echo "Ended: $(date)"
+    echo "Ended: $(date)"
 
-      rm ${MY_LOCK_FILE}
+    rm ${MY_TRANSCODE_LIST}
+    rm ${MY_LOCK_FILE}
 }
