@@ -93,12 +93,12 @@ handbrake_transcode_dir()
 
     find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX*" \) -print0 > ${MY_TRANSCODE_LIST}
 
-    while IFS= read -r -d '' MY_FILENAME <&3; do
-        MY_FILENAME_PATH=$(dirname $MY_FILENAME)
-        MY_FILENAME_NAME=$(basename $MY_FILENAME)
+    while IFS= read -r -d $'\0' MY_FILENAME <&3; do
+        MY_FILENAME_PATH=$(dirname "$MY_FILENAME")
+        MY_FILENAME_NAME=$(basename "$MY_FILENAME")
         MY_FILENAME_SRC=${MY_FILENAME_PATH}/${MY_FILENAME_NAME}
         MY_FILENAME_DST=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX}${MY_FILENAME_NAME}
-        if [ -f ${MY_FILENAME_DST} ]; then
+        if [ -f "$MY_FILENAME_DST" ]; then
             echo "Already transcoded, skipping: $MY_FILENAME_SRC" 
             continue
         fi
