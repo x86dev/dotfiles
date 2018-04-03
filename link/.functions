@@ -104,6 +104,10 @@ handbrake_transcode_dir()
         fi
         echo "Transcoding: $MY_FILENAME_SRC -> $MY_FILENAME_DST"
         HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME" > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            echo "Error transcoding file: $MY_FILENAME_SRC"
+            rm "$MY_FILENAME_DST" # Delete partially encoded file again.
+        fi
     done 3< ${MY_TRANSCODE_LIST};
 
     echo "Ended: $(date)"
