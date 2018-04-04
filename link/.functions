@@ -85,7 +85,7 @@ handbrake_transcode_dir()
     fi
     touch ${MY_LOCK_FILE}
 
-    MY_FILENAME_EXT=".*\.\(avi\|wmv\|flv\|mp4\|mkv\)"
+    MY_FILENAME_EXT=".*\.\(avi\|wmv\|mpg\|mp4\|mkv\)"
     MY_FILENAME_PREFIX=transcoded_
     MY_PRESET_FILE="$DOTFILES/bin/handbrake/profiles/$MY_PRESET_NAME.json"
 
