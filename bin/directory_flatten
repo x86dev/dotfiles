@@ -1,0 +1,5 @@
+#!/bin/sh
+
+MY_DIR="$1"
+find "$MY_DIR" -mindepth 2 -type f -exec mv -v '{}' "$MY_DIR" ';' && \
+find "$MY_DIR" -mindepth 2 -type d -empty -delete
