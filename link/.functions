@@ -65,17 +65,33 @@ handbrake_transcode_file()
 
 handbrake_transcode_dir()
 {
-    if [ -z "$1" ] ; then
+    if [ $# -lt 1 ]; then
         MY_TRANSCODE_PATH="."
     else
         MY_TRANSCODE_PATH="$1"
+        shift
     fi
 
-    if [ -z "$2" ] ; then
-        MY_PRESET_NAME="op3"
-    else
-        MY_PRESET_NAME="$2"
-    fi
+    MY_PRESET_NAME="op3"
+    MY_DO_REPLACE=""
+
+    while [ $# != 0 ]; do
+        CUR_PARM="$1"
+        shift
+        case "$CUR_PARM" in
+            --profile)
+                MY_PRESET_NAME="$1"
+                shift
+                ;;
+            --replace)
+                MY_DO_REPLACE=1
+                ;;
+            *)
+                ${ECHO} "ERROR: Unknown option \"$CUR_PARM\"" 1>&2
+                ${ECHO} "" 1>&2
+                ;;
+        esac
+    done
 
     MY_LOCK_FILE=/tmp/handbrake_transcode_dir.lock
     MY_TRANSCODE_LIST=/tmp/handbrake_transcode_dir.list
@@ -89,7 +105,7 @@ handbrake_transcode_dir()
     MY_FILENAME_PREFIX=transcoded_
     MY_PRESET_FILE="$HOME/.dotfiles/bin/handbrake/profiles/$MY_PRESET_NAME.json"
 
-    echo "[$(date)] Started"
+    echo "[$(date)] Started: $MY_TRANSCODE_PATH"
 
     find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX*" \) -print0 > ${MY_TRANSCODE_LIST}
 
@@ -100,7 +116,7 @@ handbrake_transcode_dir()
         MY_FILENAME_DST=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX}${MY_FILENAME_NAME}
         MY_FILENAME_LOG=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX}${MY_FILENAME_NAME}.log
         if [ -f "$MY_FILENAME_DST" ]; then
-            echo "[$(date)] Already transcoded, skipping: $MY_FILENAME_SRC" 
+            echo "[$(date)] Already transcoded, skipping: $MY_FILENAME_SRC"
             continue
         fi
         echo "[$(date)] Transcoding started: $MY_FILENAME_SRC -> $MY_FILENAME_DST"
@@ -110,8 +126,12 @@ handbrake_transcode_dir()
             rm "$MY_FILENAME_DST" > /dev/null 2>&1 # Delete partially encoded file again.
             # Keep the log file.
         else
-            echo "[$(date)] Transcoding file ended: $MY_FILENAME_SRC"
+            echo "[$(date)] Transcoding successful: $MY_FILENAME_SRC"
             rm "$MY_FILENAME_LOG" # Remove the log file on success.
+            if [ -n "$MY_DO_REPLACE" ]; then
+                echo "[$(date)] Replacing $MY_FILENAME_SRC"
+                mv "$MY_FILENAME_SRC" "$MY_FILENAME_PATH/original_$MY_FILENAME_NAME" && mv "$MY_FILENAME_DST" "$MY_FILENAME_SRC"
+            fi
         fi
     done 3< ${MY_TRANSCODE_LIST};
 
