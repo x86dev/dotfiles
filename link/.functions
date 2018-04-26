@@ -57,7 +57,7 @@ handbrake_transcode_file()
         MY_PRESET_NAME="$2"
     fi
 
-    MY_PRESET_FILE="$DOTFILES/bin/handbrake/profiles/$MY_PRESET_NAME.json"
+    MY_PRESET_FILE="$HOME/.dotfiles/bin/handbrake/profiles/$MY_PRESET_NAME.json"
 
     ( cd $(dirname "$MY_TRANSCODE_FILE") && \
       HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_TRANSCODE_FILE" -o transcoded_$(basename "$MY_TRANSCODE_FILE") --preset="$MY_PRESET_NAME" )
@@ -87,9 +87,9 @@ handbrake_transcode_dir()
 
     MY_FILENAME_EXT=".*\.\(avi\|wmv\|mpg\|mp4\|mkv\)"
     MY_FILENAME_PREFIX=transcoded_
-    MY_PRESET_FILE="$DOTFILES/bin/handbrake/profiles/$MY_PRESET_NAME.json"
+    MY_PRESET_FILE="$HOME/.dotfiles/bin/handbrake/profiles/$MY_PRESET_NAME.json"
 
-    echo "Started: $(date)"
+    echo "[$(date)] Started"
 
     find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX*" \) -print0 > ${MY_TRANSCODE_LIST}
 
@@ -98,19 +98,24 @@ handbrake_transcode_dir()
         MY_FILENAME_NAME=$(basename "$MY_FILENAME")
         MY_FILENAME_SRC=${MY_FILENAME_PATH}/${MY_FILENAME_NAME}
         MY_FILENAME_DST=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX}${MY_FILENAME_NAME}
+        MY_FILENAME_LOG=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX}${MY_FILENAME_NAME}.log
         if [ -f "$MY_FILENAME_DST" ]; then
-            echo "Already transcoded, skipping: $MY_FILENAME_SRC" 
+            echo "[$(date)] Already transcoded, skipping: $MY_FILENAME_SRC" 
             continue
         fi
-        echo "Transcoding: $MY_FILENAME_SRC -> $MY_FILENAME_DST"
-        HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME" > /dev/null 2>&1
+        echo "[$(date)] Transcoding started: $MY_FILENAME_SRC -> $MY_FILENAME_DST"
+        HandBrakeCLI --preset-import-file "$MY_PRESET_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PRESET_NAME" 2>&1 | tee "$MY_FILENAME_LOG"
         if [ $? -ne 0 ]; then
-            echo "Error transcoding file: $MY_FILENAME_SRC"
-            rm "$MY_FILENAME_DST" # Delete partially encoded file again.
+            echo "[$(date)] Error transcoding file: $MY_FILENAME_SRC"
+            rm "$MY_FILENAME_DST" > /dev/null 2>&1 # Delete partially encoded file again.
+            # Keep the log file.
+        else
+            echo "[$(date)] Transcoding file ended: $MY_FILENAME_SRC"
+            rm "$MY_FILENAME_LOG" # Remove the log file on success.
         fi
     done 3< ${MY_TRANSCODE_LIST};
 
-    echo "Ended: $(date)"
+    echo "[$(date)] Ended"
 
     rm ${MY_TRANSCODE_LIST}
     rm ${MY_LOCK_FILE}
