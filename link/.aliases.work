@@ -1,4 +1,3 @@
 #!/bin/sh
 
 alias vbx_mods='ls /dev | grep -i "vbox"'
-alias vbx_nls_de='/usr/lib/x86_64-linux-gnu/qt5/bin/linguist ${HOME}/vbox/trunk/src/VBox/Frontends/VirtualBox/nls/VirtualBox_de.ts'

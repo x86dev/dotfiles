@@ -1,0 +1,14 @@
+#!/bin/sh
+
+. ${HOME}/.functions.work
+
+__vbx_env ${1}
+
+MY_NLS_LANG=${2}
+
+# Set default language to translate, if no other language given.
+if [ -z "$MY_NLS_LANG" ]; then
+  MY_NLS_LANG=de
+fi
+
+/usr/lib/x86_64-linux-gnu/qt5/bin/linguist "$VBOX_PATH_ROOT/src/VBox/Frontends/VirtualBox/nls/VirtualBox_$MY_NLS_LANG.ts"
