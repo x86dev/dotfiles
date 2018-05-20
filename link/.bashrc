@@ -5,6 +5,9 @@ export DOTFILES_PRIV=~/.dotfiles-private
 # Add binaries into the path.
 PATH=${DOTFILES}/bin:${PATH}
 
+# Add work stuff to path.
+PATH=${DOTFILES}/bin/work:${PATH}
+
 # Private dotfiles have precedence over public ones.
 if [ -n "$DOTFILES_PRIV" ]; then
   PATH=${DOTFILES_PRIV}/bin:${PATH}
