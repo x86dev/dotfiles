@@ -12,7 +12,7 @@ fi
 
 export PATH
 
-# Source all files in "source".
+# Sources all files in "source".
 function src() {
   local file
   if [[ "$1" ]]; then
@@ -37,4 +37,5 @@ function dotfiles() {
   $DOTFILES/bin/dotfiles "$@" && src
 }
 
+# Finally, source the files.
 src
