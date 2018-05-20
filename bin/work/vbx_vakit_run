@@ -1,0 +1,14 @@
+#!/bin/sh
+
+. ${HOME}/.functions.work
+
+__vbx_vakit_env ${1}
+
+# Make sure no VBoxSVC is around anymore.
+vbx_kill
+
+# Start the test driver with debug arguments.
+# Note: Needs xterm installed!
+( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
+    python tdAddGuestCtrl.py ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
+    --test-vms tst-xppro --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )

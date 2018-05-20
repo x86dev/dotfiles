@@ -1,0 +1,7 @@
+#!/bin/sh
+
+. ${HOME}/.functions.work
+
+__vbx_env ${1}
+
+( cd ${VBOX_PATH_ROOT} && kmk && vbx_build_drivers )

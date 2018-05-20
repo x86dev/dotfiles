@@ -1,0 +1,12 @@
+#!/bin/sh
+
+. ${HOME}/.functions.work
+
+__vbx_env ${1}
+
+cd ${VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/src/ &&
+make &&
+sudo make load &&
+sudo chmod 777 /dev/vbox* &&
+cd ${VBOX_PATH_OUT}/
+./VirtualBox &

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+export VBOX_ASSERT=panic
+while true; do
+    ${1}
+    if [ $? -ne 0 ]; then
+        exit
+    fi
+done

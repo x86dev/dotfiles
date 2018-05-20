@@ -1,0 +1,19 @@
+#!/bin/sh
+
+. ${HOME}/.functions.work
+
+__vbx_env ${1}
+
+VBOX_DEPS="\
+    RuntimeBldProg \
+    RuntimeR0 \
+    RuntimeR3 \
+    VBoxRT \
+    VBoxNetFlt-src \
+    VBoxNetFlt-sh \
+    VBoxNetAdp-src \
+    VBoxPci-src \
+    HostDrivers-scripts \
+    vboxdrv-src"
+
+( cd ${VBOX_PATH_ROOT} && kmk BUILD_TYPE=release ${VBOX_DEPS} )
