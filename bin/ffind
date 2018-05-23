@@ -1,0 +1,5 @@
+#!/bin/sh
+
+. ${HOME}/.functions
+
+__my_ffind "." "$1" ""
