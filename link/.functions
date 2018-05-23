@@ -23,7 +23,7 @@ __my_check_root_exit()
 # $3: Search options (grep)
 __my_ffind()
 {
-    find ${1} -type f -exec grep -H ${3} "$2" {} \;
+    find ${1} -type f -exec grep --color=auto -n -H ${3} "$2" {} \;
 }
 
 rescue_mount()
