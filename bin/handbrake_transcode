@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ -z "$1" ] ; then
+    echo "No file to transcode specified"
+    return
+else
+    MY_TRANSCODE_FILE="$1"
+fi
+
+if [ -z "$2" ] ; then
+    MY_PROFILE_NAME="op3"
+else
+    MY_PROFILE_NAME="$2"
+fi
+
+MY_PROFILE_FILE="$HOME/.dotfiles/bin/handbrake/profiles/$MY_PROFILE_NAME.json"
+
+( cd $(dirname "$MY_TRANSCODE_FILE") && \
+    HandBrakeCLI --preset-import-file "$MY_PROFILE_FILE" -i "$MY_TRANSCODE_FILE" -o transcoded_$(basename "$MY_TRANSCODE_FILE") --preset="$MY_PROFILE_NAME" )
