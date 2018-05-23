@@ -1,0 +1,13 @@
+#!/bin/sh
+
+#
+# Renames a set of files with same file extension to another
+# file extension: rename JPG jpg
+#
+
+for file in *.${1}
+    do
+        mv -v $file ${file%.*}.${2}
+    # Another way: mv $file `echo $file | sed 's/\(.*\.\)html/\1php/'`
+    # And another: mv $file `basename $file htm` html"
+    done

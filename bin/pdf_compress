@@ -1,0 +1,6 @@
+#!/bin/sh
+
+MY_TEMP_FILE=$(mktemp /tmp/pdf-compress.XXXXXX)
+pdf2ps ${1} ${MY_TEMP_FILE}
+ps2pdf -dPDFSETTINGS=/screen -dDownsampleColorImages=true -dColorImageResolution=200 -dColorImageDownsampleType=/Bicubic ${MY_TEMP_FILE} ${1}
+rm ${MY_TEMP_FILE}

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+#
+# Returns the total size of a specific file / wildcard in the current directory.
+#
+find . -iname "$1" -print0 | du --files0-from=- -hc | tail -n1

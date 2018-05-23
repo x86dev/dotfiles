@@ -37,33 +37,3 @@ rescue_mount()
     mount -o bind /etc/resolv.conf ${MY_MOUNT_POINT}/etc/resolv.conf
     chroot ${MY_MOUNT_POINT} /bin/bash
 }
-
-#
-# Renames a set of files with same file extension to another
-# file extension: rename JPG jpg
-#
-files_rename_ext()
-{
-    for file in *.${1}
-        do
-            mv -v $file ${file%.*}.${2}
-        # Another way: mv $file `echo $file | sed 's/\(.*\.\)html/\1php/'`
-        # And another: mv $file `basename $file htm` html"
-        done
-}
-
-#
-# Returns the total size of a specific file / wildcard in the current directory.
-#
-files_get_size()
-{
-    find . -iname "$1" -print0 | du --files0-from=- -hc | tail -n1
-}
-
-pdf_compress()
-{
-    MY_TEMP_FILE=$(mktemp /tmp/pdf-compress.XXXXXX)
-    pdf2ps ${1} ${MY_TEMP_FILE}
-    ps2pdf -dPDFSETTINGS=/screen -dDownsampleColorImages=true -dColorImageResolution=200 -dColorImageDownsampleType=/Bicubic ${MY_TEMP_FILE} ${1}
-    rm ${MY_TEMP_FILE}
-}
