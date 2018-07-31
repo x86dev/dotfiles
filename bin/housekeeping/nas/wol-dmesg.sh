@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2016-2017 by Andreas Loeffler (x86dev).
+# Copyright 2016-2018 by Andreas Loeffler (x86dev).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,14 +43,14 @@ fi
 
 PING_RETRIES=1
 
-LOG_FILE="/tmp/wol-dmesg.log"
+LOG_PATH="/www/wol"
+LOG_FILE="$LOG_PATH/index.html"
 LOG_TOKEN="<NAS WOL>"
 
 SLEEP_SEC_ALIVE=30
 SLEEP_SEC_CHECK=5
 
 WOL=/usr/bin/etherwake
-WOL_INTERFACE=eth0.2
 WOL_OPTS="-i $WOL_INTERFACE"
 
 log()
@@ -60,6 +60,9 @@ log()
 
 # Clear the dmesg log before we begin.
 dmesg -c 2>&1 > /dev/null
+
+# Make sure that the log path exists.
+mkdir -p "$LOG_PATH"
 
 log "Script started"
 log "Using config: $CFG_FILE"
