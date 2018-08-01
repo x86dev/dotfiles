@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ $# -lt 1 ]; then
     MY_TRANSCODE_PATH="."
@@ -33,7 +33,7 @@ which HandBrakeCLI &> /dev/null || ( echo "HandBrakeCLI not installed. Aborting.
 
 if [ -z "$MY_PROFILE_FILE" ]; then 
     echo "No profile specified. Use --profile <path/to/profile.json> to set."
-    return 2
+    exit 2
 fi
 
 MY_LOCK_FILE=/tmp/handbrake_transcode_dir.lock
@@ -41,7 +41,7 @@ MY_TRANSCODE_LIST=/tmp/handbrake_transcode_dir.list
 
 if [ -f "$MY_LOCK_FILE" ]; then
     echo "Transcoding job already running, exiting."
-    return 2
+    exit 2
 fi
 touch ${MY_LOCK_FILE}
 
@@ -55,6 +55,7 @@ echo "[$(date)] Started: $MY_TRANSCODE_PATH (using $MY_PROFILE_FILE)"
 
 find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX_TRANSCODED*" -a ! -iname "$MY_FILENAME_PREFIX_ORIGINAL*" \) -print0 > ${MY_TRANSCODE_LIST}
 
+# Note: This script *must* run with bash as interpreter, as otherwise "read -r" will *not* work!
 while IFS= read -r -d $'\0' MY_FILENAME <&3; do
     MY_FILENAME_PATH=$(dirname "$MY_FILENAME")
     MY_FILENAME_NAME=$(basename "$MY_FILENAME")
@@ -62,19 +63,16 @@ while IFS= read -r -d $'\0' MY_FILENAME <&3; do
     MY_FILENAME_DST=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX_TRANSCODED}${MY_FILENAME_NAME}
     MY_FILENAME_LOG=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX_TRANSCODED}${MY_FILENAME_NAME}.log
 
-    echo "[$(date)] Handling: $MY_FILENAME_SRC"
-
-    MY_SRC_CODEC_TYPE=$(ffprobe -v error -hide_banner -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=codec_name "$MY_FILENAME_SRC")
+    MY_SRC_CODEC_TYPE=$(ffprobe -v error -hide_banner -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=codec_tag_string "$MY_FILENAME_SRC")
     if [ $? -ne 0 ]; then
         echo "[$(date)] Unable to determine codec type, skipping: $MY_FILENAME_SRC"
         continue
     fi
-    if [ "$MY_SRC_CODEC_TYPE" == "h264" ]; then
-        echo "[$(date)] Already transcoded, skipping: $MY_FILENAME_SRC"
+    if [ "$MY_SRC_CODEC_TYPE" == "hvc1" ]; then
         continue
     fi
     echo "[$(date)] Transcoding started: $MY_FILENAME_SRC ($MY_SRC_CODEC_TYPE) -> $MY_FILENAME_DST"
-    HandBrakeCLI --preset-import-file "$MY_PROFILE_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PROFILE_NAME" 2>&1 | tee "$MY_FILENAME_LOG"
+    HandBrakeCLI --preset-import-file "$MY_PROFILE_FILE" -i "$MY_FILENAME_SRC" -o "$MY_FILENAME_DST" --preset="$MY_PROFILE_NAME" 2>&1 | tee "$MY_FILENAME_LOG" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo "[$(date)] Error transcoding file: $MY_FILENAME_SRC"
         rm "$MY_FILENAME_DST" > /dev/null 2>&1 # Delete partially encoded file again.
