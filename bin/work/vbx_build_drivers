@@ -2,7 +2,7 @@
 
 . ${HOME}/.functions.work
 
-__vbx_env ${1}
+__vbx_env "$VBOX_BRANCH"
 
 VBOX_DEPS="\
     RuntimeBldProg \

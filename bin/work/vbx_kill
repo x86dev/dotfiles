@@ -1,5 +1,7 @@
 #!/bin/sh
 
 pkill -e VirtualBox
+pkill -e VBoxSVC
+pkill -e VBoxXPCOMIPCD
+
 ## @todo Kill VBoxSDS on Windows.
-pkill -e VBoxSVC. ${HOME}/.functions.work

@@ -2,7 +2,7 @@
 
 . ${HOME}/.functions.work
 
-__vbx_vakit_env ${1}
+__vbx_env "$VBOX_BRANCH"
 
 # Make sure no VBoxSVC is around anymore.
 vbx_kill
