@@ -20,6 +20,10 @@
 # As most switches / routers do the routing internally without reaching iptable's / netfilter's
 # filtering routines, the server to wake up must be in a different (V)LAN.
 #
+# Examples for iptables rules:
+#   iptables -I FORWARD 1 -p tcp -d 192.168.1.120 -m multiport --dports 21,22,80,443,137,138,139,6789,8096,8920 -m limit --limit 30/min -j LOG --log-level 7 --log-prefix '<NAS WOL> '
+#   iptables -I FORWARD 1 -m state -p tcp -d 192.168.1.120 --dport 8920 -m limit --limit 30/min -j LOG --log-level 7 --log-prefix '<NAS WOW> '
+#
 # This script then periodically checks - based on the NAS filtering + logging rules - the dmesg
 # log to see if we need to perform a WOL request.
 #
