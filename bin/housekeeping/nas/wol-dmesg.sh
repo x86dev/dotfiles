@@ -55,7 +55,7 @@ WOL_OPTS="-i $WOL_INTERFACE"
 
 log()
 {
-    echo "[`date`] $1" | tee -a ${LOG_FILE}
+    echo "[`date`] $1<br>" | tee -a ${LOG_FILE}
 }
 
 # Clear the dmesg log before we begin.
@@ -64,6 +64,7 @@ dmesg -c 2>&1 > /dev/null
 # Make sure that the log path exists.
 mkdir -p "$LOG_PATH"
 
+log "\"<meta http-equiv=\"refresh\" content=\"5\">"
 log "Script started"
 log "Using config: $CFG_FILE"
 
