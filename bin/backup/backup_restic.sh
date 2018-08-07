@@ -487,9 +487,6 @@ BACKUP_LOG_PREFIX="backup-$BACKUP_TIMESTAMP"
 
 case "$SCRIPT_CMD" in
     backup)
-        LANG_OLD=${LANG}
-        export LANG=en_US.UTF-8
-        unset PASSPHRASE
         backup_send_email_start
         backup_log "Backup started at: $(date --rfc-3339=seconds)"
         backup_log "Running monthly backups ..."
@@ -508,7 +505,6 @@ case "$SCRIPT_CMD" in
             SCRIPT_EXITCODE=1
             break
         fi
-        export LANG=${LANG_OLD}
         if [ -n "$PROFILE_SOURCES_ONCE" ]; then
             backup_log "Running only-once backups (mirroring) ..."
             rsync_run "$BACKUP_DEST_HOST" "$PROFILE_SOURCES_ONCE" "$BACKUP_DEST_DIR"
