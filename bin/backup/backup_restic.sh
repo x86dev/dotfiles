@@ -180,6 +180,14 @@ backup_test()
     fi
 }
 
+backup_update()
+{
+    LOCAL_RESTIC_TAG_LATEST=$(curl --silent "https://api.github.com/repos/restic/restic/releases/latest" | grep -Po '"tag_name": "v\K.*?(?=")')
+    echo "Downloading and installing restic v$LOCAL_RESTIC_TAG_LATEST ..."
+    LOCAL_RESTIC_URL=https://github.com/restic/restic/releases/download/v${LOCAL_RESTIC_TAG_LATEST}/restic_${LOCAL_RESTIC_TAG_LATEST}_linux_amd64.bz2
+    sudo curl -L --silent ${LOCAL_RESTIC_URL} | bunzip2 > /usr/local/bin/restic```
+}
+
 backup_setup()
 {
     #${ECHO} "Testing key: ${PROFILE_GPG_KEY}"
@@ -368,6 +376,8 @@ case "$SCRIPT_CMD" in
         ;;
     test)
         ;;
+    update)
+        ;;
     --help|-h|-?)
         show_help
         ;;
@@ -535,11 +545,15 @@ case "$SCRIPT_CMD" in
         fi
         ;;
     setup)
+        backup_update
         backup_setup
         if [ $? -ne "0" ]; then
             SCRIPT_EXITCODE=1
             break
         fi
+        ;;
+    update)
+        backup_update
         ;;
     *)
         ${ECHO} "Unknown command \"$SCRIPT_CMD\", exiting"
