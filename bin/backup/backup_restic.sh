@@ -261,11 +261,6 @@ backup_copy_file()
     return ${LOCAL_RC}
 }
 
-backup_prepare()
-{
-    
-}
-
 backup_run()
 {
     LOCAL_RC=0
@@ -282,6 +277,8 @@ backup_run()
         --exclude-caches \
         --one-file-system"
 
+    export RESTIC_PASSWORD=${PROFILE_GPG_PASSPHRASE}
+
     CUR_DEST_DIR=${BACKUP_PATH_PREFIX}:${LOCAL_DEST_DIR}/
     CUR_LOG_NAME=${BACKUP_PATH_TMP}/${BACKUP_LOG_PREFIX}-${PROFILE_NAME}
     CUR_LOG_FILE=${CUR_LOG_NAME}.log
@@ -293,7 +290,9 @@ backup_run()
         backup_log "Failed running backup (see $CUR_LOG_FILE)"
         LOCAL_RC=1
     fi
-    backup_copy_file "$CUR_LOG_FILE" "$CUR_DEST_DIR"
+    backup_copy_file "$CUR_LOG_FILE" "$LOCAL_DEST_DIR"
+
+    unset RESTIC_PASSWORD
 
     return ${LOCAL_RC}
 }
@@ -307,12 +306,6 @@ rsync_run()
         --archive \
         --delete \
         --stats"
-
-    #if [ -n "$PROFILE_DEST_SSH_IDENTITY_FILE" ]; then
-    #    LOCAL_RSYNC_OPTS="\
-    #        $LOCAL_RSYNC_OPTS \
-    #        --rsh \"ssh -i \"$PROFILE_DEST_SSH_IDENTITY_FILE\"\""
-    #fi
 
     LOCAL_HOST=${1}
     LOCAL_SOURCES=${2}
