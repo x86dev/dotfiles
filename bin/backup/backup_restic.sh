@@ -186,6 +186,8 @@ backup_update()
     echo "Downloading and installing restic v$LOCAL_RESTIC_TAG_LATEST ..."
     LOCAL_RESTIC_URL=https://github.com/restic/restic/releases/download/v${LOCAL_RESTIC_TAG_LATEST}/restic_${LOCAL_RESTIC_TAG_LATEST}_linux_amd64.bz2
     sudo curl -L --silent ${LOCAL_RESTIC_URL} | bunzip2 > /usr/local/bin/restic
+    sudo chmod 755 /usr/local/bin/restic
+    return $?
 }
 
 backup_setup()
@@ -378,6 +380,7 @@ case "$SCRIPT_CMD" in
         ;;
     update)
         backup_update
+        exit $?
         ;;
     --help|-h|-?)
         show_help
