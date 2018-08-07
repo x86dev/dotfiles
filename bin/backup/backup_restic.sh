@@ -185,7 +185,7 @@ backup_update()
     LOCAL_RESTIC_TAG_LATEST=$(curl --silent "https://api.github.com/repos/restic/restic/releases/latest" | grep -Po '"tag_name": "v\K.*?(?=")')
     echo "Downloading and installing restic v$LOCAL_RESTIC_TAG_LATEST ..."
     LOCAL_RESTIC_URL=https://github.com/restic/restic/releases/download/v${LOCAL_RESTIC_TAG_LATEST}/restic_${LOCAL_RESTIC_TAG_LATEST}_linux_amd64.bz2
-    sudo curl -L --silent ${LOCAL_RESTIC_URL} | bunzip2 > /usr/local/bin/restic```
+    sudo curl -L --silent ${LOCAL_RESTIC_URL} | bunzip2 > /usr/local/bin/restic
 }
 
 backup_setup()
@@ -377,6 +377,7 @@ case "$SCRIPT_CMD" in
     test)
         ;;
     update)
+        backup_update
         ;;
     --help|-h|-?)
         show_help
