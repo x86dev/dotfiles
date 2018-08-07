@@ -438,6 +438,13 @@ if [ -z "$PROFILE_GPG_PASSPHRASE" ]; then
     exit 1
 fi
 
+BACKUP_LOCKFILE=/tmp/backup-${PROFILE_NAME}.lock
+if [ -f "$BACKUP_LOCKFILE" ]; then
+    ${ECHO} "Backup already running."
+    exit 1
+fi
+touch "$BACKUP_LOCKFILE"
+
 if [ "$PROFILE_DEST_HOST" = "localhost" ]; then
     BACKUP_TO_REMOTE=0
 else
@@ -561,5 +568,6 @@ case "$SCRIPT_CMD" in
         ;;
 esac
 
+rm "$BACKUP_LOCKFILE"
 
 exit ${SCRIPT_EXITCODE}
