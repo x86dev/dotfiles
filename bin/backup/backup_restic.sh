@@ -287,6 +287,12 @@ backup_run()
         --exclude-caches \
         --one-file-system"
 
+    if [ -n "$PROFILE_SOURCES_MONTHLY_EXCLUDE" ]; then
+        for CUR_EXCLUDE in ${PROFILE_SOURCES_MONTHLY_EXCLUDE}; do
+            LOCAL_BACKUP_OPTS="$LOCAL_BACKUP_OPTS --exclude $CUR_EXCLUDE"
+        done
+    fi
+
     export RESTIC_PASSWORD=${PROFILE_GPG_PASSPHRASE}
 
     CUR_DEST_DIR=${BACKUP_PATH_PREFIX}${LOCAL_DEST_DIR}/
