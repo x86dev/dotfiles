@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <To-Find> <To-Replace-With>" >&2
+    exit 1
+fi
+
+#
+# Finds and replaces $1 with $2 in the current directory.
+#
+grep -rl "$1" . | xargs sed -i "s/$1/$2/g"
