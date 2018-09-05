@@ -279,7 +279,18 @@ backup_run()
     LOCAL_SOURCES=${2}
     LOCAL_DEST_DIR=${3}
 
-    backup_create_dir "$LOCAL_HOST" "$LOCAL_DEST_DIR"
+    CUR_DEST_DIR=${BACKUP_PATH_PREFIX}${LOCAL_DEST_DIR}/
+    CUR_LOG_NAME=${BACKUP_PATH_TMP}/${BACKUP_LOG_PREFIX}-${PROFILE_NAME}
+    CUR_LOG_FILE=${CUR_LOG_NAME}.log
+
+    ${ECHO} "Backing up: $PROFILE_NAME"
+    ${ECHO} "    Target: $CUR_DEST_DIR"
+    ${ECHO} "       Log: $CUR_LOG_FILE"
+
+    export RESTIC_PASSWORD=${PROFILE_GPG_PASSPHRASE}
+
+    # Init the repository in case it doesn't exist (yet).
+    ${BACKUP_BIN} init -r ${CUR_DEST_DIR} /dev/null 2>&1
 
     LOCAL_BACKUP_OPTS="\
         backup \
@@ -293,14 +304,6 @@ backup_run()
         done
     fi
 
-    export RESTIC_PASSWORD=${PROFILE_GPG_PASSPHRASE}
-
-    CUR_DEST_DIR=${BACKUP_PATH_PREFIX}${LOCAL_DEST_DIR}/
-    CUR_LOG_NAME=${BACKUP_PATH_TMP}/${BACKUP_LOG_PREFIX}-${PROFILE_NAME}
-    CUR_LOG_FILE=${CUR_LOG_NAME}.log
-    ${ECHO} "Backing up: $PROFILE_NAME"
-    ${ECHO} "    Target: $CUR_DEST_DIR"
-    ${ECHO} "       Log: $CUR_LOG_FILE"
     ${BACKUP_BIN} -r ${CUR_DEST_DIR} ${LOCAL_BACKUP_OPTS} ${LOCAL_SOURCES} | tee -a ${CUR_LOG_FILE}
     if [ $? -ne "0" ]; then
         backup_log "Failed running backup (see $CUR_LOG_FILE)"
