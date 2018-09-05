@@ -290,7 +290,7 @@ backup_run()
     export RESTIC_PASSWORD=${PROFILE_GPG_PASSPHRASE}
 
     # Init the repository in case it doesn't exist (yet).
-    ${BACKUP_BIN} init -r ${CUR_DEST_DIR} /dev/null 2>&1
+    ${BACKUP_BIN} init -r ${CUR_DEST_DIR} > /dev/null 2>&1
 
     LOCAL_BACKUP_OPTS="\
         backup \
