@@ -1,5 +1,16 @@
 #!/bin/bash
 
+MY_LOCK_FILE=/tmp/handbrake_transcode_dir.lock
+
+function sig_trap
+{
+    echo "[$(date)] Signal caught, exiting"
+    rm "$MY_LOCK_FILE"
+    exit 1 # This unfortunately also exits the terminal
+}
+
+trap sig_trap 1 2 3 6
+
 if [ $# -lt 1 ]; then
     MY_TRANSCODE_PATH="."
 else
@@ -36,7 +47,6 @@ if [ -z "$MY_PROFILE_FILE" ]; then
     exit 2
 fi
 
-MY_LOCK_FILE=/tmp/handbrake_transcode_dir.lock
 MY_TRANSCODE_LIST=/tmp/handbrake_transcode_dir.list
 
 if [ -f "$MY_LOCK_FILE" ]; then
@@ -63,12 +73,15 @@ while IFS= read -r -d $'\0' MY_FILENAME <&3; do
     MY_FILENAME_DST=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX_TRANSCODED}${MY_FILENAME_NAME}
     MY_FILENAME_LOG=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX_TRANSCODED}${MY_FILENAME_NAME}.log
 
-    MY_SRC_CODEC_TYPE=$(ffprobe -v error -hide_banner -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=codec_tag_string "$MY_FILENAME_SRC")
+    MY_SRC_CODEC_TYPE=$(ffprobe -v error -hide_banner -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=codec_name "$MY_FILENAME_SRC")
+
+    echo "[$(date)] Handling: $MY_FILENAME_SRC ($MY_SRC_CODEC_TYPE)"
+
     if [ $? -ne 0 ]; then
         echo "[$(date)] Unable to determine codec type, skipping: $MY_FILENAME_SRC"
         continue
     fi
-    if [ "$MY_SRC_CODEC_TYPE" == "hvc1" ]; then
+    if [ "$MY_SRC_CODEC_TYPE" == "hevc" ]; then
         continue
     fi
     echo "[$(date)] Transcoding started: $MY_FILENAME_SRC ($MY_SRC_CODEC_TYPE) -> $MY_FILENAME_DST"
