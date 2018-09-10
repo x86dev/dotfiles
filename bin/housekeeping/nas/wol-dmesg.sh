@@ -50,6 +50,7 @@ PING_RETRIES=1
 LOG_PATH="/www/wol"
 LOG_FILE="$LOG_PATH/index.html"
 LOG_TOKEN="<NAS WOL>"
+LOG_DEBUG=0
 
 SLEEP_SEC_ALIVE=30
 SLEEP_SEC_CHECK=5
@@ -60,6 +61,13 @@ WOL_OPTS="-i $WOL_INTERFACE"
 log()
 {
     echo "[`date`] $1<br>" | tee -a ${LOG_FILE}
+}
+
+log_debug()
+{
+    if ["$LOG_DEBUG" = "1" ]; then
+        echo "[`date`] $1<br>" | tee -a ${LOG_FILE}
+    fi
 }
 
 # Clear the dmesg log before we begin.
@@ -86,13 +94,13 @@ while true; do
 
     if [ "$LOG_MSG_ID_NEW" != "" -a "$LOG_MSG_ID_NEW" != "$LOG_MSG_ID_OLD" ]; then
         if ping -qc ${PING_RETRIES} ${TARGET_IP} 2>&1 > /dev/null; then
-            log "Accessed by $LOG_SRC_NAME ($LOG_SRC_IP) (port $LOG_DST_PORT) and is already alive"
+            log_debug "Accessed by $LOG_SRC_NAME ($LOG_SRC_IP) (port $LOG_DST_PORT) and is already alive" 
         else
             log "$LOG_SRC_NAME ($LOG_SRC_IP) causes wake on lan (port $LOG_DST_PORT)"
             ${WOL} ${WOL_OPTS} ${TARGET_MAC} 2>&1 > /dev/null
        fi
        LOG_MSG_ID_OLD=${LOG_MSG_ID_NEW}
-       log "Sleeping for $SLEEP_SEC_ALIVE seconds ..."
+       log_debug "Sleeping for $SLEEP_SEC_ALIVE seconds ..."
        sleep ${SLEEP_SEC_ALIVE}
        dmesg -c 2>&1 > /dev/null
     fi
