@@ -1,11 +1,19 @@
 #!/bin/bash
 
 MY_LOCK_FILE=/tmp/handbrake_transcode_dir.lock
+MY_TRANSCODE_LIST=/tmp/handbrake_transcode_dir.list
+
+function cleanup
+{
+    echo "[$(date)] Cleaning up ..."
+    rm ${MY_TRANSCODE_LIST}
+    rm ${MY_LOCK_FILE}
+}
 
 function sig_trap
 {
     echo "[$(date)] Signal caught, exiting"
-    rm "$MY_LOCK_FILE"
+    cleanup
     exit 1 # This unfortunately also exits the terminal
 }
 
@@ -47,8 +55,6 @@ if [ -z "$MY_PROFILE_FILE" ]; then
     exit 2
 fi
 
-MY_TRANSCODE_LIST=/tmp/handbrake_transcode_dir.list
-
 if [ -f "$MY_LOCK_FILE" ]; then
     echo "Transcoding job already running, exiting."
     exit 2
@@ -56,32 +62,43 @@ fi
 touch ${MY_LOCK_FILE}
 
 MY_FILENAME_EXT=".*\.\(avi\|wmv\|mpg\|mp4\|mkv\)"
-MY_FILENAME_PREFIX_ORIGINAL=original_
+MY_FILENAME_SUFFIX_ORIGINAL=_original
 MY_FILENAME_PREFIX_TRANSCODED=transcoded_
+MY_FILENAME_SUFFIX_TRANSCODED=_transcoded
 
 MY_PROFILE_NAME=$(basename -s .json "$MY_PROFILE_FILE")
 
 echo "[$(date)] Started: $MY_TRANSCODE_PATH (using $MY_PROFILE_FILE)"
 
-find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_PREFIX_TRANSCODED*" -a ! -iname "$MY_FILENAME_PREFIX_ORIGINAL*" \) -print0 > ${MY_TRANSCODE_LIST}
+find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_SUFFIX_TRANSCODED*" -a ! -iname "$MY_FILENAME_PREFIX_ORIGINAL*" \) -print0 > ${MY_TRANSCODE_LIST}
 
 # Note: This script *must* run with bash as interpreter, as otherwise "read -r" will *not* work!
 while IFS= read -r -d $'\0' MY_FILENAME <&3; do
     MY_FILENAME_PATH=$(dirname "$MY_FILENAME")
     MY_FILENAME_NAME=$(basename "$MY_FILENAME")
     MY_FILENAME_SRC=${MY_FILENAME_PATH}/${MY_FILENAME_NAME}
-    MY_FILENAME_DST=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX_TRANSCODED}${MY_FILENAME_NAME}
-    MY_FILENAME_LOG=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX_TRANSCODED}${MY_FILENAME_NAME}.log
+    MY_FILENAME_EXT=$(echo ${MY_FILENAME_NAME} |awk -F . '{if (NF>1) {print $NF}}')
+    MY_FILENAME_NAME_NO_EXT=$(basename "$MY_FILENAME" .${MY_FILENAME_EXT})
+    MY_FILENAME_DST=${MY_FILENAME_PATH}/${MY_FILENAME_NAME_NO_EXT}${MY_FILENAME_SUFFIX_TRANSCODED}.${MY_FILENAME_EXT}
+    MY_FILENAME_DST_OLD_SCHEME=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX_TRANSCODED}${MY_FILENAME_NAME}
+    MY_FILENAME_LOG=${MY_FILENAME_DST}.log
 
     MY_SRC_CODEC_TYPE=$(ffprobe -v error -hide_banner -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=codec_name "$MY_FILENAME_SRC")
-
-    echo "[$(date)] Handling: $MY_FILENAME_SRC ($MY_SRC_CODEC_TYPE)"
 
     if [ $? -ne 0 ]; then
         echo "[$(date)] Unable to determine codec type, skipping: $MY_FILENAME_SRC"
         continue
     fi
     if [ "$MY_SRC_CODEC_TYPE" == "hevc" ]; then
+        echo "[$(date)] Already transcoded, skipping: $MY_FILENAME_SRC"
+        continue
+    fi
+    if [ -f "$MY_FILENAME_DST" ]; then
+        echo "[$(date)] Destination file already exists, skipping: $MY_FILENAME_SRC"
+        continue
+    fi
+    if [ -f "$MY_FILENAME_DST_OLD_SCHEME" ]; then
+        echo "[$(date)] Destination file (old scheme) already exists, skipping: $MY_FILENAME_SRC"
         continue
     fi
     echo "[$(date)] Transcoding started: $MY_FILENAME_SRC ($MY_SRC_CODEC_TYPE) -> $MY_FILENAME_DST"
@@ -95,12 +112,11 @@ while IFS= read -r -d $'\0' MY_FILENAME <&3; do
         rm "$MY_FILENAME_LOG" # Remove the log file on success.
         if [ -n "$MY_DO_REPLACE" ]; then
             echo "[$(date)] Replacing $MY_FILENAME_SRC"
-            mv "$MY_FILENAME_SRC" "$MY_FILENAME_PATH/$MY_FILENAME_PREFIX_ORIGINAL$MY_FILENAME_NAME" && mv "$MY_FILENAME_DST" "$MY_FILENAME_SRC"
+            mv "$MY_FILENAME_SRC" "${MY_FILENAME_PATH}/${MY_FILENAME_NAME_NO_EXT}${MY_FILENAME_SUFFIX_ORIGINAL}.${MY_FILENAME_EXT}" && mv "$MY_FILENAME_DST" "$MY_FILENAME_SRC"
         fi
     fi
 done 3< ${MY_TRANSCODE_LIST};
 
 echo "[$(date)] Ended"
 
-rm ${MY_TRANSCODE_LIST}
-rm ${MY_LOCK_FILE}
+cleanup
