@@ -22,7 +22,7 @@ CP=cp
 DATE=date
 ECHO=echo
 GPG=gpg
-MAILX=$(which mailx)
+MAILX_BIN=$(which mailx)
 MKDIR=mkdir
 MV=mv
 RM=rm
@@ -64,10 +64,11 @@ SCRIPT_HAS_MAILX=0
 backup_send_email()
 {
     if [ "$SCRIPT_HAS_MAILX" = "0" ]; then
+        backup_log "No (valid) mailx client found, skipping to send e-mail"
         return
     fi
 
-    echo "$2" | ${MAILX} \
+    echo "$2" | ${MAILX_BIN} \
         -s "$1" \
         -S from="$PROFILE_EMAIL_FROM_ADDRESS" \
         -S smtp="$PROFILE_EMAIL_SMTP" \
@@ -157,19 +158,8 @@ backup_test()
 {
     backup_log "Testing profile '$PROFILE_NAME' ..."
 
-    # Check if mailx is the heirloom-mailx version which supports more
-    # features like -S for the SMTP stuff.
-    #
-    ## @todo For now we ASSUME that only the heirloom version (-V) returns
-    #        an exit code 0, whereas the dumb versions don't.
     if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
         if [ "$SCRIPT_HAS_MAILX" = "1" ]; then
-            ${MAILX} -V 2>&1 > /dev/null
-            if [ $? -ne "0" ]; then
-                backup_log "Either wrong or old mailx version installed, aborting."
-                return 1
-            fi
-
             backup_log "mailx found, trying to send test mail ..."
             backup_send_email "Backup TEST: $PROFILE_NAME" "The mail test for '$PROFILE_NAME' was successful. Have a nice day."
         else
@@ -439,8 +429,22 @@ fi
 SCRIPT_TS_START=$($DATE +%s)
 
 # Detect mailx.
-if [ -x ${MAILX} ]; then
-    SCRIPT_HAS_MAILX=1
+# Check if mailx is the heirloom-mailx version which supports more
+# features like -S for the SMTP stuff.
+#
+## @todo For now we ASSUME that only the heirloom version (-V) returns
+#        an exit code 0, whereas the dumb versions don't.
+if [ -x ${MAILX_BIN} ]; then
+    ${MAILX_BIN} -V 2>&1 > /dev/null
+    if [ $? -ne "0" ]; then
+        MAILX_BIN=heirloom-mailx
+        ${MAILX_BIN} -V 2>&1 > /dev/null
+        if [ $? -eq "0" ]; then
+            SCRIPT_HAS_MAILX=1
+        fi
+    else
+        SCRIPT_HAS_MAILX=1
+    fi
 fi
 
 ${ECHO} "Using profile: $SCRIPT_PROFILE_FILE_ABS"
