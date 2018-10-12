@@ -9,4 +9,4 @@ if [ -z ${MY_PATH} ]; then
   MY_SCM_PATH=.
 fi
 
-"$VBOX_PATH_OUT/tools/scm" --real-run -vv ${MY_SCM_PATH}/*
+"$MY_VBOX_PATH_OUT/tools/scm" --real-run -vv ${MY_SCM_PATH}/*

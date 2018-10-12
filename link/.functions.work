@@ -4,31 +4,43 @@
 
 __vbx_env()
 {
-    VBOX_BRANCH=${1}
-    if [ -z "$VBOX_BRANCH" ]; then
-        VBOX_BRANCH="trunk"
+    MY_VBOX_BRANCH=${1}
+    if [ -z "$MY_VBOX_BRANCH" ]; then
+        MY_VBOX_BRANCH="trunk"
     fi
 
-    export VBOX_BRANCH
+    echo "Using VBox $MY_VBOX_BRANCH"
 
     if [ -z "$MY_VBOX_HOME" ]; then
         MY_VBOX_HOME=${HOME}/vbox
     fi
 
-    if [ -z "$MY_VBOX_TARGET_OS" ]; then
-        MY_VBOX_TARGET_OS=linux
-    fi
+    MY_VBOX_PATH_ROOT=${MY_VBOX_HOME}/${MY_VBOX_BRANCH}
 
     if [ -z "$MY_VBOX_TARGET_ARCH" ]; then
         ## @todo Detect via $(uname -m)?
         MY_VBOX_TARGET_ARCH=amd64
     fi
 
-    VBOX_PATH_ROOT=${MY_VBOX_HOME}/${VBOX_BRANCH}
-    export VBOX_PATH_ROOT
+    case "$MY_OS" in
+        linux)
+            MY_VBOX_TARGET_OS=linux
+            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
+            ;;
+        Darwin)
+            MY_VBOX_TARGET_OS=darwin
+            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/dist/VirtualBox.app/Contents/MacOS/
+            ;;
+        *)
+            MY_VBOX_TARGET_OS=unknown
+            ;;
+    esac
 
-    VBOX_PATH_OUT=${VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
-    export VBOX_PATH_OUT
+    if [ "$MY_VBOX_BRANCH" = "trunk" ]; then
+        MY_VBOX_VM_FRONTEND=VirtualBoxVM
+    else
+        MY_VBOX_VM_FRONTEND=VirtualBox
+    fi
 
     export VBOX_LOG_DEST=file=${MY_VBOX_HOME}/Logs/VBox.log
 
@@ -40,7 +52,7 @@ __vbx_vakit_env()
 {
     __vbx_env ${1}
 
-    export VBOX_INSTALL_PATH=${VBOX_PATH_OUT}
+    export VBOX_INSTALL_PATH=${MY_VBOX_PATH_OUT}
 
     export VBOX_VALIDATIONKIT_PATH=${HOME}/machines/ValidationKit
     export VBOX_VALIDATIONKIT_LOG_DEST=${VBOX_LOG_DEST}
@@ -57,4 +69,23 @@ __vbx_vakit_env()
 
     # Override the default "gdb" to let the test driver debugger logic do its thing.
     export VBOX_ASSERT=disabled
+}
+
+__vbx_dbg()
+{
+    if [ "$MY_VBOX_TARGET_OS" = "linux" ]; then
+        MY_VBOX_DEBUG_CMD="gdb -ex run --args"
+    else
+        MY_VBOX_DEBUG_CMD="lldb --"
+    fi
+
+    cd ${MY_VBOX_PATH_OUT}
+    if [ "$2" = "restore" ]; then
+        ./VBoxManage snapshot "$1" restorecurrent
+        if [ $? -ne 0 ]; then
+            return 1
+        fi
+    fi
+    ${MY_VBOX_DEBUG_CMD} ./${MY_VBOX_VM_FRONTEND} --startvm "$1"
+    return $?
 }

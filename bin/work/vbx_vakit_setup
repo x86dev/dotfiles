@@ -2,7 +2,7 @@
 
 . ${HOME}/.functions.work
 
-__vbx_env "$VBOX_BRANCH"
+__vbx_env "$MY_VBOX_BRANCH"
 
 # Install / setup Python bindings.
-( cd ${VBOX_PATH_OUT}/sdk/installer && sudo -E python ${VBOX_PATH_OUT}/sdk/installer/vboxapisetup.py install )
+( cd ${MY_VBOX_PATH_OUT}/sdk/installer && sudo -E python ${MY_VBOX_PATH_OUT}/sdk/installer/vboxapisetup.py install )

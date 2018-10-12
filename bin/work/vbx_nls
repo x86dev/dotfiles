@@ -11,4 +11,4 @@ if [ -z "$MY_NLS_LANG" ]; then
   MY_NLS_LANG=de
 fi
 
-/usr/lib/x86_64-linux-gnu/qt5/bin/linguist "$VBOX_PATH_ROOT/src/VBox/Frontends/VirtualBox/nls/VirtualBox_$MY_NLS_LANG.ts"
+/usr/lib/x86_64-linux-gnu/qt5/bin/linguist "$MY_VBOX_PATH_ROOT/src/VBox/Frontends/VirtualBox/nls/VirtualBox_$MY_NLS_LANG.ts"

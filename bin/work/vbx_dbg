@@ -2,6 +2,6 @@
 
 . ${HOME}/.functions.work
 
-__vbx_env "$VBOX_BRANCH"
+__vbx_env "$MY_VBOX_BRANCH"
 
-( cd ${VBOX_PATH_OUT} && gdb -ex run --args ./VirtualBoxVM --startvm "$1" )
+__vbx_dbg "$1"

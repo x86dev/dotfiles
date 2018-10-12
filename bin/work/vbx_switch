@@ -4,9 +4,23 @@
 
 __vbx_env ${1}
 
-cd ${VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/src/ &&
-make &&
-sudo make load &&
-sudo chmod 777 /dev/vbox* &&
-cd ${VBOX_PATH_OUT}/
-./VirtualBox &
+vbx_kill
+
+case "$MY_VBOX_TARGET_OS" in
+    linux)
+        cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/src/
+        make
+        sudo make load
+        sudo chmod 777 /dev/vbox*
+        cd ${MY_VBOX_PATH_OUT}/
+        ./VirtualBox &
+        ;;
+    darwin)
+        cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/dist/VirtualBox.app/Contents/MacOS
+        ./load.sh
+        cd ${MY_VBOX_PATH_OUT}/
+        ./VirtualBox &
+        ;;
+    *)
+        ;;
+esac

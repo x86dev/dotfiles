@@ -2,12 +2,12 @@
 
 . ${HOME}/.functions.work
 
-__vbx_env "$VBOX_BRANCH"
+__vbx_env "$MY_VBOX_BRANCH"
 
 vbx_kill
 
-( cd ${VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
+( cd ${MY_VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
     python tdAddGuestCtrl.py ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
     --test-vms tst-xppro --no-wipe-clean cleanup-before verify config )
 
-( cd ${VBOX_PATH_OUT} && ./VirtualBox & )
+( cd ${MY_VBOX_PATH_OUT} && ./VirtualBox & )

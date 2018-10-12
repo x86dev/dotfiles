@@ -2,18 +2,44 @@
 
 . ${HOME}/.functions.work
 
-__vbx_env "$VBOX_BRANCH"
+__vbx_env "$MY_VBOX_BRANCH"
 
-VBOX_DEPS="\
-    RuntimeBldProg \
-    RuntimeR0 \
-    RuntimeR3 \
-    VBoxRT \
-    VBoxNetFlt-src \
-    VBoxNetFlt-sh \
-    VBoxNetAdp-src \
-    VBoxPci-src \
-    HostDrivers-scripts \
-    vboxdrv-src"
+case "$MY_VBOX_TARGET_OS" in
+    linux)
+        MY_VBOX_DRV_DEPS="\
+            RuntimeBldProg \
+            RuntimeR0 \
+            RuntimeR3 \
+            VBoxRT \
+            VBoxNetFlt-src \
+            VBoxNetFlt-sh \
+            VBoxNetAdp-src \
+            VBoxPci-src \
+            HostDrivers-scripts \
+            vboxdrv-src"
+        ;;
+    darwin)
+        MY_VBOX_DRV_DEPS="\
+            RuntimeR0 \
+            RuntimeR3 \
+            RuntimeBldProg \
+            VBoxRT \
+            VBoxDrv \
+            VBoxDrv.kext \
+            VBoxNetAdp \
+            VBoxNetAdp.kext \
+            VBoxNetFlt \
+            VBoxNetFlt.kext \
+            VBoxUSB \
+            VBoxUSB.kext \
+            HostDrivers-darwin-sh \
+            SUPDrvScripts \
+            ScriptsUSB \
+            Scripts-darwin \
+            Scripts-darwin-adp"
+        ;;
+    *)
+        ;;
+esac
 
-( cd ${VBOX_PATH_ROOT} && kmk BUILD_TYPE=release ${VBOX_DEPS} )
+( cd ${MY_VBOX_PATH_ROOT} && kmk BUILD_TYPE=release ${MY_VBOX_DRV_DEPS} )
