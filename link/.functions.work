@@ -43,9 +43,6 @@ __vbx_env()
     fi
 
     export VBOX_LOG_DEST=file=${MY_VBOX_HOME}/Logs/VBox.log
-
-    # Drop straight into gdb if an assertion happened.
-    export VBOX_ASSERT=gdb
 }
 
 __vbx_vakit_env()
