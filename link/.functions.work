@@ -29,7 +29,7 @@ __vbx_env()
     case "$MY_OS" in
         linux)
             MY_VBOX_TARGET_OS=linux
-            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/$MY_VBOX_TYPE}/bin/
+            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/bin/
             ;;
         Darwin)
             MY_VBOX_TARGET_OS=darwin
