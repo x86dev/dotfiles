@@ -1,0 +1,28 @@
+#!/bin/sh
+
+. ${HOME}/.functions.work
+
+__vbx_vakit_env "$MY_VBOX_BRANCH"
+
+if [ -z "$MY_TESTSTOR_SHARE" ]; then
+    echo "MY_TESTSTOR_SHARE not specified"
+    exit 1
+fi
+
+if [ -z "$MY_TESTSTOR_USER" ]; then
+    echo "MY_TESTSTOR_USER not specified"
+    exit 1
+fi
+
+if [ -z "$MY_TESTSTOR_PASSWORD" ]; then
+    echo "MY_TESTSTOR_PASSWORD not specified"
+    exit 1
+fi
+
+MY_TESTSTORE_SRC_PATH=/mnt/testrsrc
+MY_TESTSTORE_DST_PATH=${TESTBOX_PATH_RESOURCES}
+
+mkdir -p ${MY_TESTSTORE_SRC_PATH}
+sudo mount -t cifs //${MY_TESTSTOR_SHARE} -o vers=2.1,user=${MY_TESTSTOR_USER},password=${MY_TESTSTOR_PASSWORD} ${MY_TESTSTORE_SRC_PATH}
+cp -Rav ${MY_TESTSTORE_SRC_PATH}/ ${MY_TESTSTORE_DST_PATH}
+umount ${MY_TESTSTORE_SRC_PATH}
