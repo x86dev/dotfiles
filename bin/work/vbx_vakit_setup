@@ -5,4 +5,5 @@
 __vbx_env "$MY_VBOX_BRANCH"
 
 # Install / setup Python bindings.
+export VBOX_INSTALL_PATH=${MY_VBOX_PATH_OUT}
 ( cd ${MY_VBOX_PATH_OUT}/sdk/installer && sudo -E python ${MY_VBOX_PATH_OUT}/sdk/installer/vboxapisetup.py install )
