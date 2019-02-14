@@ -9,7 +9,11 @@ __vbx_env()
         MY_VBOX_BRANCH="trunk"
     fi
 
-    echo "Using VBox $MY_VBOX_BRANCH"
+    if [ -z "$MY_VBOX_TYPE" ]; then
+        MY_VBOX_TYPE="debug"
+    fi
+
+    echo "Using VBox $MY_VBOX_BRANCH ($MY_VBOX_TYPE)"
 
     if [ -z "$MY_VBOX_HOME" ]; then
         MY_VBOX_HOME=${HOME}/vbox
@@ -25,11 +29,11 @@ __vbx_env()
     case "$MY_OS" in
         linux)
             MY_VBOX_TARGET_OS=linux
-            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
+            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/$MY_VBOX_TYPE}/bin/
             ;;
         Darwin)
             MY_VBOX_TARGET_OS=darwin
-            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/dist/VirtualBox.app/Contents/MacOS/
+            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/dist/VirtualBox.app/Contents/MacOS/
             ;;
         *)
             MY_VBOX_TARGET_OS=unknown
@@ -63,6 +67,7 @@ __vbx_vakit_env()
     export TESTBOX_PATH_RESOURCES=${VBOX_VALIDATIONKIT_PATH}/res
 
     export VBOX_USER_HOME=${TESTBOX_PATH_SCRATCH}/VBoxUserHome
+    export KBUILD_TYPE=${MY_VBOX_TYPE}
 
     # Override the default "gdb" to let the test driver debugger logic do its thing.
     export VBOX_ASSERT=disabled
