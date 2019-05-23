@@ -3,7 +3,7 @@
 
 #!/bin/sh
 # Install KeePass 2 + dependencies.
-sudo apt-get install -y curl keepass2 mono-dmcs xsel xdotool
+sudo apt-get install -y curl keepass2 mono-mcs xsel xdotool
 
 # Install Yubico Personalization Tools.
 # This is required for the KeeChallenge plugin.
