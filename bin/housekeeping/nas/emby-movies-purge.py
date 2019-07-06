@@ -126,6 +126,11 @@ def embyCleanup():
             else:
                 sItem = sItem + ("\tWarning: No premiere date found!\n")
 
+        if  g_fRatingNone is True:
+        and movie_rating == 0.0 \
+            sItem = sItem + ("\tNo rating found\n")
+            fDelete = True
+
         if  g_dbRatingMin > 0.0 \
         and movie_rating > 0.0  \
         and movie_rating < g_dbRatingMin:
