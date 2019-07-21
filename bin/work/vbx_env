@@ -1,0 +1,8 @@
+#!/bin/sh
+
+. ${HOME}/.functions.work
+
+__vbx_env ${1} ${2}
+
+# Spawn a new shell which inherits the exported variables by __vbx_env().
+${SHELL}

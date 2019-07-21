@@ -1,5 +1,0 @@
-#!/bin/sh
-
-. ${HOME}/.functions.work
-
-__vbx_env ${1}
