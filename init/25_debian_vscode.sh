@@ -12,6 +12,7 @@ sudo apt-get -qq update && sudo apt-get install -y code
 
 # Set Visual Studio Code as default editor.
 sudo update-alternatives --set editor /usr/bin/code
+xdg-mime default code.desktop text/plain
 
 # Install extensions
 code --install-extension Shan.code-settings-sync
