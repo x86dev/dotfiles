@@ -17,7 +17,7 @@ g_fDryRun        = True
 g_cVerbosity     = 0
 g_dbRatingMin    = 0.0
 g_fRatingNone    = False
-g_tdOlderThan    = 0
+g_tdOlderThan    = datetime.timedelta(days=0)
 g_sProvider      = ""
 
 # Configuration
@@ -57,7 +57,7 @@ def embyCleanup():
                 'X-MediaBrowser-Token' : emby_access_token}
 
     # Retrieve all items
-    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate"
+    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate,CommunityRating"
     resp = requests.get(get_url, headers=get_header)
 
     if resp.ok:
