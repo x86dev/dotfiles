@@ -21,13 +21,16 @@ function sig_trap
     exit 1 # This unfortunately also exits the terminal
 }
 
+function print_help
+{
+    echo "Usage: $0 </path/to/dir> --profile <path/to/handbrake-profile>.json"
+    exit 1
+}
+
 trap sig_trap 1 2 3 6
 
 if [ $# -lt 1 ]; then
-    MY_TRANSCODE_PATH="."
-else
-    MY_TRANSCODE_PATH="$1"
-    shift
+    print_help
 fi
 
 MY_PROFILE_FILE=""
@@ -44,9 +47,17 @@ while [ $# != 0 ]; do
         --replace)
             MY_DO_REPLACE=1
             ;;
+        --help)
+            print_help
+            ;;
         *)
-            echo "ERROR: Unknown option \"$CUR_PARM\"" 1>&2
-            echo "" 1>&2
+            if [ -z "$MY_TRANSCODE_PATH" ]; then
+                MY_TRANSCODE_PATH="$CUR_PARM"
+            else
+                echo "ERROR: Unknown option \"$CUR_PARM\"" 1>&2
+                echo "" 1>&2
+                print_help
+            fi
             ;;
     esac
 done
@@ -56,7 +67,7 @@ which HandBrakeCLI &> /dev/null || ( echo "HandBrakeCLI not installed. Aborting.
 
 if [ -z "$MY_PROFILE_FILE" ]; then 
     echo "No profile specified. Use --profile <path/to/profile.json> to set."
-    exit 2
+    print_help
 fi
 
 if [ -f "$MY_LOCK_FILE" ]; then
