@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# For Ubuntu, use:
+# sudo add-apt-repository ppa:stebbins/handbrake-releases && sudo apt-get update
+# apt-get install handbrake-cli
+
 MY_LOCK_FILE=/tmp/handbrake_transcode_dir.lock
 MY_TRANSCODE_LIST=/tmp/handbrake_transcode_dir.list
 
@@ -70,7 +74,7 @@ MY_PROFILE_NAME=$(basename -s .json "$MY_PROFILE_FILE")
 
 echo "[$(date)] Started: $MY_TRANSCODE_PATH (using $MY_PROFILE_FILE)"
 
-find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_SUFFIX_TRANSCODED*" -a ! -iname "$MY_FILENAME_PREFIX_ORIGINAL*" \) -print0 > ${MY_TRANSCODE_LIST}
+find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_SUFFIX_TRANSCODED*" -a ! -iname "$MY_FILENAME_PREFIX_TRANSCODED*" \) -print0 > ${MY_TRANSCODE_LIST}
 
 # Note: This script *must* run with bash as interpreter, as otherwise "read -r" will *not* work!
 while IFS= read -r -d $'\0' MY_FILENAME <&3; do
