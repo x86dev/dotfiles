@@ -57,7 +57,7 @@ def embyCleanup():
                 'X-MediaBrowser-Token' : emby_access_token}
 
     # Retrieve all items
-    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?Recursive=true&IncludeItemTypes=Movie"
+    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate"
     resp = requests.get(get_url, headers=get_header)
 
     if resp.ok:
