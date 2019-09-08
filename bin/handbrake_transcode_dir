@@ -47,8 +47,8 @@ while [ $# != 0 ]; do
     esac
 done
 
-which ffprobe &> /dev/null || ( echo "ffprobe not installed. Aborting." >&2; return 2 )
-which HandBrakeCLI &> /dev/null || ( echo "HandBrakeCLI not installed. Aborting." >&2; return 2 )
+which ffprobe &> /dev/null || ( echo "ffprobe not installed. Aborting." >&2; exit 2 )
+which HandBrakeCLI &> /dev/null || ( echo "HandBrakeCLI not installed. Aborting." >&2; exit 2 )
 
 if [ -z "$MY_PROFILE_FILE" ]; then 
     echo "No profile specified. Use --profile <path/to/profile.json> to set."
