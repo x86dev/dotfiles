@@ -151,8 +151,11 @@ def embyCleanup():
                     if resp.ok:
                         print("\tSucessfully deleted")
                     else:
-                        resp.raise_for_status()
-                        cErrors += 1
+                        try:
+                            cErrors += 1
+                            resp.raise_for_status()
+                        except:
+                            pass
                 else:
                     print("\tID for item not found")
                     cErrors += 1
