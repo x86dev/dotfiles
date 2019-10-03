@@ -1,5 +1,3 @@
-# Debian-only stuff. Abort if not Debian.
-is_debian || return 1
 
 e_header "udev Android rules"
 

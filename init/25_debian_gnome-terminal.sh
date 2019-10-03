@@ -1,7 +1,5 @@
-# Debian-only stuff. Abort if not Debian.
-is_debian || return 1
-
 #!/bin/sh
+
 # Required setup for gnome-terminal (e.g. on Debian-derivates like Ubuntu / Mint).
 # See: http://michaelheap.com/getting-solarized-working-on-ubuntu/
 gconftool-2 --set "/apps/gnome-terminal/profiles/Default/use_theme_background" --type bool false
