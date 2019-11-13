@@ -17,6 +17,15 @@ case "$MY_VBOX_TARGET_OS" in
             VBoxPci-src \
             HostDrivers-scripts \
             vboxdrv-src"
+
+        case "$MY_VBOX_BRANCH" in
+            5.1)
+                MY_VBOX_DRV_DEPS="$MY_VBOX_DRV_DEPS \
+                    vboxdrv-mod"
+                ;;
+            *)
+                ;;
+        esac
         ;;
     darwin)
         MY_VBOX_DRV_DEPS="\
