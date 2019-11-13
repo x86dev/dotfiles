@@ -4,6 +4,7 @@
 
 __vbx_vakit_env "$MY_VBOX_BRANCH"
 
+MY_TESTCASE_NAME=tdAddBasic1.py
 MY_VM_NAME=${1}
 
 if [ -z "$MY_VM_NAME" ]; then
@@ -14,7 +15,7 @@ fi
 vbx_kill
 
 ( cd ${MY_VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
-    python tdAddGuestCtrl.py ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
-    --test-vms ${$MY_VM_NAME} --no-wipe-clean cleanup-before verify config )
+    python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
+    --test-vms ${MY_VM_NAME} --no-wipe-clean cleanup-before verify config )
 
 ( cd ${MY_VBOX_PATH_OUT} && ./VirtualBox & )

@@ -5,20 +5,21 @@
 __vbx_vakit_env "$MY_VBOX_BRANCH"
 
 MY_VM_NAME=${1}
-MY_TESTS=${2}
+MY_TESTCASE_NAME=${2}
+MY_TESTCASE_OPTS=${3}
 
 if [ -z "$MY_VM_NAME" ]; then
     echo "Must specify a test VM name."
     exit 1
 fi
 
-if [ -z "$MY_TESTS" ]; then
-    MY_TESTS=all
+if [ -z "$MY_TESTCASE_NAME" ]; then
+    MY_TESTCASE_NAME=tdAddGuestCtrl.py
 fi
 
 # Make sure no VBoxSVC is around anymore.
 vbx_kill
 
 ( cd ${MY_VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
-    python tdAddGuestCtrl.py ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
-    --test-vms ${MY_VM_NAME} --snapshot-restore-current --no-wipe-clean --add-guest-ctrl-tests ${MY_TESTS} cleanup-before verify config execute )
+    python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
+    --test-vms ${MY_VM_NAME} ${MY_TESTCASE_OPTS} --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
