@@ -2,6 +2,9 @@
 /caches/
 /backups/
 
+# Don't store Vim's history.
+/link/.config/
+
 # Top secret stuff!
 /link/.ssh/authorized_*
 /link/.ssh/id_*
@@ -11,6 +14,12 @@
 
 # Don't commit Vim plugins, vim-plug will install them.
 /link/.vim/plugged
+
+# Don't store Vim's history.
+/link/.vim/.netrwhist
+
+# Don't track vendor stuff.
+/vendor/
 
 # Ignore any file with LOCAL in the name (good for per-machine vars/functions).
 *LOCAL*
