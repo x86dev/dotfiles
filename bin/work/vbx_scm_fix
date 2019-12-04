@@ -2,7 +2,7 @@
 
 . ${HOME}/.functions.work
 
-__vbx_env
+__vbx_env_current
 
 MY_SCM_PATH=${1}
 if [ -z ${MY_PATH} ]; then

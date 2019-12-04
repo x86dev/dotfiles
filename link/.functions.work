@@ -47,7 +47,16 @@ __vbx_env()
     else
         MY_VBOX_VM_FRONTEND=VirtualBox
     fi
+}
 
+__vbx_env_export()
+{
+    __vbx_env "$1" "$2"
+
+    echo "Exporting VBox profile ..."
+
+    export MY_VBOX_BRANCH
+    export MY_VBOX_TYPE
     export MY_VBOX_PATH_HOME
     export MY_VBOX_PATH_ROOT
     export MY_VBOX_PATH_OUT
@@ -55,6 +64,11 @@ __vbx_env()
     export MY_VBOX_TARGET_OS
 
     export VBOX_LOG_DEST=file=${MY_VBOX_PATH_HOME}/Logs/VBox.log
+}
+
+__vbx_env_current()
+{
+    __vbx_env "$MY_VBOX_BRANCH" "$MY_VBOX_TYPE"
 }
 
 __vbx_vakit_env()

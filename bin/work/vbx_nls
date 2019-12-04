@@ -2,9 +2,9 @@
 
 . ${HOME}/.functions.work
 
-__vbx_env ${1}
+__vbx_env_current
 
-MY_NLS_LANG=${2}
+MY_NLS_LANG=${1}
 
 # Set default language to translate, if no other language given.
 if [ -z "$MY_NLS_LANG" ]; then
