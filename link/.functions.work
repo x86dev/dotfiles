@@ -41,11 +41,11 @@ __vbx_env()
             ;;
     esac
 
-    if [ "$MY_VBOX_BRANCH" = "trunk" ]; then
+    if [ "$MY_VBOX_BRANCH" = "5.2" ]; then
+        MY_VBOX_VM_FRONTEND=VirtualBox
+    else
         # Starting at 6.0 the frontend has a different image name,
         MY_VBOX_VM_FRONTEND=VirtualBoxVM
-    else
-        MY_VBOX_VM_FRONTEND=VirtualBox
     fi
 }
 
