@@ -14,7 +14,6 @@ case "$MY_VBOX_TARGET_OS" in
             VBoxNetFlt-src \
             VBoxNetFlt-sh \
             VBoxNetAdp-src \
-            VBoxPci-src \
             HostDrivers-scripts \
             vboxdrv-src"
 
