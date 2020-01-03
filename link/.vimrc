@@ -251,9 +251,5 @@ endif " has("autocmd")
 
 " ---------------------------------------------------------------------------
 
-" Solarized colors stuff.
-source ~/.vim/bundle/vim-colors-solarized/autoload/togglebg.vim
-source ~/.vim/bundle/vim-colors-solarized/colors/solarized.vim
-
 " Include color stuff.
 source ~/.vim/startup/colors.vim

@@ -13,5 +13,5 @@ if &t_Co == 8 && $TERM !~# '^linux'
   set t_Co=16
 endif
 
-colorscheme solarized
+colorscheme darkblue 
 
