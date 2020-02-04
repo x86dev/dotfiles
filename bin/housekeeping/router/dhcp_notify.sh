@@ -32,7 +32,7 @@ if [ "$1" == "add" ] && [ "$unknown_mac_addr" -ne 0 ]; then
 
     MY_MAIL_SUB="New device: $MY_HOST_HOSTNAME@$MY_HOST_DOMAIN: $MY_HOST_IP ($MY_HOST_DEVNAME - $MY_HOST_MAC)"
     MY_MAIL_BODY_FILE="/tmp/mailsend_body.txt"
-    MY_MAIL_BODY="A new device connected $MY_HOST_HOSTNAME@$MY_HOST_DOMAIN: $MY_HOST_IP ($MY_HOST_DEVNAME - $MY_HOST_MAC)" > ${MY_MAIL_BODY_FILE}
+    echo "A new device just connected: $MY_HOST_HOSTNAME@$MY_HOST_DOMAIN, IP:$MY_HOST_IP, MAC:$MY_HOST_MAC, Name:$MY_HOST_DEVNAME" > ${MY_MAIL_BODY_FILE}
 
     echo `date` ${MY_MAIL_SUB} >> /tmp/dhcpmasq.log
     mailsend -f root@openwrt -t ${MY_MAIL_ADDR} -user "$MY_MAIL_USER" -pass "$MY_MAIL_PASSWORD" ${MY_MAIL_SMTP_OPTS} -sub "$MY_MAIL_SUB" -msg-body ${MY_MAIL_BODY_FILE}
