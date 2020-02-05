@@ -22,7 +22,9 @@
 #   $3 = ip address
 #   $4 = device name
 
-MY_CFG_FILE=/root/mail_creds.txt
+CUR_PATH=$(readlink -f $0 | xargs dirname)
+
+MY_CFG_FILE=${CUR_PATH}/dhcp_notify.conf
 
 if [ -f "$MY_CFG_FILE" ]; then
     . ${MY_CFG_FILE}
