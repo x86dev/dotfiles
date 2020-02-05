@@ -22,12 +22,12 @@
 #   $3 = ip address
 #   $4 = device name
 
-CFG_FILE=/root/mail_creds.txt
+MY_CFG_FILE=/root/mail_creds.txt
 
 if [ -f "$MY_CFG_FILE" ]; then
     . ${MY_CFG_FILE}
 else
-    echo "Error: Config file '$MY_CFG_FILE' does not exist. Exiting."
+    echo "Error: Config file \"$MY_CFG_FILE\" does not exist. Exiting."
     exit 1
 fi
 
