@@ -56,7 +56,7 @@ MY_LOG_FILE="$MY_LOG_PATH/index.html"
 
 log()
 {
-    echo "[`date`] $1<br>" | tee -a ${LOG_FILE}
+    echo "[`date`] $1<br>" | tee -a ${MY_LOG_FILE}
 }
 
 # Make sure that the log path exists.
