@@ -82,6 +82,6 @@ if [ "$1" == "add" ] && [ "$UNKNOWN_MAC_ADDR" -ne 0 ]; then
     echo "$MY_HOST_MAC;$MY_HOST_DEVNAME" >> ${MY_MAC_LIST}
 fi
 
-if [ "$1" == "old" ]
+if [ "$1" == "old" ]; then
     log "Already known device reconnected: $MY_HOST_HOSTNAME@$MY_HOST_DOMAIN: $MY_HOST_IP ($MY_HOST_DEVNAME - $MY_HOST_MAC)"
 fi
