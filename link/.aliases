@@ -10,3 +10,7 @@ alias docker_killall='docker kill $(docker ps -q)'
 alias docker_ip='docker inspect --format "{{ .Name }} # {{ .NetworkSettings.IPAddress }} # {{ .NetworkSettings.Ports }}" $(docker ps -q) | tr -s "#" "\t"'
 # Restarts all currently running containers.
 alias docker_restartall='docker restart $(docker ps -q)'
+# Some nice(r) statistics (top-like).
+alias docker_stats='docker stats --format "table {{.Name}}\t{{.Container}}\t{{.CPUPerc}}\t{{.MemPerc}}\t{{.NetIO}}\t{{.BlockIO}}"'
+# Get into a container using a shell.
+alias docker_shell='_(){ docker exec -it $1 /bin/sh }; _'
