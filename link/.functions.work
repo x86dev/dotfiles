@@ -95,6 +95,8 @@ __vbx_vakit_env()
 
     # Override the default "gdb" to let the test driver debugger logic do its thing.
     export VBOX_ASSERT=disabled
+
+    export COMPUTERNAME=127.0.0.1
 }
 
 __vbx_dbg()
