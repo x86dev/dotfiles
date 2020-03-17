@@ -5,8 +5,10 @@
 __vbx_env_current
 
 MY_SCM_PATH=${1}
-if [ -z ${MY_PATH} ]; then
-  MY_SCM_PATH=.
+if [ -z ${MY_SCM_PATH} ]; then
+  MY_SCM_PATH=${PWD}
 fi
 
-"$MY_VBOX_PATH_OUT/tools/scm" --real-run -vv ${MY_SCM_PATH}/*
+echo "Fixing using SCM at: $MY_SCM_PATH ..."
+
+"$MY_VBOX_PATH_OUT/tools/scm" --real-run ${MY_SCM_PATH}/*
