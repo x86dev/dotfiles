@@ -76,8 +76,10 @@ __vbx_vakit_env()
     __vbx_env ${1}
 
     export VBOX_INSTALL_PATH=${MY_VBOX_PATH_OUT}
+    export VBOX_VALIDATIONKIT_PATH=${HOME}/VBox/ValidationKit
 
-    export VBOX_VALIDATIONKIT_PATH=${HOME}/machines/ValidationKit
+    echo "Using ValidationKit resources at: $VBOX_VALIDATIONKIT_PATH"
+
     export VBOX_VALIDATIONKIT_LOG_DEST=${VBOX_LOG_DEST}
     export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="\
         -v -v -d --vbox-session-type gui --quick \
