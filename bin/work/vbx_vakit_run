@@ -17,9 +17,14 @@ if [ -z "$MY_TESTCASE_NAME" ]; then
     MY_TESTCASE_NAME=tdAddGuestCtrl.py
 fi
 
+MY_TESTDRIVER_LOG=${VBOX_VALIDATIONKIT_PATH}/testdriver.log
+
+echo "Logging to: $MY_TESTDRIVER_LOG"
+
 # Make sure no VBoxSVC is around anymore.
 vbx_kill
 
 ( cd ${MY_VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
     python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
-    --test-vms "$MY_VM_NAME" ${MY_TESTCASE_OPTS} --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
+    --test-vms "$MY_VM_NAME" ${MY_TESTCASE_OPTS} --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute \
+    2>&1 | tee ${MY_TESTDRIVER_LOG} )
