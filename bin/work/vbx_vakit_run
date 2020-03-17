@@ -20,6 +20,6 @@ fi
 # Make sure no VBoxSVC is around anymore.
 vbx_kill
 
-( cd ${MY_VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
+( export COMPUTERNAME=127.0.0.1; cd ${MY_VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
     python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
-    --test-vms ${MY_VM_NAME} ${MY_TESTCASE_OPTS} --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
+    --test-vms "$MY_VM_NAME" ${MY_TESTCASE_OPTS} --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute )
