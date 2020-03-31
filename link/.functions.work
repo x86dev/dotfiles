@@ -87,6 +87,9 @@ __vbx_vakit_env()
         --vbox-session-log-flags \"buffered\" \
         --vbox-session-log-dest ${VBOX_LOG_DEST}"
 
+    # Always use tests from trunk.
+    export VBOX_VALIDATIONKIT_TESTS_PATH=${MY_VBOX_PATH_HOME}/trunk/src/VBox/ValidationKit/tests
+
     export TESTBOX_PATH_SCRATCH=${VBOX_VALIDATIONKIT_PATH}/scratch
     export TESTBOX_PATH_RESOURCES=${VBOX_VALIDATIONKIT_PATH}/res
 

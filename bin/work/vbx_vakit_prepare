@@ -14,7 +14,7 @@ fi
 
 vbx_kill
 
-( cd ${MY_VBOX_PATH_ROOT}/src/VBox/ValidationKit/tests/additions && \
+( cd ${VBOX_VALIDATIONKIT_TESTS_PATH}/additions && \
     python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
     --test-vms ${MY_VM_NAME} --no-wipe-clean cleanup-before verify config )
 
