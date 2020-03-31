@@ -84,7 +84,7 @@ __vbx_vakit_env()
     export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="\
         -v -v -d --vbox-session-type gui --quick \
         --vbox-session-log \"main_guestprocess.e.l.l2.l3.f+main_guestsession.e.l.l2.l3.f+main_guestdirectory.e.l.l2.l3.f+guest_control.e.l.l2.l3.f+guest.e.l.l2.l3.f\" \
-        --vbox-session-log-flags \"buffered\" \
+        --vbox-session-log-flags \"time,thread,group\" \
         --vbox-session-log-dest ${VBOX_LOG_DEST}"
 
     # Always use tests from trunk.
