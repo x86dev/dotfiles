@@ -93,6 +93,9 @@ __vbx_vakit_env()
     export TESTBOX_PATH_SCRATCH=${VBOX_VALIDATIONKIT_PATH}/scratch
     export TESTBOX_PATH_RESOURCES=${VBOX_VALIDATIONKIT_PATH}/res
 
+    # The testdriver framework uses this for determining the VBox installation location.
+    export VBOX_TD_DEV_TREE=${VBOX_INSTALL_PATH}
+
     export VBOX_USER_HOME=${TESTBOX_PATH_SCRATCH}/VBoxUserHome
     export KBUILD_TYPE=${MY_VBOX_TYPE}
 
