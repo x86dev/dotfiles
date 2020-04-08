@@ -21,6 +21,19 @@ case "$MY_VBOX_TARGET_OS" in
         cd ${MY_VBOX_PATH_OUT}/
         ./VirtualBox &
         ;;
+    win)
+        cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/
+        ./NetLwfUninstall.exe
+        ./NetAdpUninstall.exe
+        ./NetAdp6uninstall.exe
+        ./NetFltuninstall.exe
+        ./USBUninstall.exe
+        ./SUPUninstall.exe
+        ./SUPInstall.exe
+        cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
+        ${MY_WIN_CMD_EXE} /C comregister.cmd
+        ./VirtualBox.exe &
+        ;;
     *)
         ;;
 esac

@@ -17,7 +17,14 @@ __vbx_env()
     echo "Using VBox $MY_VBOX_BRANCH ($MY_VBOX_TYPE)"
 
     if [ -z "$MY_VBOX_PATH_HOME" ]; then
-        MY_VBOX_PATH_HOME=${HOME}/vbox
+        case "$MY_OS" in
+            win)
+                MY_VBOX_PATH_HOME=/mnt/v/VBox
+                ;;
+            *)
+                MY_VBOX_PATH_HOME=${HOME}/vbox
+                ;;
+        esac
     fi
 
     MY_VBOX_PATH_ROOT=${MY_VBOX_PATH_HOME}/${MY_VBOX_BRANCH}
@@ -31,10 +38,19 @@ __vbx_env()
         linux)
             MY_VBOX_TARGET_OS=linux
             MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/bin/
+            MY_VBOX_KMK=kmk
             ;;
         Darwin)
             MY_VBOX_TARGET_OS=darwin
             MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/dist/VirtualBox.app/Contents/MacOS/
+            MY_VBOX_KMK=kmk
+            ;;
+        win)
+            MY_VBOX_TARGET_OS=win
+            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/bin/
+            MY_VBOX_KMK=${MY_VBOX_PATH_ROOT}/kBuild/bin/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/kmk.exe
+            MY_WIN_SYSTEM32=/mnt/c/Windows/System32
+            MY_WIN_CMD_EXE=${MY_WIN_SYSTEM32}/cmd.exe
             ;;
         *)
             MY_VBOX_TARGET_OS=unknown

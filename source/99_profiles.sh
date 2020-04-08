@@ -56,6 +56,8 @@ if test -z "${_OS}"; then
 		SunOS\ 5*) _OS=solaris;;
 		IRIX\ 5*)  _OS=irix;;
 		HP*)       _OS=hp-ux;;
+		# For Windows WSL(2) we search for the "Microsoft" string.
+		*Microsoft)_OS=win;;
 		Linux*)    _OS=linux;;
 		*)         _OS=generic
 			echo "Warning: can't map \"`uname -sr`\" to an OS string, assuming ${_OS}."

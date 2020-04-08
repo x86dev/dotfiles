@@ -1,7 +1,16 @@
 #!/bin/sh
 
+echo "Killing VBox ..."
+
 pkill -e VirtualBox
+pkill -e VirtualBoxVM
 pkill -e VBoxSVC
 pkill -e VBoxXPCOMIPCD
 
-## @todo Kill VBoxSDS on Windows.
+case "$MY_VBOX_TARGET_OS" in
+    win)
+        pkill -e VBoxSDS
+        ;;
+    *)
+        ;;
+esac
