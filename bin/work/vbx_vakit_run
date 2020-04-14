@@ -24,7 +24,17 @@ echo "Logging to: $MY_TESTDRIVER_LOG"
 # Make sure no VBoxSVC is around anymore.
 vbx_kill
 
+MY_TEST_OPTS_GSTCTL=\
+    --add-guest-ctrl-tests copy_from \
+    --add-guest-ctrl-debug-img /mnt/vbox/VBox/trunk/out/linux.amd64/debug/bin/additions/VBoxService \
+    --add-guest-ctrl-debug-no-exit
+
+MY_TEST_OPTS_SHARED_FOLDERS=
+
+MY_TEST_OPTS=${MY_TEST_OPTS_SHARED_FOLDERS}
+
 ( cd ${VBOX_VALIDATIONKIT_TESTS_PATH}/additions && \
-    python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
-    --test-vms "$MY_VM_NAME" ${MY_TESTCASE_OPTS} --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute \
+    python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} ${MY_TEST_OPTS} \
+    --test-vms "$MY_VM_NAME" ${MY_TESTCASE_OPTS} \
+    --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute \
     2>&1 | tee ${MY_TESTDRIVER_LOG} )
