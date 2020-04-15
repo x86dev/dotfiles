@@ -55,11 +55,14 @@ case "$MY_VBOX_TARGET_OS" in
             VBoxDrv \
             VBoxDrv-inf \
             SUPInstall \
-             SUPUninstall"
+            SUPUninstall"
         MY_VBOX_DRV_OPTS="VBOX_SIGNING_MODE=test"
         ;;
     *)
         ;;
 esac
+
+__vbx_kill
+__vbx_drv_uninstall
 
 ( cd ${MY_VBOX_PATH_ROOT} && ${MY_VBOX_KMK} BUILD_TYPE=release ${MY_VBOX_DRV_OPTS} ${MY_VBOX_DRV_DEPS} )

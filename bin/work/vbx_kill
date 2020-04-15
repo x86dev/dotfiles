@@ -1,16 +1,5 @@
 #!/bin/sh
 
-echo "Killing VBox ..."
+. ${HOME}/.functions.work
 
-pkill -e VirtualBox
-pkill -e VirtualBoxVM
-pkill -e VBoxSVC
-pkill -e VBoxXPCOMIPCD
-
-case "$MY_VBOX_TARGET_OS" in
-    win)
-        pkill -e VBoxSDS
-        ;;
-    *)
-        ;;
-esac
+__vbx_kill
