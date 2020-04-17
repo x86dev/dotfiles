@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -x
+
+. ${HOME}/.functions.work
+
+__vbx_vakit_env "$MY_VBOX_BRANCH"
+
+( cd ${MY_VBOX_PATH_OUT} && ./VirtualBox & )
