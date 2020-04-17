@@ -24,7 +24,7 @@ echo "Logging to: $MY_TESTDRIVER_LOG"
 echo "Testing: $MY_TESCASE_NAME on $MY_VM_NAME"
 
 # Make sure no VBoxSVC is around anymore.
-vbx_kill
+__vbx_kill
 
 # Each test driver might has some different options and stuff. So handle those here.
 case "${MY_TESTCASE_NAME}" in
