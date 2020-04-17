@@ -14,27 +14,40 @@ if [ -z "$MY_VM_NAME" ]; then
 fi
 
 if [ -z "$MY_TESTCASE_NAME" ]; then
-    MY_TESTCASE_NAME=tdAddGuestCtrl.py
+    echo "Must specify a test name."
+    exit 1
 fi
 
 MY_TESTDRIVER_LOG=${VBOX_VALIDATIONKIT_PATH}/testdriver.log
 
 echo "Logging to: $MY_TESTDRIVER_LOG"
+echo "Testing: $MY_TESCASE_NAME on $MY_VM_NAME"
 
 # Make sure no VBoxSVC is around anymore.
 vbx_kill
 
-MY_TEST_OPTS_GSTCTL=\
-    --add-guest-ctrl-tests copy_from \
-    --add-guest-ctrl-debug-img /mnt/vbox/VBox/trunk/out/linux.amd64/debug/bin/additions/VBoxService \
-    --add-guest-ctrl-debug-no-exit
-
-MY_TEST_OPTS_SHARED_FOLDERS=
-
-MY_TEST_OPTS=${MY_TEST_OPTS_SHARED_FOLDERS}
+# Each test driver might has some different options and stuff. So handle those here.
+case "${MY_TESTCASE_NAME}" in
+    guestcontrol)
+        MY_TESTCASE_FILENAME=tdAddGuestCtrl.py
+        MY_TESTCASE_OPTS="--add-guest-ctrl-tests copy_from \
+            --add-guest-ctrl-debug-img ${MY_VBOX_PATH_OUT}/additions/VBoxService \
+            --add-guest-ctrl-debug-no-exit \
+            --vbox-session-log \"main_guestprocess.e.l.l2.l3.f+main_guestsession.e.l.l2.l3.f+main_guestdirectory.e.l.l2.l3.f+guest_control.e.l.l2.l3.f+guest.e.l.l2.l3.f\""
+            ;;
+    sharedfolders)
+        MY_TESTCASE_FILENAME=tdAddBasic1.py
+        MY_TESTCASE_OPTS="--tests sharedfolders \
+                          --vbox-session-log \"shared_folders.e.l.l2.l3.f\""
+            ;;
+    *)
+        echo "Invalid test name. Exiting."
+        return 2
+        ;;
+esac
 
 ( cd ${VBOX_VALIDATIONKIT_TESTS_PATH}/additions && \
-    python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} ${MY_TEST_OPTS} \
-    --test-vms "$MY_VM_NAME" ${MY_TESTCASE_OPTS} \
-    --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute \
-    2>&1 | tee ${MY_TESTDRIVER_LOG} )
+  python ${MY_TESTCASE_FILENAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} ${MY_TESTCASE_OPTS} \
+  --test-vms "$MY_VM_NAME" \
+  --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute \
+  2>&1 | tee ${MY_TESTDRIVER_LOG} )

@@ -158,12 +158,9 @@ __vbx_vakit_env()
     echo "Using ValidationKit resources at: $VBOX_VALIDATIONKIT_PATH"
 
     export VBOX_VALIDATIONKIT_LOG_DEST=${VBOX_LOG_DEST}
-    export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="\
-        -v -v -d --vbox-session-type gui --quick \
-        --vbox-session-log \"main_guestprocess.e.l.l2.l3.f+main_guestsession.e.l.l2.l3.f+main_guestdirectory.e.l.l2.l3.f+guest_control.e.l.l2.l3.f+guest.e.l.l2.l3.f\" \
-        --vbox-session-log-flags \"time,thread,group\" \
-        --vbox-session-log-dest ${VBOX_LOG_DEST}"
-
+    export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="-v -v -d --vbox-session-type gui --quick \
+                                                       --vbox-session-log-flags \"time,thread,group\" \
+                                                       --vbox-session-log-dest ${VBOX_LOG_DEST}"
     # Always use tests from trunk.
     export VBOX_VALIDATIONKIT_TESTS_PATH=${MY_VBOX_PATH_HOME}/trunk/src/VBox/ValidationKit/tests
 
