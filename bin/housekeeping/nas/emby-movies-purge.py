@@ -38,9 +38,9 @@ def embyCleanup():
     # Authenticate.
     post_url = g_sHost + "/Users/AuthenticateByName"
     post_header = {'content-type': 'application/json',
-                'Authorization' : 'MediaBrowser Client="Android", Device="Generic", DeviceId="Custom", Version="1.0.0.0"'}
+                'Authorization' : 'Emby Client="Android", Device="Generic", DeviceId="Custom", Version="1.0.0.0"'}
 
-    post_data = {"Username": g_sUsername, "password": pw_sha1, "passwordMd5": pw_md5, "appName": "foo" }
+    post_data = {"Username": g_sUsername, "Pw": g_sPassword, "appName": "foo" }
     resp = requests.post(post_url, json=post_data, headers=post_header)
 
     if resp.ok:
