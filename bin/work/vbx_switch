@@ -4,7 +4,9 @@
 
 __vbx_env ${1} ${2}
 
-vbx_kill
+__vbx_kill
+__vbx_drv_uninstall
+__vbx_drv_install
 
 case "$MY_VBOX_TARGET_OS" in
     linux)
@@ -20,6 +22,11 @@ case "$MY_VBOX_TARGET_OS" in
         ./load.sh
         cd ${MY_VBOX_PATH_OUT}/
         ./VirtualBox &
+        ;;
+    win)
+         cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
+        ${MY_WIN_CMD_EXE} /C comregister.cmd
+        ./VirtualBox.exe &
         ;;
     *)
         ;;

@@ -4,5 +4,6 @@
 
 __vbx_env_export "$1" "$2"
 
-# Spawn a new shell which inherits the exported variables by __vbx_env().
-${SHELL}
+# Spawn a new sub shell which inherits the exported variables by __vbx_env().
+# and directly go to $MY_VBOX_PATH_OUT.
+cd "$MY_VBOX_PATH_OUT" && ${SHELL}

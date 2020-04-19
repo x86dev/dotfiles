@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. ${HOME}/.functions
+. "$HOME/.functions"
 
 __vbx_env()
 {
@@ -17,10 +17,21 @@ __vbx_env()
     echo "Using VBox $MY_VBOX_BRANCH ($MY_VBOX_TYPE)"
 
     if [ -z "$MY_VBOX_PATH_HOME" ]; then
-        MY_VBOX_PATH_HOME=${HOME}/vbox
+        case "$MY_OS" in
+            win)
+                MY_VBOX_PATH_HOME=/mnt/v/VBox
+                ;;
+            *)
+                MY_VBOX_PATH_HOME=${HOME}/vbox
+                ;;
+        esac
     fi
 
+    echo "VBox home path is: $MY_VBOX_PATH_HOME"
+
     MY_VBOX_PATH_ROOT=${MY_VBOX_PATH_HOME}/${MY_VBOX_BRANCH}
+
+    echo "VBox root is at: $MY_VBOX_PATH_ROOT"
 
     if [ -z "$MY_VBOX_TARGET_ARCH" ]; then
         ## @todo Detect via $(uname -m)?
@@ -31,10 +42,19 @@ __vbx_env()
         linux)
             MY_VBOX_TARGET_OS=linux
             MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/bin/
+            MY_VBOX_KMK=kmk
             ;;
         Darwin)
             MY_VBOX_TARGET_OS=darwin
             MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/dist/VirtualBox.app/Contents/MacOS/
+            MY_VBOX_KMK=kmk
+            ;;
+        win)
+            MY_VBOX_TARGET_OS=win
+            MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/bin/
+            MY_VBOX_KMK=${MY_VBOX_PATH_ROOT}/kBuild/bin/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/kmk.exe
+            MY_WIN_SYSTEM32=/mnt/c/Windows/System32
+            MY_WIN_CMD_EXE=${MY_WIN_SYSTEM32}/cmd.exe
             ;;
         *)
             MY_VBOX_TARGET_OS=unknown
@@ -71,28 +91,92 @@ __vbx_env_current()
     __vbx_env "$MY_VBOX_BRANCH" "$MY_VBOX_TYPE"
 }
 
+__vbx_kill()
+{
+    echo "Killing VBox ..."
+
+    pkill -e VirtualBox
+    pkill -e VirtualBoxVM
+    pkill -e VBoxSVC
+    pkill -e VBoxXPCOMIPCD
+
+    case "$MY_VBOX_TARGET_OS" in
+        win)
+            pkill -e VBoxSDS
+            ;;
+        *)
+            ;;
+    esac
+}
+
+__vbx_drv_install()
+{
+    cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/
+
+    case "$MY_VBOX_TARGET_OS" in
+    linux)
+        ;;
+    darwin)
+        ;;
+    win)
+        ./SUPInstall.exe
+        ## @todo Add more.
+        ;;
+    *)
+        ;;
+    esac
+}
+
+__vbx_drv_uninstall()
+{
+    cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/
+
+    case "$MY_VBOX_TARGET_OS" in
+    linux)
+        ;;
+    darwin)
+        ;;
+    win)
+        ./NetLwfUninstall.exe
+        ./NetAdpUninstall.exe
+        ./NetAdp6uninstall.exe
+        ./NetFltuninstall.exe
+        ./SUPUninstall.exe
+        ;;
+    *)
+        ;;
+    esac
+}
+
 __vbx_vakit_env()
 {
     __vbx_env ${1}
 
     export VBOX_INSTALL_PATH=${MY_VBOX_PATH_OUT}
+    export VBOX_VALIDATIONKIT_PATH=${HOME}/VBox/ValidationKit
 
-    export VBOX_VALIDATIONKIT_PATH=${HOME}/machines/ValidationKit
+    echo "Using ValidationKit resources at: $VBOX_VALIDATIONKIT_PATH"
+
     export VBOX_VALIDATIONKIT_LOG_DEST=${VBOX_LOG_DEST}
-    export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="\
-        -v -v -d --vbox-session-type gui --quick \
-        --vbox-session-log \"main_guestprocess.e.l.l2.l3.f+main_guestsession.e.l.l2.l3.f+main_guestdirectory.e.l.l2.l3.f+guest_control.e.l.l2.l3.f+guest.e.l.l2.l3.f\" \
-        --vbox-session-log-flags \"buffered\" \
-        --vbox-session-log-dest ${VBOX_LOG_DEST}"
+    export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="-v -v -d --vbox-session-type gui --quick \
+                                                       --vbox-session-log-flags \"time,thread,group\" \
+                                                       --vbox-session-log-dest ${VBOX_LOG_DEST}"
+    # Always use tests from trunk.
+    export VBOX_VALIDATIONKIT_TESTS_PATH=${MY_VBOX_PATH_HOME}/trunk/src/VBox/ValidationKit/tests
 
     export TESTBOX_PATH_SCRATCH=${VBOX_VALIDATIONKIT_PATH}/scratch
     export TESTBOX_PATH_RESOURCES=${VBOX_VALIDATIONKIT_PATH}/res
+
+    # The testdriver framework uses this for determining the VBox installation location.
+    export VBOX_TD_DEV_TREE=${VBOX_INSTALL_PATH}
 
     export VBOX_USER_HOME=${TESTBOX_PATH_SCRATCH}/VBoxUserHome
     export KBUILD_TYPE=${MY_VBOX_TYPE}
 
     # Override the default "gdb" to let the test driver debugger logic do its thing.
     export VBOX_ASSERT=disabled
+
+    export COMPUTERNAME=127.0.0.1
 }
 
 __vbx_dbg()

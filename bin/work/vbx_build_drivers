@@ -46,8 +46,23 @@ case "$MY_VBOX_TARGET_OS" in
             Scripts-darwin \
             Scripts-darwin-adp"
         ;;
+    win)
+        MY_VBOX_DRV_DEPS="\
+            RuntimeR0 \
+            RuntimeR3 \
+            RuntimeBldProg \
+            VBoxRT \
+            VBoxDrv \
+            VBoxDrv-inf \
+            SUPInstall \
+            SUPUninstall"
+        MY_VBOX_DRV_OPTS="VBOX_SIGNING_MODE=test"
+        ;;
     *)
         ;;
 esac
 
-( cd ${MY_VBOX_PATH_ROOT} && kmk BUILD_TYPE=release ${MY_VBOX_DRV_DEPS} )
+__vbx_kill
+__vbx_drv_uninstall
+
+( cd ${MY_VBOX_PATH_ROOT} && ${MY_VBOX_KMK} BUILD_TYPE=release ${MY_VBOX_DRV_OPTS} ${MY_VBOX_DRV_DEPS} )
