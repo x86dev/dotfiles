@@ -8,5 +8,7 @@ sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools
 
 # Git tweaking.
 # Security warning: Will store in *plaintext* on disk!
-git config --global credential.helper store
+$(cd "$DOTFILES"; \
+  git config --global credential.helper store; \
+  git config remote.origin.push HEAD )
 
