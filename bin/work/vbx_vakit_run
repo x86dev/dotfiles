@@ -28,11 +28,16 @@ __vbx_kill
 
 # Each test driver might has some different options and stuff. So handle those here.
 case "${MY_TESTCASE_NAME}" in
+    guestadd)
+        MY_TESTCASE_FILENAME=tdAddBasic1.py
+        MY_TESTCASE_OPTS=""
+            ;;
     guestcontrol)
         MY_TESTCASE_FILENAME=tdAddGuestCtrl.py
         MY_TESTCASE_OPTS="--add-guest-ctrl-tests copy_from \
             --add-guest-ctrl-debug-img ${MY_VBOX_PATH_OUT}/additions/VBoxService \
             --add-guest-ctrl-debug-no-exit \
+            --add-guest-ctrl-tests session_proc_ref \
             --vbox-session-log \"main_guestprocess.e.l.l2.l3.f+main_guestsession.e.l.l2.l3.f+main_guestdirectory.e.l.l2.l3.f+guest_control.e.l.l2.l3.f+guest.e.l.l2.l3.f\""
             ;;
     sharedfolders)
