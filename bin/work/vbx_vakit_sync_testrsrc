@@ -4,8 +4,15 @@
 
 __vbx_vakit_env "$MY_VBOX_BRANCH"
 
-if [ -z "$MY_TESTSTOR_SHARE" ]; then
-    echo "MY_TESTSTOR_SHARE not specified"
+set -x
+
+if [ -z "$MY_TESTSTOR_HOST" ]; then
+    echo "MY_TESTSTOR_HOST not specified"
+    exit 1
+fi
+
+if [ -z "$MY_TESTSTOR_PATH" ]; then
+    echo "MY_TESTSTOR_PATH not specified"
     exit 1
 fi
 
@@ -19,10 +26,15 @@ if [ -z "$MY_TESTSTOR_PASSWORD" ]; then
     exit 1
 fi
 
-MY_TESTSTORE_SRC_PATH=/mnt/testrsrc
 MY_TESTSTORE_DST_PATH=${TESTBOX_PATH_RESOURCES}
 
-mkdir -p ${MY_TESTSTORE_SRC_PATH}
-sudo mount -t cifs //${MY_TESTSTOR_SHARE} -o vers=2.1,user=${MY_TESTSTOR_USER},password=${MY_TESTSTOR_PASSWORD} ${MY_TESTSTORE_SRC_PATH}
-cp -Rav ${MY_TESTSTORE_SRC_PATH}/ ${MY_TESTSTORE_DST_PATH}
-umount ${MY_TESTSTORE_SRC_PATH}
+if [ -n "$MY_TESTSTOR_HAS_RSYNC" ]; then
+    MY_TESTSTORE_SRC_PATH=/mnt/testrsrc
+    rsync --progress -av ${MY_TESTSTOR_USER}@${MY_TESTSTOR_HOST}:${MY_TESTSTOR_PATH}/ ${MY_TESTSTORE_DST_PATH}
+else
+    MY_TESTSTORE_SRC_PATH=/mnt/testrsrc
+    mkdir -p ${MY_TESTSTORE_SRC_PATH}
+    sudo mount -t cifs //${MY_TESTSTOR_HOST}/${MY_TESTSTOR_PATH} -o vers=2.1,user=${MY_TESTSTOR_USER},password=${MY_TESTSTOR_PASSWORD} ${MY_TESTSTORE_SRC_PATH}
+    cp -Rav ${MY_TESTSTORE_SRC_PATH}/ ${MY_TESTSTORE_DST_PATH}
+    umount ${MY_TESTSTORE_SRC_PATH}
+fi
