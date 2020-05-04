@@ -26,3 +26,6 @@
 
 # Ignore explicitly as private marked files (*.private).
 *.private
+
+# VS Code
+.vscode
