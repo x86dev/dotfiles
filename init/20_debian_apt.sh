@@ -47,8 +47,8 @@ packages=(
   mc
   meld
   ncdu
-  screen
   strace
+  tmux
   vim
   wget
   zsh
