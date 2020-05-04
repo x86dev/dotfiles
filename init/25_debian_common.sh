@@ -11,7 +11,6 @@ rm -rf "$MY_RESTIC_TMP"
 
 # Install lazygit.
 sudo add-apt-repository ppa:lazygit-team/release
-sudo apt-get update
 sudo apt-get install lazygit
 
 # Install Oh My Zsh.
