@@ -18,6 +18,12 @@
 # Don't store Vim's history.
 /link/.vim/.netrwhist
 
+# Don't commit tmux plugins, tpm will install them.
+/link/.tmux/plugins
+
+# Don't commit tmux resurrect state.
+/link/.tmux/resurrect
+
 # Don't track vendor stuff.
 /vendor/
 
