@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if [ -f ~/.aliases.home ]; then
-  source ~/.aliases.home
-fi
-
-alias spotify='spotify --force-device-scale-factor=1.8'
