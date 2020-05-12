@@ -34,10 +34,10 @@ case "${MY_TESTCASE_NAME}" in
             ;;
     guestcontrol)
         MY_TESTCASE_FILENAME=tdAddGuestCtrl.py
-        MY_TESTCASE_OPTS="--add-guest-ctrl-tests copy_from \
-            --add-guest-ctrl-debug-img ${MY_VBOX_PATH_OUT}/additions/VBoxService \
+        MY_TESTCASE_OPTS="\
             --add-guest-ctrl-debug-no-exit \
-            --add-guest-ctrl-tests session_proc_ref \
+            --add-guest-ctrl-debug-img ${MY_VBOX_PATH_OUT}/additions/VBoxService \
+            --add-guest-ctrl-tests all \
             --vbox-session-log \"main_guestprocess.e.l.l2.l3.f+main_guestsession.e.l.l2.l3.f+main_guestdirectory.e.l.l2.l3.f+guest_control.e.l.l2.l3.f+guest.e.l.l2.l3.f\""
             ;;
     sharedfolders)
@@ -53,6 +53,6 @@ esac
 
 ( cd ${VBOX_VALIDATIONKIT_TESTS_PATH}/additions && \
   python ${MY_TESTCASE_FILENAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} ${MY_TESTCASE_OPTS} \
-  --test-vms "$MY_VM_NAME" \
-  --snapshot-restore-current --no-wipe-clean cleanup-before verify config execute \
+  --test-vms ${MY_VM_NAME} \
+  --snapshot-restore-current --no-wipe-clean cleanup-before execute \
   2>&1 | tee ${MY_TESTDRIVER_LOG} )
