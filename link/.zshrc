@@ -77,7 +77,7 @@ plugins=(dirhistory fzf git)
 ZSH_THEME="sunrise"
 
 # Do the My My Zsh stuff.
-source $ZSH/oh-my-zsh.sh
+source ${ZSH}/oh-my-zsh.sh
 
 # Source .myrc -- this is where all the magic happens.
-source .myrc
+source ${HOME}/.myrc
