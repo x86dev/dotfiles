@@ -8,7 +8,7 @@ fi
 [[ $- == *i* ]] && source "$MY_FZF/shell/completion.bash" 2> /dev/null
 
 # Key bindings.
-source "$MY_FZF/shell/key-bindings.bash"
+source "$MY_FZF/shell/key-bindings.$(basename $SHELL)"
 
 # Customization
 export FZF_DEFAULT_OPTS='--height 40% --border'
