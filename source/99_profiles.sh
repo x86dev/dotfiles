@@ -132,6 +132,7 @@ done
 
 export MY_HOST=${_HOST}
 export MY_OS=${_OS}
+export MY_SHELL=${_SHELL}
 
 unset _setup _SETUP _OS _HOST _SHELL _WHAT _PRINT
 : # Force a true exit status.
