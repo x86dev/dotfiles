@@ -7,91 +7,10 @@
 
 # .profile is sourced at login by sh, ksh and bash. The zsh sources .zshrc.
 # To get the same behaviour from zsh as well I did "cd; ln .profile .zshrc"
-echo "File: ~${LOGNAME}/.profile"   # Tell the world who is responsible
-
-# How do we suppress echo's newline on this system?
-if test "x`echo -n`" = x-n; then
-	# Ugh, System V echo.
-	ECHO='echo'
-	NONL='\c'
-else
-	# BSD, the One True Echo.
-	ECHO='echo -n'
-	NONL=''
-fi
-
-# Find the unqualified hostname.
-if hostname >/dev/null 2>&1; then
-	case `hostname` in
-	*.*) _HOST=`echo 's/\..*//p' | ed -s '!hostname'`;;
-	*)   _HOST=`hostname`;;
-	esac
-else
-	_HOST=`uname -n | sed 's/\..*//'`
-fi
-
-# Find out what (Bourne compatible) shell we are running under. Put the result
-# in $_SHELL (not $SHELL) so further actions can dependent on the shell type.
-if test -n "${ZSH_VERSION}"; then
-	_SHELL=zsh
-elif test -n "${BASH_VERSION}"; then
-	_SHELL=bash
-elif test -n "${FCEDIT}"; then
-	_SHELL=ksh
-elif test "${PS3}" = ""; then
-	_SHELL=sh
-else
-	_SHELL=unknown
-fi
-
-# Set _OS to a string describing the operating system type.
-# The possible OS types are arbitrary, they are used to
-# distinguish OS specific _setups. Modify to your liking.
-# FreeBSD has a statically linked /sbin/sysctl on the root fs.
-_OS="`sysctl -n kern.ostype 2>/dev/null`"
-if test -z "${_OS}"; then
-	case "`uname -sr`" in
-		*BSD*)     _OS=`uname -s`;;
-		SunOS\ 4*) _OS=sunos;;
-		SunOS\ 5*) _OS=solaris;;
-		IRIX\ 5*)  _OS=irix;;
-		HP*)       _OS=hp-ux;;
-		# For Windows WSL(2) we search for the "Microsoft" string.
-		*Microsoft)_OS=win;;
-		Linux*)    _OS=linux;;
-		*)         _OS=generic
-			echo "Warning: can't map \"`uname -sr`\" to an OS string, assuming ${_OS}."
-			echo "Edit your .profile if this is wrong."
-		;;
-	esac
-fi
-
-if test "x${HOME}" = x; then
-	HOME=/root    # FreeBSD: in single user mode HOME is not set.
-	export HOME   # This makes the /bin/sh read the files in /root.
-	cd
-fi
-
-case "${_SHELL}" in
-	bash)
-		echo 'Shell: bash'
-		;;
-	ksh)
-		echo 'Shell: ksh'
-		;;
-	sh)
-		echo 'Shell: sh'
-		;;
-	zsh)
-		echo 'Shell: zsh'
-		setopt shwordsplit
-		;;
-	*)
-		echo "Please add an entry for ${_SHELL} in ${HOME}/.profile"
-		;;
-esac
-
-echo "OS: ${_OS}"
+echo "File : ~${LOGNAME}/.profile"   # Tell the world who is responsible
+echo "Host : $MY_HOST"
+echo "OS   : $MY_OS"
+echo "Shell: $MY_SHELL"
 
 # Set umask
 umask u=rwx,g=rx,o=rx
@@ -107,32 +26,37 @@ else
 	_SETUP="functions envars rc"
 fi
 
+# Tweak options which are needed in order to get the stuff executed below.
+case "${MY_SHELL}" in
+	zsh)
+		setopt shwordsplit
+		;;
+	*)
+		;;
+esac
+
 _PRINT=echo
-for _setup in ${_SETUP}; do
-	${_PRINT} "Setting up ${_setup}:"
-	if test -r ${HOME}/.${_setup}; then
+for _CUR_SETUP in ${_SETUP}; do
+	${_PRINT} "Setting up ${_CUR_SETUP}:"
+	if test -r ${HOME}/.${_CUR_SETUP}; then
 		${_PRINT} "  universal"
-		. ${HOME}/.${_setup}
+		. ${HOME}/.${_CUR_SETUP}
 	fi
 	for _WHAT in  \
-		${_OS}    \
-		${_HOST}  \
-		${_SHELL} \
-		${_OS}.${_HOST}    \
-		${_OS}.${_SHELL}   \
-		${_HOST}.${_SHELL} \
-		${_OS}.${_HOST}.${_SHELL} \
+		${MY_OS}    \
+		${MY_HOST}  \
+		${MY_SHELL} \
+		${MY_OS}.${MY_HOST}    \
+		${MY_OS}.${MY_SHELL}   \
+		${MY_HOST}.${MY_SHELL} \
+		${MY_OS}.${MY_HOST}.${MY_SHELL} \
 		; do
-		if test -r ${HOME}/.${_setup}.${_WHAT}; then
+		if test -r ${HOME}/.${_CUR_SETUP}.${_WHAT}; then
 			${_PRINT} "  ${_WHAT} specific"
-			. ${HOME}/.${_setup}.${_WHAT}
+			. ${HOME}/.${_CUR_SETUP}.${_WHAT}
 		fi
 	done
 done
 
-export MY_HOST=${_HOST}
-export MY_OS=${_OS}
-export MY_SHELL=${_SHELL}
-
-unset _setup _SETUP _OS _HOST _SHELL _WHAT _PRINT
+unset _CUR_SETUP _SETUP _WHAT _PRINT
 : # Force a true exit status.

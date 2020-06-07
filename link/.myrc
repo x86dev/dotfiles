@@ -15,30 +15,32 @@ fi
 
 export PATH
 
-# Sources all files in "source".
-function src() {
+# Sources all files in "$1".
+function src()
+{
   local file
-  if [[ "$1" ]]; then
-    source "$DOTFILES/source/$1.sh"
-    if [ -n "$DOTFILES_PRIV" ]; then
-      source "$DOTFILES_PRIV/source/$1.sh" >/dev/null 2>&1
-    fi
-  else
-    for file in ${DOTFILES}/source/*; do
-      source "$file"
-    done
-    if [ -n "$DOTFILES_PRIV" ]; then
-      for file in ${DOTFILES_PRIV}/source/*; do
-        source "$file" >/dev/null 2>&1
-      done
-    fi
+  for file in ${1}/*.sh; do
+    source "$file"
+  done
+  for file in ${1}/*.$MY_SHELL; do
+    source "$file"
+  done
+}
+
+# Sources all files in $DOTFILES and/or $DOTFILES_PRIV.
+function src_all()
+{
+  src "$DOTFILES/source"
+  if [ -d "$DOTFILES_PRIV/source" ]; then
+    src "$DOTFILES_PRIV/source"
   fi
 }
 
 # Run dotfiles script, then source.
-function dotfiles() {
-  $DOTFILES/bin/dotfiles "$@" && src
+function dotfiles() 
+{
+  $DOTFILES/bin/dotfiles "$@" && src_all
 }
 
 # Finally, source the files.
-src
+src_all

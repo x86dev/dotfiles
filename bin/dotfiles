@@ -59,6 +59,77 @@ function is_dotfiles_bin() {
   [[ "$(basename $0 2>/dev/null)" == dotfiles ]] || return 1
 }
 
+function set_env()
+{
+  # How do we suppress echo's newline on this system?
+	if test "x`echo -n`" = x-n; then
+		# Ugh, System V echo.
+		MY_ECHO='echo'
+		NONL='\c'
+	else
+		# BSD, the One True Echo.
+		MY_ECHO='echo -n'
+		NONL=''
+	fi
+
+	# Find the unqualified hostname.
+	if hostname >/dev/null 2>&1; then
+		case `hostname` in
+		*.*) MY_HOST=`echo 's/\..*//p' | ed -s '!hostname'`;;
+		*)   MY_HOST=`hostname`;;
+		esac
+	else
+		MY_HOST=`uname -n | sed 's/\..*//'`
+	fi
+
+	# Find out what (Bourne compatible) shell we are running under. Put the result
+	# in $MY_SHELL (not $SHELL) so further actions can dependent on the shell type.
+	if test -n "${ZSH_VERSION}"; then
+		MY_SHELL=zsh
+	elif test -n "${BASH_VERSION}"; then
+		MY_SHELL=bash
+	elif test -n "${FCEDIT}"; then
+		MY_SHELL=ksh
+	elif test "${PS3}" = ""; then
+		MY_SHELL=sh
+	else
+		MY_SHELL=unknown
+	fi
+
+	# Set MY_OS to a string describing the operating system type.
+	# The possible OS types are arbitrary, they are used to
+	# distinguish OS specific _setups. Modify to your liking.
+	# FreeBSD has a statically linked /sbin/sysctl on the root fs.
+	MY_OS="`sysctl -n kern.ostype 2>/dev/null`"
+	if test -z "${MY_OS}"; then
+		case "`uname -sr`" in
+			*BSD*)     MY_OS=`uname -s`;;
+			SunOS\ 4*) MY_OS=sunos;;
+			SunOS\ 5*) MY_OS=solaris;;
+			IRIX\ 5*)  MY_OS=irix;;
+			HP*)       MY_OS=hp-ux;;
+			# For Windows WSL(2) we search for the "Microsoft" string.
+			*Microsoft)MY_OS=win;;
+			Linux*)    MY_OS=linux;;
+			*)         MY_OS=generic
+				echo "Warning: can't map \"`uname -sr`\" to an OS string, assuming ${MY_OS}."
+				echo "Edit your .profile if this is wrong."
+			;;
+		esac
+	fi
+
+	if test "x${HOME}" = x; then
+		HOME=/root    # FreeBSD: in single user mode HOME is not set.
+		export HOME   # This makes the /bin/sh read the files in /root.
+		cd
+	fi
+
+  export MY_ECHO
+  export MY_HOST
+  export MY_OS
+  export MY_SHELL
+}
+
 # OS detection
 function is_osx() {
   [[ "$OSTYPE" =~ ^darwin ]] || return 1
@@ -268,6 +339,9 @@ function cleanup {
 }
 trap cleanup EXIT
 
+# Set environment
+set_env
+
 # Initialize.
 init_file=$DOTFILES/caches/init/selected
 function init_files() {
@@ -444,12 +518,6 @@ EOF
   else
     echo "Skipping."
   fi
-fi
-
-# Ensure that we can actually, like, compile anything.
-if [[ ! "$(type -P gcc)" ]] && is_osx; then
-  e_error "XCode or the Command Line Tools for XCode must be installed first."
-  exit 1
 fi
 
 # If Git is not installed, install it (Debian only, since Git comes standard
