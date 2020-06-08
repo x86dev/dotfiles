@@ -1,0 +1,46 @@
+# Where the magic happens.
+export DOTFILES=~/.dotfiles
+export DOTFILES_PRIV=~/.dotfiles-private
+
+# Add binaries into the path.
+PATH=${DOTFILES}/bin:${PATH}
+
+# Add work stuff to path.
+PATH=${DOTFILES}/bin/work:${PATH}
+
+# Private dotfiles have precedence over public ones.
+if [ -n "$DOTFILES_PRIV" ]; then
+  PATH=${DOTFILES_PRIV}/bin:${PATH}
+fi
+
+export PATH
+
+# Sources all files in "$1".
+function src()
+{
+  local file
+  for file in ${1}/*.sh; do
+    source "$file"
+  done
+  for file in ${1}/*.$MY_SHELL; do
+    source "$file"
+  done
+}
+
+# Sources all files in $DOTFILES and/or $DOTFILES_PRIV.
+function src_all()
+{
+  src "$DOTFILES/source"
+  if [ -d "$DOTFILES_PRIV/source" ]; then
+    src "$DOTFILES_PRIV/source"
+  fi
+}
+
+# Run dotfiles script, then source.
+function dotfiles() 
+{
+  $DOTFILES/bin/dotfiles "$@" && src_all
+}
+
+# Finally, source the files.
+src_all
