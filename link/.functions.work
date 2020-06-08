@@ -14,7 +14,7 @@ __vbx_env()
         MY_VBOX_TYPE="debug"
     fi
 
-    echo "Using VBox $MY_VBOX_BRANCH ($MY_VBOX_TYPE)"
+    echo "Using VBox $MY_VBOX_BRANCH ($MY_VBOX_TYPE for $MY_OS)"
 
     if [ -z "$MY_VBOX_PATH_HOME" ]; then
         case "$MY_OS" in
@@ -55,6 +55,10 @@ __vbx_env()
             MY_VBOX_KMK=${MY_VBOX_PATH_ROOT}/kBuild/bin/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/kmk.exe
             MY_WIN_SYSTEM32=/mnt/c/Windows/System32
             MY_WIN_CMD_EXE=${MY_WIN_SYSTEM32}/cmd.exe
+
+            export KBUILD_PATH=${MY_VBOX_PATH_ROOT}/kBuild
+            export KBUILD_DEVTOOLS_HST=${MY_VBOX_PATH_ROOT}/tools
+            export PATH_DEVTOOLS=${MY_VBOX_PATH_ROOT}/tools
             ;;
         *)
             MY_VBOX_TARGET_OS=unknown
