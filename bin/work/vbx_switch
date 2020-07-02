@@ -24,8 +24,8 @@ case "$MY_VBOX_TARGET_OS" in
         ./VirtualBox &
         ;;
     win)
-         cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
-        ${MY_WIN_CMD_EXE} /C comregister.cmd
+        cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
+        sudo ${MY_WIN_CMD_EXE} /C comregister.cmd
         ./VirtualBox.exe &
         ;;
     *)
