@@ -4,4 +4,4 @@
 
 __vbx_env "$MY_VBOX_BRANCH"
 
-( cd ${MY_VBOX_PATH_ROOT} && ${MY_VBOX_KMK} && vbx_build_drivers )
+( cd ${MY_VBOX_PATH_ROOT} && ${MY_VBOX_KMK_OPTS} ${MY_KMK_OPTS} $@ && vbx_build_drivers )

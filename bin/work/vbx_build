@@ -4,4 +4,4 @@
 
 __vbx_env_current
 
-${MY_VBOX_KMK} $@
+${MY_VBOX_KMK} ${MY_VBOX_KMK_OPTS} $@
