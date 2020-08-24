@@ -18,7 +18,7 @@ case "$MY_VBOX_TARGET_OS" in
         ./VirtualBox &
         ;;
     darwin)
-        cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/dist/VirtualBox.app/Contents/MacOS
+        cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/dist/
         ./load.sh
         cd ${MY_VBOX_PATH_OUT}/
         ./VirtualBox &
