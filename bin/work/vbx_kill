@@ -2,4 +2,5 @@
 
 . ${HOME}/.functions.work
 
+__vbx_env "$MY_VBOX_BRANCH"
 __vbx_kill

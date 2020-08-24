@@ -71,23 +71,14 @@ __vbx_env()
         # Starting at 6.0 the frontend has a different image name,
         MY_VBOX_VM_FRONTEND=VirtualBoxVM
     fi
-}
 
-__vbx_env_export()
-{
-    __vbx_env "$1" "$2"
-
-    echo "Exporting VBox profile ..."
-
-    export MY_VBOX_BRANCH
-    export MY_VBOX_TYPE
-    export MY_VBOX_PATH_HOME
-    export MY_VBOX_PATH_ROOT
-    export MY_VBOX_PATH_OUT
-    export MY_VBOX_TARGET_ARCH
-    export MY_VBOX_TARGET_OS
-
-    export VBOX_LOG_DEST=file=${MY_VBOX_PATH_HOME}/Logs/VBox.log
+    export MY_VBOX_BRANCH=${MY_VBOX_BRANCH}
+    export MY_VBOX_TYPE=asdf
+    export MY_VBOX_PATH_HOME=${MY_VBOX_PATH_HOME}
+    export MY_VBOX_PATH_ROOT=${MY_VBOX_PATH_ROOT}
+    export MY_VBOX_PATH_OUT=${MY_VBOX_PATH_OUT}
+    export MY_VBOX_TARGET_ARCH=${MY_VBOX_TARGET_ARCH}
+    export MY_VBOX_TARGET_OS=${MY_VBOX_TARGET_OS}
 }
 
 __vbx_env_current()
@@ -99,14 +90,21 @@ __vbx_kill()
 {
     echo "Killing VBox ..."
 
-    pkill -e VirtualBox
-    pkill -e VirtualBoxVM
-    pkill -e VBoxSVC
-    pkill -e VBoxXPCOMIPCD
+    if [ "$MY_VBOX_TARGET_OS" = "darwin" ]; then
+        MY_PKILL_OPTS=""
+    else
+        MY_PKILL_OPTS="-e"
+    fi
+    
+
+    pkill ${MY_PKILL_OPTS} VirtualBox
+    pkill ${MY_PKILL_OPTS} VirtualBoxVM
+    pkill ${MY_PKILL_OPTS} VBoxSVC
+    pkill ${MY_PKILL_OPTS} VBoxXPCOMIPCD
 
     case "$MY_VBOX_TARGET_OS" in
         win)
-            pkill -e VBoxSDS
+            pkill ${MY_PKILL_OPTS} VBoxSDS
             ;;
         *)
             ;;
