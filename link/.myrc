@@ -16,7 +16,7 @@ fi
 export PATH
 
 # Sources all files in "$1".
-function src()
+__my_src()
 {
   local file
   for file in ${1}/*.sh; do
@@ -28,19 +28,19 @@ function src()
 }
 
 # Sources all files in $DOTFILES and/or $DOTFILES_PRIV.
-function src_all()
+__my_src_all()
 {
-  src "$DOTFILES/source"
+  __my_src "$DOTFILES/source"
   if [ -d "$DOTFILES_PRIV/source" ]; then
-    src "$DOTFILES_PRIV/source"
+    __my_src "$DOTFILES_PRIV/source"
   fi
 }
 
 # Run dotfiles script, then source.
-function dotfiles() 
+dotfiles() 
 {
   $DOTFILES/bin/dotfiles "$@" && src_all
 }
 
 # Finally, source the files.
-src_all
+__my_src_all
