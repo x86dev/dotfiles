@@ -34,6 +34,7 @@ if [ $# -lt 1 ]; then
 fi
 
 MY_PROFILE_FILE=""
+MY_DO_FORCE=""
 MY_DO_REPLACE=""
 
 while [ $# != 0 ]; do
@@ -43,6 +44,9 @@ while [ $# != 0 ]; do
         --profile)
             MY_PROFILE_FILE="$1"
             shift
+            ;;
+        --force)
+            MY_DO_FORCE=1
             ;;
         --replace)
             MY_DO_REPLACE=1
@@ -62,8 +66,17 @@ while [ $# != 0 ]; do
     esac
 done
 
-which ffprobe &> /dev/null || ( echo "ffprobe not installed. Aborting." >&2; exit 2 )
-which HandBrakeCLI &> /dev/null || ( echo "HandBrakeCLI not installed. Aborting." >&2; exit 2 )
+which ffprobe &> /dev/null
+if [ $? -ne 0 ]; then
+    echo "ffprobe not installed. Aborting." >&2
+    exit 1
+fi
+
+which HandBrakeCLI &> /dev/null
+if [ $? -ne 0 ]; then
+    echo "HandBrakeCLI not installed. Aborting." >&2
+    exit 1
+fi
 
 if [ -z "$MY_PROFILE_FILE" ]; then 
     echo "No profile specified. Use --profile <path/to/profile.json> to set."
@@ -85,14 +98,18 @@ MY_PROFILE_NAME=$(basename -s .json "$MY_PROFILE_FILE")
 
 echo "[$(date)] Started: $MY_TRANSCODE_PATH (using $MY_PROFILE_FILE)"
 
-find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "$MY_FILENAME_SUFFIX_TRANSCODED*" -a ! -iname "$MY_FILENAME_PREFIX_TRANSCODED*" \) -print0 > ${MY_TRANSCODE_LIST}
+if [ -n "$MY_DO_FORCE" ]; then
+    find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" -print0 > ${MY_TRANSCODE_LIST}
+else
+    find "$MY_TRANSCODE_PATH" -type f -iregex "$MY_FILENAME_EXT" \( ! -iname "*$MY_FILENAME_SUFFIX_TRANSCODED*" -a ! -iname "*$MY_FILENAME_SUFFIX_ORIGINAL*" \) -print0 > ${MY_TRANSCODE_LIST}
+fi
 
 # Note: This script *must* run with bash as interpreter, as otherwise "read -r" will *not* work!
 while IFS= read -r -d $'\0' MY_FILENAME <&3; do
     MY_FILENAME_PATH=$(dirname "$MY_FILENAME")
     MY_FILENAME_NAME=$(basename "$MY_FILENAME")
     MY_FILENAME_SRC=${MY_FILENAME_PATH}/${MY_FILENAME_NAME}
-    MY_FILENAME_EXT=$(echo ${MY_FILENAME_NAME} |awk -F . '{if (NF>1) {print $NF}}')
+    MY_FILENAME_EXT=$(echo ${MY_FILENAME_NAME} | awk -F . '{if (NF>1) {print $NF}}')
     MY_FILENAME_NAME_NO_EXT=$(basename "$MY_FILENAME" .${MY_FILENAME_EXT})
     MY_FILENAME_DST=${MY_FILENAME_PATH}/${MY_FILENAME_NAME_NO_EXT}${MY_FILENAME_SUFFIX_TRANSCODED}.${MY_FILENAME_EXT}
     MY_FILENAME_DST_OLD_SCHEME=${MY_FILENAME_PATH}/${MY_FILENAME_PREFIX_TRANSCODED}${MY_FILENAME_NAME}
@@ -104,6 +121,9 @@ while IFS= read -r -d $'\0' MY_FILENAME <&3; do
         echo "[$(date)] Unable to determine codec type, skipping: $MY_FILENAME_SRC"
         continue
     fi
+
+    echo "[$(date)] File: $MY_FILENAME_SRC ($MY_SRC_CODEC_TYPE)"
+
     if [ "$MY_SRC_CODEC_TYPE" == "hevc" ]; then
         echo "[$(date)] Already transcoded, skipping: $MY_FILENAME_SRC"
         continue
