@@ -5,8 +5,7 @@ MY_RESTIC_VER=0.11.0
 MY_RESTIC_TMP=$(mktemp -d)
 sh -c "$(wget -O $MY_RESTIC_TMP/restic.bz2 https://github.com/restic/restic/releases/download/v${MY_RESTIC_VER}/restic_${MY_RESTIC_VER}_linux_amd64.bz2)"
 bunzip2 "$MY_RESTIC_TMP/restic.bz2"
-chmod +x "$MY_RESTIC_TMP/restic"
-sudo mv "$MY_RESTIC_TMP/restic" /usr/local/bin/
+sudo install -m 755 "$MY_RESTIC_TMP/restic" /usr/local/bin/
 sudo restic self-update
 rm -rf "$MY_RESTIC_TMP"
 
