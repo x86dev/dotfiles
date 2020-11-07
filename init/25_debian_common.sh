@@ -10,7 +10,7 @@ sudo install -m 755 "$MY_RESTIC_TMP/restic" /usr/local/bin/
 sudo restic self-update
 
 # Install restic wrapper script (runrestic, see https://github.com/sinnwerkstatt/runrestic).
-sudo apt-get install python pip3
+sudo apt-get install -y python3 python3-pip
 sudo pip3 install --upgrade runrestic
 # ASSUMES systemd. D'oh.
 # Yeah, excellent idea to install remote scripts right into our systemd service dir. Don't try this at home, kids.
