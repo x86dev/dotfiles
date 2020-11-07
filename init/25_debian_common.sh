@@ -1,13 +1,13 @@
 #!/bin/sh
 
+MY_RESTIC_TMP=$(mktemp -d)
+
 # Install restic.
 MY_RESTIC_VER=0.11.0
-MY_RESTIC_TMP=$(mktemp -d)
 sh -c "$(wget -O $MY_RESTIC_TMP/restic.bz2 https://github.com/restic/restic/releases/download/v${MY_RESTIC_VER}/restic_${MY_RESTIC_VER}_linux_amd64.bz2)"
 bunzip2 "$MY_RESTIC_TMP/restic.bz2"
 sudo install -m 755 "$MY_RESTIC_TMP/restic" /usr/local/bin/
 sudo restic self-update
-rm -rf "$MY_RESTIC_TMP"
 
 # Install restic wrapper script (runrestic, see https://github.com/sinnwerkstatt/runrestic).
 sudo apt-get install python pip3
@@ -20,6 +20,8 @@ sh -c "$(wget -P "$MY_RESTIC_TMP" https://raw.githubusercontent.com/sinnwerkstat
 sudo install -m 644 "$MY_RESTIC_TMP/runrestic.service" "$MY_RESTIC_TMP/runrestic.timer" "$MY_SYSTEMD_SYS_DIR"
 sudo systemctl enable runrestic.timer
 sudo systemctl start runrestic.timer
+
+rm -rf "$MY_RESTIC_TMP"
 
 # Install lazygit.
 sudo add-apt-repository ppa:lazygit-team/release
