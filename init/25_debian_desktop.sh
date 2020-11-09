@@ -10,3 +10,9 @@ sudo add-apt-repository -y ppa:phoerious/keepassxc
 sudo apt-get update
 
 sudo apt-get install -y keepassxc meld nautilus-compare nextcloud-client qownnotes thunderbird
+
+#
+# Upgrade lists:
+# sed -i -E "s/cosmic|disco|eoan|focal/$(lsb_release -cs)/" *.list
+# sed -i -E "s/^# \(.*\) # disabled on upgrade to.*/\1/g" *.list
+#
