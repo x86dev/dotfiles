@@ -88,10 +88,10 @@ set $SHOWDATAWIN = 0
 set $SHOWREGCHANGES = 1
 # set to 1 so skip command to execute the instruction at the new location
 # by default it EIP/RIP will be modified and update the new context but not execute the instruction
-set $SKIPEXECUTE = 0
+set $SKIPEXECUTE 1
 # if $SKIPEXECUTE is 1 configure the type of execution
 # 1 = use stepo (do not get into calls), 0 = use stepi (step into calls)
-set $SKIPSTEP = 1
+set $SKIPSTEP = 0
 # show the ARM opcodes - change to 0 if you don't want such thing (in x/i command)
 set $ARMOPCODES = 1
 # x86 disassembly flavor: 0 for Intel, 1 for AT&T
