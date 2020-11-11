@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Install required dependencies.
-sudo apt-get install -y rsync
+sudo apt-get install -y rsync etherwake
 
 # Install restic.
 MY_RESTIC_TMP=$(mktemp -d)
