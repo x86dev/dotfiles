@@ -4,12 +4,16 @@
 
 __vbx_env()
 {
-    MY_VBOX_BRANCH=${1}
+    if [ "$#" -ge 1 ]; then
+        MY_VBOX_BRANCH=${1}
+    fi
     if [ -z "$MY_VBOX_BRANCH" ]; then
         MY_VBOX_BRANCH="trunk"
     fi
 
-    MY_VBOX_TYPE=${2}
+    if [ "$#" -ge 2 ]; then
+        MY_VBOX_TYPE=${2}
+    fi
     if [ -z "$MY_VBOX_TYPE" ]; then
         MY_VBOX_TYPE="debug"
     fi
@@ -95,7 +99,7 @@ __vbx_kill()
     else
         MY_PKILL_OPTS="-e"
     fi
-    
+
 
     pkill ${MY_PKILL_OPTS} VirtualBox
     pkill ${MY_PKILL_OPTS} VirtualBoxVM

@@ -2,7 +2,7 @@
 
 . ${HOME}/.functions.work
 
-__vbx_env "$MY_VBOX_BRANCH"
+__vbx_env ${1} ${2}
 
 # Spawn a new sub shell which inherits the exported variables by __vbx_env().
 # and directly go to $MY_VBOX_PATH_OUT.
