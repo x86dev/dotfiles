@@ -51,6 +51,7 @@ packages=(
   tmux
   vim
   wget
+  xclip
   zsh
 )
 
