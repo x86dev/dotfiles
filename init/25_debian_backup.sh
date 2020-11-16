@@ -26,9 +26,7 @@ sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/
 sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic-cleanup%40.timer)"
 sudo install -m 644 "$MY_RESTIC_DIR_TMP"/restic*.service "$MY_RESTIC_DIR_TMP"/restic*.timer "$MY_SYSTEMD_SYS_DIR"
 sudo systemctl enable restic@${MY_RESTIC_REPO_NAME}.timer
-sudo systemctl start restic@${MY_RESTIC_REPO_NAME}.timer
 sudo systemctl enable restic-cleanup@${MY_RESTIC_REPO_NAME}.timer
-sudo systemctl start restic-cleanup@${MY_RESTIC_REPO_NAME}.timer
 
 # Initialize repo.
 sudo resticctl redit "$MY_RESTIC_REPO_NAME"
