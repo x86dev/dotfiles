@@ -15,7 +15,7 @@ sudo restic self-update
 
 # Install restic wrapper script (resticctl, see https://github.com/fukawi2/resticctl).
 sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/resticctl.sh)"
-sudo install -m 0755 resticctl.sh "$MY_RESTIC_DIR_BIN/resticctl"
+sudo install -m 0755 "$MY_RESTIC_DIR_TMP"/resticctl.sh "$MY_RESTIC_DIR_BIN/resticctl"
 
 # Install systemd services + timers.
 # Yeah, excellent idea to install remote scripts right into our systemd service dir. Don't try this at home, kids.
