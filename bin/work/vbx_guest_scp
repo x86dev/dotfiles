@@ -4,4 +4,4 @@
 
 __vbx_env_current
 
-scp -P 2222 ${MY_VBOX_PATH_OUT}/${1} vbox@127.0.0.1:/tmp
+scp -P 2222 -v ${MY_VBOX_PATH_OUT}/${1} vbox@127.0.0.1:/tmp
