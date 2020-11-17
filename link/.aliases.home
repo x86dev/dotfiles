@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ -f ~/.dotfiles-private/link/.aliases.home ]; then
+  source ~/.dotfiles-private/link/.aliases.home
+fi
