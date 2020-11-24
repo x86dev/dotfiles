@@ -127,6 +127,7 @@ sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/
 sudo install -m 644 "$MY_RESTIC_DIR_TMP/restic*.service" "$MY_RESTIC_DIR_TMP/restic*.timer" "$MY_SYSTEMD_SYS_DIR"
 sudo systemctl enable restic@${MY_RESTIC_REPO_NAME}.timer
 sudo systemctl enable restic-cleanup@${MY_RESTIC_REPO_NAME}.timer
+sudo systemctl daemon-reload
 
 # Initialize repo.
 MY_REPO_DO_INIT=
