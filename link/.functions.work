@@ -77,7 +77,7 @@ __vbx_env()
     fi
 
     export MY_VBOX_BRANCH=${MY_VBOX_BRANCH}
-    export MY_VBOX_TYPE=asdf
+    export MY_VBOX_TYPE=${MY_VBOX_TYPE}
     export MY_VBOX_PATH_HOME=${MY_VBOX_PATH_HOME}
     export MY_VBOX_PATH_ROOT=${MY_VBOX_PATH_ROOT}
     export MY_VBOX_PATH_OUT=${MY_VBOX_PATH_OUT}

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+cat $(ls -Art *VirtualBoxVM* | tail -n 1) $@
