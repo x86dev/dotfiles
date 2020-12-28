@@ -98,6 +98,14 @@ resticctl_init_repo()
     sudo resticctl init "$MY_RESTIC_REPO_NAME"
 }
 
+systemd_install_timer()
+{
+    # Note: The --now makes sure the timer gets active WITHOUT a reboot.
+    sudo systemctl enable --now $1@${MY_RESTIC_REPO_NAME}.timer
+    sudo systemctl restart timers.target
+    sudo systemctl status $1@${MY_RESTIC_REPO_NAME}.timer
+}
+
 # Install required dependencies.
 sudo apt-get install -y rsync etherwake
 
@@ -125,9 +133,9 @@ sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/
 sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic-cleanup%40.service)"
 sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic-cleanup%40.timer)"
 sudo install -m 644 "$MY_RESTIC_DIR_TMP/restic*.service" "$MY_RESTIC_DIR_TMP/restic*.timer" "$MY_SYSTEMD_SYS_DIR"
-sudo systemctl enable restic@${MY_RESTIC_REPO_NAME}.timer
-sudo systemctl enable restic-cleanup@${MY_RESTIC_REPO_NAME}.timer
-sudo systemctl daemon-reload
+
+systemd_install_timer "restic"
+systemd_install_timer "restic-cleanup"
 
 # Initialize repo.
 MY_REPO_DO_INIT=
