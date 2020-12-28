@@ -1,0 +1,6 @@
+DIST_OLD=$1
+DIST_NEW=$2
+for f in /etc/apt/sources.list.d/*.list; do
+    sudo sed -i 's/$DIST_OLD/$DIST_NEW/g' $f
+    sudo sed -i 's/^# \(.*\) # disabled on upgrade to.*/\1/g' $f
+done
