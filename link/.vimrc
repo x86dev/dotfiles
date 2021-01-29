@@ -25,7 +25,7 @@ set ttyfast     " We have a fast tty. Does smoother screen updates.
 
 highlight Folded ctermfg=yellow ctermbg=none cterm=bold
 highlight LineNr ctermfg=red ctermbg=none
-highlight ExtraWhitespace ctermbg=darkgreen guibg=darkgreen      
+highlight ExtraWhitespace ctermbg=darkgreen guibg=darkgreen
 
 " Make color schemes work with putty also.
 if has("terminfo")
@@ -38,10 +38,9 @@ if has("terminfo")
     let &t_Sb="\<Esc>[4%dm"
 endif
 
-set shiftwidth=4
-set softtabstop=4
-set tabstop=4
-set shiftwidth=4
+" Tab settings.
+set tabstop=4 softtabstop=0 expandtab shiftwidth=4 smarttab
+
 set number
 set ignorecase
 set smartcase
@@ -77,11 +76,11 @@ set noautowriteall             " Nope!
 set writebackup                " Backup original file when writing.
 set backupext=~                " Backup extension is "~"
 
-" Ruler 
+" Ruler
 set ruler
 set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%)
 
-" Status bar 
+" Status bar
 set showcmd                    " Show incomplete commands.
 set showmode                   " Show current mode.
 set showmatch
