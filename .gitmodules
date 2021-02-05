@@ -1,3 +1,12 @@
 [submodule "vendor/fzf"]
 	path = vendor/fzf
 	url = https://github.com/junegunn/fzf
+[submodule "vendor/dircolors-solarized"]
+	path = vendor/dircolors-solarized
+	url = https://github.com/seebi/dircolors-solarized
+[submodule "vendor/svn-stash"]
+	path = vendor/svn-stash
+	url = https://github.com/frankcortes/svn-stash
+[submodule "vendor/vim-colors-solarized"]
+	path = vendor/vim-colors-solarized
+	url = https://github.com/altercation/vim-colors-solarized
