@@ -24,9 +24,6 @@
 # Don't commit tmux resurrect state.
 /link/.tmux/resurrect
 
-# Don't track vendor stuff.
-/vendor/
-
 # Ignore any file with LOCAL in the name (good for per-machine vars/functions).
 *LOCAL*
 
