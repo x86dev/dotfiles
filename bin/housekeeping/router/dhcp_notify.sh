@@ -24,6 +24,9 @@
 
 CUR_PATH=$(readlink -f $0 | xargs dirname)
 
+# Enable this to test the script locally.
+#MY_TEST=1
+
 MY_CFG_FILE=${CUR_PATH}/dhcp_notify.conf
 
 if [ -f "$MY_CFG_FILE" ]; then
@@ -41,19 +44,25 @@ if [    -z "$MY_MAIL_USER" \
     exit 1
 fi
 
-MY_MAC_LIST="/etc/known_mac_addr"
+if [ -z "$MY_TEST" ]; then
+    MY_MAC_LIST="/etc/known_mac_addr"
+    MY_LOG_PATH="/www/dhcp"
+    MY_HOST_HOSTNAME=$(uci get system.@system[0].hostname)
+    MY_HOST_DOMAIN=$(uci get dhcp.@dnsmasq[0].domain)
+else
+    MY_MAC_LIST=${CUR_PATH}/known_mac_addr
+    MY_LOG_PATH=${CUR_PATH}
+    MY_HOST_HOSTNAME=test_hostname
+    MY_HOST_DOMAIN=test_domain
+fi
 
-MY_HOST_HOSTNAME=$(uci get system.@system[0].hostname)
 if [ -z "$MY_HOST_HOSTNAME" ]; then
     MY_HOST_HOSTNAME="<Unknown>"
 fi
-MY_HOST_DOMAIN=$(uci get dhcp.@dnsmasq[0].domain)
 MY_HOST_MAC=$2
 MY_HOST_IP=$3
 MY_HOST_DEVNAME=$4
 
-# Web server running on OpenWrt.
-MY_LOG_PATH="/www/dhcp"
 MY_LOG_FILE="$MY_LOG_PATH/index.html"
 
 log()
@@ -61,17 +70,24 @@ log()
     echo "[`date`] $1<br>" | tee -a ${MY_LOG_FILE}
 }
 
+# Make sure the known MAC list exists.
+touch "$MY_MAC_LIST"
+
 # Make sure that the log path exists.
 mkdir -p "$MY_LOG_PATH"
 
 # Make sure the log file exists.
 touch "$MY_LOG_FILE"
 
-# Check if the MAC is in known devices list.
-grep -q "$MY_HOST_MAC" "$MY_MAC_LIST" 2>&1 > /dev/null
-UNKNOWN_MAC_ADDR=$?
+# Check if the MAC is in known devices list and extract the existing device name from it.
+MY_HOST_DEVNAME_RESOLVED=$(awk -F ";" "BEGIN { rc=1 } \$1 == \"$MY_HOST_MAC\" { print \$2; rc=0 } END { exit rc }" "$MY_MAC_LIST") 2>&1 > /dev/null
+MY_UNKNOWN_MAC_ADDR=$?
 
-if [ "$1" == "add" ] && [ "$UNKNOWN_MAC_ADDR" -ne 0 ]; then
+if [ -n "$MY_HOST_DEVNAME_RESOLVED" ]; then
+    MY_HOST_DEVNAME=${MY_HOST_DEVNAME_RESOLVED}
+fi
+
+if [ "$1" = "add" ] && [ "$MY_UNKNOWN_MAC_ADDR" -ne 0 ]; then
 
     MY_MAIL_SMTP_OPTS="-smtp $MY_MAIL_SMTP_ADDR -starttls -port $MY_MAIL_SMTP_PORT -auth"
 
@@ -87,6 +103,6 @@ if [ "$1" == "add" ] && [ "$UNKNOWN_MAC_ADDR" -ne 0 ]; then
     echo "$MY_HOST_MAC;$MY_HOST_DEVNAME" >> ${MY_MAC_LIST}
 fi
 
-if [ "$1" == "old" ]; then
+if [ "$1" = "old" ]; then
     log "Already known device reconnected: $MY_HOST_HOSTNAME@$MY_HOST_DOMAIN: $MY_HOST_IP ($MY_HOST_DEVNAME - $MY_HOST_MAC)"
 fi
