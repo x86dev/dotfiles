@@ -64,6 +64,9 @@ log()
 # Make sure that the log path exists.
 mkdir -p "$MY_LOG_PATH"
 
+# Make sure the log file exists.
+touch "$MY_LOG_FILE"
+
 # Check if the MAC is in known devices list.
 grep -q "$MY_HOST_MAC" "$MY_MAC_LIST" 2>&1 > /dev/null
 UNKNOWN_MAC_ADDR=$?
