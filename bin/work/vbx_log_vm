@@ -1,3 +1,9 @@
 #!/bin/sh
 
-cat $(ls -Art *VirtualBoxVM* | tail -n 1) $@
+MY_CMD=$@
+
+if [ -z "$MY_CMD" ]; then
+    MY_CMD=cat
+fi
+
+${MY_CMD} $(ls -Art *VirtualBoxVM* | tail -n 1)
