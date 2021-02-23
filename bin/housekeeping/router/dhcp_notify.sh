@@ -94,6 +94,19 @@ if [ "$1" = "add" ] && [ "$MY_UNKNOWN_MAC_ADDR" -ne 0 ]; then
     MY_MAIL_SUB="New device: $MY_HOST_HOSTNAME@$MY_HOST_DOMAIN: $MY_HOST_IP ($MY_HOST_DEVNAME - $MY_HOST_MAC)"
     MY_MAIL_BODY_FILE="/tmp/mailsend_body.txt"
     echo "A new device just connected: $MY_HOST_HOSTNAME@$MY_HOST_DOMAIN, IP:$MY_HOST_IP, MAC:$MY_HOST_MAC, Name:$MY_HOST_DEVNAME" > ${MY_MAIL_BODY_FILE}
+
+    # A bit of nmap banging.
+    MY_NMAP_LOG_FILE="/tmp/nmap_log.txt"
+    MY_NMAP_COMMON_OPTS="--append-output -oN $MY_NMAP_LOG_FILE $MY_HOST_IP"
+    $(nmap -T4 -A $MY_NMAP_COMMON_OPTS)
+    $(nmap -sV --version-intensity 5 $MY_NMAP_COMMON_OPTS)
+    $(nmap -sO $MY_NMAP_COMMON_OPTS)
+    $(nmap -sS $MY_NMAP_COMMON_OPTS)
+    $(nmap -sU $MY_NMAP_COMMON_OPTS)
+    echo "\n\n"             >> "$MY_MAIL_BODY_FILE"
+    cat "$MY_NMAP_LOG_FILE" >> "$MY_MAIL_BODY_FILE"
+    rm "$MY_NMAP_LOG_FILE"
+
     mailsend -f ${MY_MAIL_USER} -t ${MY_MAIL_ADDR} -user "$MY_MAIL_USER" -pass "$MY_MAIL_PASSWORD" ${MY_MAIL_SMTP_OPTS} -sub "$MY_MAIL_SUB" -msg-body ${MY_MAIL_BODY_FILE}
     rm ${MY_MAIL_BODY_FILE}
 
