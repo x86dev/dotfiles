@@ -103,7 +103,6 @@ if [ "$1" = "add" ] && [ "$MY_UNKNOWN_MAC_ADDR" -ne 0 ]; then
     nmap -sO ${MY_NMAP_COMMON_OPTS}
     nmap -sS ${MY_NMAP_COMMON_OPTS}
     nmap -sU ${MY_NMAP_COMMON_OPTS}
-    echo "\n\n"             >> "$MY_MAIL_BODY_FILE"
     cat "$MY_NMAP_LOG_FILE" >> "$MY_MAIL_BODY_FILE"
     rm "$MY_NMAP_LOG_FILE"
 
