@@ -98,11 +98,11 @@ if [ "$1" = "add" ] && [ "$MY_UNKNOWN_MAC_ADDR" -ne 0 ]; then
     # A bit of nmap banging.
     MY_NMAP_LOG_FILE="/tmp/nmap_log.txt"
     MY_NMAP_COMMON_OPTS="--append-output -oN $MY_NMAP_LOG_FILE $MY_HOST_IP"
-    $(nmap -T4 -A $MY_NMAP_COMMON_OPTS)
-    $(nmap -sV --version-intensity 5 $MY_NMAP_COMMON_OPTS)
-    $(nmap -sO $MY_NMAP_COMMON_OPTS)
-    $(nmap -sS $MY_NMAP_COMMON_OPTS)
-    $(nmap -sU $MY_NMAP_COMMON_OPTS)
+    nmap -T4 -A ${MY_NMAP_COMMON_OPTS}
+    nmap -sV --version-intensity 5 ${MY_NMAP_COMMON_OPTS}
+    nmap -sO ${MY_NMAP_COMMON_OPTS}
+    nmap -sS ${MY_NMAP_COMMON_OPTS}
+    nmap -sU ${MY_NMAP_COMMON_OPTS}
     echo "\n\n"             >> "$MY_MAIL_BODY_FILE"
     cat "$MY_NMAP_LOG_FILE" >> "$MY_MAIL_BODY_FILE"
     rm "$MY_NMAP_LOG_FILE"
