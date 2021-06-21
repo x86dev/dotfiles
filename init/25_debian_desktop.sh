@@ -10,6 +10,10 @@ sudo apt-get update
 
 sudo apt-get install -y keepassxc meld nautilus-compare nautilus-nextcloud thunderbird
 
+# Install Joplin.
+# Yes, I know, potentially dangerous as hell.
+wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh | bash
+
 #
 # Upgrade lists:
 # sed -i -E "s/cosmic|disco|eoan|focal/$(lsb_release -cs)/" *.list
