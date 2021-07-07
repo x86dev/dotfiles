@@ -183,6 +183,3 @@
 [init]
 
     defaultBranch = main
-[user]
-	email = git@x86dev.com
-	name = x86dev

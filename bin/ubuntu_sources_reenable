@@ -1,6 +1,11 @@
-DIST_OLD=$1
-DIST_NEW=$2
+#!/bin/sh
+if [ "$#" -lt 2 ]; then
+    echo "Usage: $0 <old-distro-name> <new-distro-name>"
+    exit 1
+fi
+MY_DIST_OLD=$1
+MY_DIST_NEW=$2
 for f in /etc/apt/sources.list.d/*.list; do
-    sudo sed -i 's/$DIST_OLD/$DIST_NEW/g' $f
-    sudo sed -i 's/^# \(.*\) # disabled on upgrade to.*/\1/g' $f
+    sudo sed -i "s/$MY_DIST_OLD/$MY_DIST_NEW/g" $f
+    sudo sed -i "s/^# \(.*\) # disabled on upgrade to.*/\1/g" $f
 done
