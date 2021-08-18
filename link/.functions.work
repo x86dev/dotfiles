@@ -31,10 +31,18 @@ __vbx_env()
         esac
     fi
 
+    if [ ! -d "$MY_VBOX_PATH_HOME" ]; then
+        echo "Error: VBox home directory '$MY_VBOX_PATH_HOME' does not exist."
+        exit 1
+    fi
     echo "VBox home path is: $MY_VBOX_PATH_HOME"
 
     MY_VBOX_PATH_ROOT=${MY_VBOX_PATH_HOME}/${MY_VBOX_BRANCH}
 
+    if [ ! -d "$MY_VBOX_PATH_ROOT" ]; then
+        echo "Error: VBox root directory '$MY_VBOX_PATH_ROOT' does not exist."
+        exit 1
+    fi
     echo "VBox root is at: $MY_VBOX_PATH_ROOT"
 
     if [ -z "$MY_VBOX_TARGET_ARCH" ]; then
@@ -47,6 +55,9 @@ __vbx_env()
             MY_VBOX_TARGET_OS=linux
             MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/bin/
             MY_VBOX_KMK=kmk
+            if [ -z "$VBOX_USER_HOME" ]; then
+                VBOX_USER_HOME=${HOME}/.config/VirtualBox
+            fi
             ;;
         Darwin)
             MY_VBOX_TARGET_OS=darwin
@@ -69,10 +80,21 @@ __vbx_env()
             ;;
     esac
 
+    if [ -z "$VBOX_USER_HOME" ]; then
+        echo "Error: VBox user home directory (VBOX_USER_HOME) not set."
+        exit 1
+    fi
+    if [ ! -d "$VBOX_USER_HOME" ]; then
+        echo "Error: VBox user home directory '$VBOX_USER_HOME' does not exist."
+        exit 1
+    fi
+    echo "VBox user home is: $VBOX_USER_HOME"
+    export VBOX_USER_HOME
+
     if [ "$MY_VBOX_BRANCH" = "5.2" ]; then
         MY_VBOX_VM_FRONTEND=VirtualBox
     else
-        # Starting at 6.0 the frontend has a different image name,
+        # Starting at 6.0 the frontend has a different image name.
         MY_VBOX_VM_FRONTEND=VirtualBoxVM
     fi
 
@@ -159,9 +181,11 @@ __vbx_vakit_env()
     __vbx_env ${1}
 
     export VBOX_INSTALL_PATH=${MY_VBOX_PATH_OUT}
-    export VBOX_VALIDATIONKIT_PATH=${HOME}/VBox/ValidationKit
-
-    echo "Using ValidationKit resources at: $VBOX_VALIDATIONKIT_PATH"
+    if [ -d "$HOME/validationkit" ]; then
+        export VBOX_VALIDATIONKIT_PATH=${HOME}/validationkit
+    else
+        export VBOX_VALIDATIONKIT_PATH=${VBOX_USER_HOME}
+    fi
 
     export VBOX_VALIDATIONKIT_LOG_DEST=${VBOX_LOG_DEST}
     export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="-v -v -d --vbox-session-type gui --quick \
@@ -176,8 +200,15 @@ __vbx_vakit_env()
     # The testdriver framework uses this for determining the VBox installation location.
     export VBOX_TD_DEV_TREE=${VBOX_INSTALL_PATH}
 
-    export VBOX_USER_HOME=${TESTBOX_PATH_SCRATCH}/VBoxUserHome
     export KBUILD_TYPE=${MY_VBOX_TYPE}
+
+    echo "Validation Kit resources at: $VBOX_VALIDATIONKIT_PATH"
+    echo "Validation Kit user home at: $VBOX_USER_HOME"
+
+    if [ ! -d "$VBOX_VALIDATIONKIT_PATH" ]; then
+        echo "Error: Validation Kit resources directory '$VBOX_VALIDATIONKIT_PATH' does not exist."
+        exit 1
+    fi
 
     # Override the default "gdb" to let the test driver debugger logic do its thing.
     export VBOX_ASSERT=disabled
