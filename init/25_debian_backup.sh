@@ -107,14 +107,14 @@ systemd_install_timer()
 }
 
 # Install required dependencies.
-sudo apt-get install -y rsync etherwake
+sudo apt-get install -y rsync etherwake bzip2
 
 # Install restic.
 MY_RESTIC_REPO_NAME=$(hostname)
 MY_RESTIC_DIR_BIN=/usr/local/bin
 MY_RESTIC_DIR_TMP=$(mktemp -d)
 if [ ! -f "$MY_RESTIC_DIR_BIN/restic" ]; then
-    MY_RESTIC_VER=0.11.0
+    MY_RESTIC_VER=0.12.1
     sh -c "$(wget -O "$MY_RESTIC_DIR_TMP/restic.bz2" https://github.com/restic/restic/releases/download/v${MY_RESTIC_VER}/restic_${MY_RESTIC_VER}_linux_amd64.bz2)"
     bunzip2 "$MY_RESTIC_DIR_TMP/restic.bz2"
     sudo install -m 755 "$MY_RESTIC_DIR_TMP/restic" "$MY_RESTIC_DIR_BIN/restic"
