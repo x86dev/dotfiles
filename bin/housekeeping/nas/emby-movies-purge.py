@@ -1,17 +1,20 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import ast
+"""
+Purges movies which are too old.
+"""
+
+import sys
 import codecs
 import datetime
-import getopt
-import requests
-import hashlib
 import json
-import urllib
-import sys
+import getopt
+import urllib.parse
+import requests
 
 # pylint: disable=C0301
-# pylint: disable=C0326
+# pylint: disable=global-statement
 
 g_fDryRun        = True
 g_cVerbosity     = 0
@@ -26,14 +29,13 @@ g_sUsername = ""
 g_sPassword = ""
 
 def embyCleanup():
-
+    """
+    Does the actual cleanup by using the Emby API.
+    """
     global g_fDryRun
     global g_cVerbosity
     global g_dbRatingMin
     global g_fRatingNone
-
-    pw_sha1 = hashlib.sha1(g_sPassword).hexdigest()
-    pw_md5  = hashlib.md5(g_sPassword).hexdigest()
 
     # Authenticate.
     post_url = g_sHost + "/Users/AuthenticateByName"
@@ -46,7 +48,6 @@ def embyCleanup():
     if resp.ok:
         resp_data = resp.json()
         #print(resp_data)
-        emby_server_id=resp_data[u'ServerId']
         emby_user_id=resp_data[u'SessionInfo'][u'UserId']
         emby_access_token=resp_data[u'AccessToken']
     else:
@@ -78,7 +79,6 @@ def embyCleanup():
         movie_date_premiere = movie.get(u'PremiereDate')
         movie_rating = float(movie.get(u'CommunityRating', 0.0))
         movie_rating = round(movie_rating, 2)
-        movie_imdb_id = movie.get(u'UserData').get(u'Key')
 
         sItem = ("Processing '%s' ...\n" % (movie_name))
 
@@ -99,17 +99,17 @@ def embyCleanup():
         if fUseProvider:
             # Do we want to query OMDB for a rating?
             if g_sProvider == 'omdb':
-                url = "http://www.omdbapi.com/?t=" + urllib.quote(movie.get('Name'))
+                url = "http://www.omdbapi.com/?t=" + urllib.parse.quote(movie.get('Name'))
                 resp = requests.get(url)
-                if (resp.ok):
+                if resp.ok:
                     omdb = json.loads(resp.text)
                     if omdb.get(u'Response') == 'True':
                         movie_rating = float(omdb.get(u'imdbRating', 0.0))
                         if g_cVerbosity >= 2:
-                           sItem = sItem + ("\tOMDB rating = %f\n" % (movie_rating))
+                            sItem = sItem + ("\tOMDB rating = %f\n" % (movie_rating))
                         movie_date_premiere = omdb.get(u'Released')
                         if g_cVerbosity >= 2:
-                           sItem = sItem + ("\tOMDB release date = %s\n" % (movie_date_premiere))
+                            sItem = sItem + ("\tOMDB release date = %s\n" % (movie_date_premiere))
 
                     # Still no rating found?
                     if movie_rating == 0.0:
@@ -170,6 +170,9 @@ def embyCleanup():
     print("Deleted %ld / %ld items" % (cItemsPurged, cItemsProc))
 
 def printHelp():
+    """
+    Prints syntax help.
+    """
     print("--delete")
     print("    Deletion mode: Items *are* removed.")
     print("--help or -h")
@@ -194,6 +197,9 @@ def printHelp():
     print("\n")
 
 def main():
+    """
+    Main function.
+    """
     global g_fDryRun
     global g_cVerbosity
     global g_dbRatingMin
@@ -212,30 +218,30 @@ def main():
     try:
         aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hv", \
             [ "delete", "help", "older-than-days=", "password=", "rating-min=", "rating-none", "username=", "provider=" ])
-    except getopt.error, msg:
-        print msg
-        print "For help use --help"
+    except getopt.error as msg:
+        print(msg)
+        print("For help use --help")
         sys.exit(2)
 
     for o, a in aOpts:
-        if o in ("--delete"):
+        if o in "--delete":
             g_fDryRun = False
         elif o in ("-h", "--help"):
             printHelp()
             sys.exit(0)
-        elif o in ("--older-than-days"):
+        elif o in "--older-than-days":
             g_tdOlderThan = datetime.timedelta(days=int(a))
-        elif o in ("--password"):
+        elif o in "--password":
             g_sPassword = a
-        elif o in ("--provider"):
+        elif o in "--provider":
             g_sProvider = a
-        elif o in ("--rating-none"):
+        elif o in "--rating-none":
             g_fRatingNone = True
-        elif o in ("--rating-min"):
+        elif o in "--rating-min":
             g_dbRatingMin = float(a)
-        elif o in ("--username"):
+        elif o in "--username":
             g_sUsername = a
-        elif o in ("-v"):
+        elif o in "-v":
             g_cVerbosity += 1
         else:
             assert False, "Unhandled option"
