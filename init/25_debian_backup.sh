@@ -125,7 +125,7 @@ sudo restic self-update
 sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/resticctl.sh)"
 sudo install -m 0755 "$MY_RESTIC_DIR_TMP"/resticctl.sh "$MY_RESTIC_DIR_BIN/resticctl"
 
-if [ -n "$(pidof systemd)" ]; then
+if [ -n "$(which systemd)" ]; then
     # Install systemd services + timers.
     # Yeah, excellent idea to install remote scripts right into our systemd service dir. Don't try this at home, kids.
     MY_SYSTEMD_SYS_DIR=/etc/systemd/system/
