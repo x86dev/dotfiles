@@ -182,7 +182,7 @@ def main():
         sys.exit(2);
 
     for o in aOpts:
-        if o in "--delete":
+        if o == "--delete":
             g_fDryRun = False;
         if o in ("-h", "--help"):
             printHelp();
