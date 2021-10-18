@@ -125,17 +125,19 @@ sudo restic self-update
 sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/resticctl.sh)"
 sudo install -m 0755 "$MY_RESTIC_DIR_TMP"/resticctl.sh "$MY_RESTIC_DIR_BIN/resticctl"
 
-# Install systemd services + timers.
-# Yeah, excellent idea to install remote scripts right into our systemd service dir. Don't try this at home, kids.
-MY_SYSTEMD_SYS_DIR=/etc/systemd/system/
-sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic%40.service)"
-sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic%40.timer)"
-sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic-cleanup%40.service)"
-sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic-cleanup%40.timer)"
-sudo install -m 644 "$MY_RESTIC_DIR_TMP/restic*.service" "$MY_RESTIC_DIR_TMP/restic*.timer" "$MY_SYSTEMD_SYS_DIR"
+if [ -n "$(which systemd)" ]; then
+    # Install systemd services + timers.
+    # Yeah, excellent idea to install remote scripts right into our systemd service dir. Don't try this at home, kids.
+    MY_SYSTEMD_SYS_DIR=/etc/systemd/system/
+    sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic%40.service)"
+    sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic%40.timer)"
+    sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic-cleanup%40.service)"
+    sh -c "$(wget -P "$MY_RESTIC_DIR_TMP" https://raw.githubusercontent.com/fukawi2/resticctl/master/restic-cleanup%40.timer)"
+    sudo install -m 644 "$MY_RESTIC_DIR_TMP/restic*.service" "$MY_RESTIC_DIR_TMP/restic*.timer" "$MY_SYSTEMD_SYS_DIR"
 
-systemd_install_timer "restic"
-systemd_install_timer "restic-cleanup"
+    systemd_install_timer "restic"
+    systemd_install_timer "restic-cleanup"
+fi
 
 # Initialize repo.
 MY_REPO_DO_INIT=

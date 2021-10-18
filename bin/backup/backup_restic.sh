@@ -22,7 +22,6 @@ CP=cp
 DATE=date
 ECHO=echo
 GPG=gpg
-MAILX_BIN=$(which mailx)
 MKDIR=mkdir
 MV=mv
 RM=rm
@@ -58,17 +57,44 @@ PROFILE_EMAIL_SMTP=""
 ## @todo Does not work on OS X -- flag "-f" does not exist there.
 SCRIPT_PATH=$(readlink -f $0 | xargs dirname)
 SCRIPT_EXITCODE=0
-SCRIPT_HAS_MAILX=0
 
+
+backup_detect_mail()
+{
+    # Detect mail agent to use, try s-nail first.
+    SCRIPT_MAIL_BIN=$(which s-nail)
+    if [ ! -x ${SCRIPT_MAIL_BIN} ]; then
+        # Check if mailx is the heirloom-mailx version which supports more
+        # features like -S for the SMTP stuff.
+        #
+        ## @todo For now we ASSUME that only the heirloom version (-V) returns
+        #        an exit code 0, whereas the dumb versions don't.
+        SCRIPT_MAIL_BIN=mailx
+        if [ -x ${SCRIPT_MAIL_BIN} ]; then
+            ${SCRIPT_MAIL_BIN} -V 2>&1 > /dev/null
+            if [ $? -ne "0" ]; then
+                SCRIPT_MAIL_BIN=heirloom-mailx
+                ${SCRIPT_MAIL_BIN} -V 2>&1 > /dev/null
+                if [ $? -ne "0" ]; then
+                    SCRIPT_MAIL_BIN=
+                fi
+            fi
+        fi
+    fi
+
+    if [ -n "$SCRIPT_MAIL_BIN" ]; then
+        ${ECHO} "Mail client found: $SCRIPT_MAIL_BIN"
+    fi
+}
 
 backup_send_email()
 {
-    if [ "$SCRIPT_HAS_MAILX" = "0" ]; then
-        backup_log "No (valid) mailx client found, skipping to send e-mail"
+    if [ -z "$SCRIPT_MAIL_BIN" ]; then
+        backup_log "No (valid) mail client found, skipping to send e-mail"
         return
     fi
 
-    echo "$2" | ${MAILX_BIN} \
+    echo "$2" | ${SCRIPT_MAIL_BIN} \
         -s "$1" \
         -S from="$PROFILE_EMAIL_FROM_ADDRESS" \
         -S smtp="$PROFILE_EMAIL_SMTP" \
@@ -159,11 +185,11 @@ backup_test()
     backup_log "Testing profile '$PROFILE_NAME' ..."
 
     if [ ${PROFILE_EMAIL_ENABLED} -gt "0" ]; then
-        if [ "$SCRIPT_HAS_MAILX" = "1" ]; then
-            backup_log "mailx found, trying to send test mail ..."
+        if [ -n "$SCRIPT_MAIL_BIN" ]; then
+            backup_log "mail client found, trying to send test mail ..."
             backup_send_email "Backup TEST: $PROFILE_NAME" "The mail test for '$PROFILE_NAME' was successful. Have a nice day."
         else
-            backup_log "No mailx found / installed, skipping mail test"
+            backup_log "No mail client found / installed, skipping mail test"
         fi
     else
         backup_log "Sending mail not configured, skipping mail test"
@@ -428,24 +454,7 @@ fi
 
 SCRIPT_TS_START=$($DATE +%s)
 
-# Detect mailx.
-# Check if mailx is the heirloom-mailx version which supports more
-# features like -S for the SMTP stuff.
-#
-## @todo For now we ASSUME that only the heirloom version (-V) returns
-#        an exit code 0, whereas the dumb versions don't.
-if [ -x ${MAILX_BIN} ]; then
-    ${MAILX_BIN} -V 2>&1 > /dev/null
-    if [ $? -ne "0" ]; then
-        MAILX_BIN=heirloom-mailx
-        ${MAILX_BIN} -V 2>&1 > /dev/null
-        if [ $? -eq "0" ]; then
-            SCRIPT_HAS_MAILX=1
-        fi
-    else
-        SCRIPT_HAS_MAILX=1
-    fi
-fi
+backup_detect_mail
 
 ${ECHO} "Using profile: $SCRIPT_PROFILE_FILE_ABS"
 . ${SCRIPT_PROFILE_FILE_ABS}
