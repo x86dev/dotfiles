@@ -99,7 +99,8 @@ def cleanupDupes(sDir, fRecursive):
             sFileAbs = os.path.join(sCurDir, sFile);
             sName, sExt = os.path.splitext(sFileAbs);
             sName = sName.lower();
-            sExt = sExt.lower().translate(None, ".");
+            if len(sExt) > 1: # Skip the dot (.)
+                sExt = sExt[1:];
             for curType in g_arrVideoTypes:
                 if curType.ext == sExt:
                     arrDupes.append(sFileAbs);
