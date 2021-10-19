@@ -189,7 +189,7 @@ def main():
             sys.exit(0);
         if o in ("-R", "--recursive"):
             g_fRecursive = True;
-        if o in "-v":
+        if o in ("-v", "--verbose"):
             g_cVerbosity += 1;
 
     if len(aArgs) <= 0:
