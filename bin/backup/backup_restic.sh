@@ -562,9 +562,14 @@ case "$SCRIPT_CMD" in
         backup_log "Backup ended at: $(date --rfc-3339=seconds)"
         ;;
     repo-status)
-        ${BACKUP_BIN} -v check ${BACKUP_PATH_PREFIX}/${BACKUP_DEST_DIR_MONTHLY}/${LOCAL_REPO_NAME}
+        export RESTIC_PASSWORD=${PROFILE_GPG_PASSPHRASE}
+        ${BACKUP_BIN} -v check -r ${BACKUP_PATH_PREFIX}/${BACKUP_DEST_DIR_MONTHLY}/${LOCAL_REPO_NAME}
+        unset RESTIC_PASSWORD
         ;;
     repo-verify)
+        export RESTIC_PASSWORD=${PROFILE_GPG_PASSPHRASE}
+        ${BACKUP_BIN} -v check --read-data -r ${BACKUP_PATH_PREFIX}/${BACKUP_DEST_DIR_MONTHLY}/${LOCAL_REPO_NAME}
+        unset RESTIC_PASSWORD
         ;;
     test)
         backup_test
