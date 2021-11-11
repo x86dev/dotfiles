@@ -212,8 +212,8 @@ def main():
     global g_sPassword
 
     # For output of unicode strings. Can happen with some movie titles.
-    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-    sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+    sys.stdout = codecs.getwriter('utf8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf8')(sys.stderr.detach())
 
     try:
         aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hv", \
