@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Install lazygit.
-MY_FLAVOR=Linux_$(uname -m); curl -s -L $(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | sudo tar xzf - -C /usr/local/bin lazygit
+MY_FLAVOR=${MY_OS}_$(uname -m); curl -s -L $(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | sudo tar xzf - -C /usr/local/bin lazygit
 
 # Install Oh My Zsh.
 sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended --keep-zshrc"
