@@ -1,9 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# pylint: disable=global-statement
+# pylint: disable=missing-function-docstring
+
+"""
+Tries to remove file duplicates and unwanted stuff.
+"""
 
 from collections import namedtuple # Requires at least Python 2.6.
 import datetime
 import getopt
-import errno
 import math
 import os
 import re # Regular expressions.
@@ -45,7 +52,7 @@ def fileSizeToStr(size):
         i = int(math.floor(math.log(size,1024)));
         p = math.pow(1024,i);
         s = round(size/p,2);
-        if (s > 0):
+        if s > 0:
             return '%s %s' % (s,size_name[i]);
     return '0B';
 
@@ -77,7 +84,8 @@ def deleteDir(sDir, fRecursive):
         print("\tError deleting directory \"%s\": %s" % (sDir, str(e)));
 
 def fileIsMultipart(sDir, sFile):
-    pass;
+    _ = sDir;
+    _ = sFile;
 
 def cleanupDupes(sDir, fRecursive):
     global g_cDupesTotal;
@@ -91,7 +99,8 @@ def cleanupDupes(sDir, fRecursive):
             sFileAbs = os.path.join(sCurDir, sFile);
             sName, sExt = os.path.splitext(sFileAbs);
             sName = sName.lower();
-            sExt = sExt.lower().translate(None, ".");
+            if len(sExt) > 1: # Skip the dot (.)
+                sExt = sExt[1:];
             for curType in g_arrVideoTypes:
                 if curType.ext == sExt:
                     arrDupes.append(sFileAbs);
@@ -102,7 +111,7 @@ def cleanupDupes(sDir, fRecursive):
 
         if len(arrDupes) >= 2:
             print("Directory \"%s\" contains %d entries:" % (sCurDir, len(arrDupes)));
-            tsFileNewest = datetime.datetime(1970, 01, 01);
+            tsFileNewest = datetime.datetime(1970, 1, 1);
             sFileNewest  = '';
             for curDupe in arrDupes:
                 tsFileLastMod = getModTime(curDupe);
@@ -163,25 +172,25 @@ def main():
     global g_cVerbosity;
 
     if len(sys.argv) <= 1:
-        print "Must specify a path!";
+        print("Must specify a path!");
         sys.exit(2);
 
     try:
         aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hRv", ["delete", "help", "recursive" ]);
-    except getopt.error, msg:
-        print msg;
-        print "For help use --help"
+    except getopt.error as msg:
+        print(msg);
+        print("For help use --help")
         sys.exit(2);
 
-    for o, a in aOpts:
-        if o in ("--delete"):
+    for o in aOpts:
+        if o == "--delete":
             g_fDryRun = False;
         if o in ("-h", "--help"):
             printHelp();
             sys.exit(0);
         if o in ("-R", "--recursive"):
             g_fRecursive = True;
-        if o in ("-v"):
+        if o in ("-v", "--verbose"):
             g_cVerbosity += 1;
 
     if len(aArgs) <= 0:

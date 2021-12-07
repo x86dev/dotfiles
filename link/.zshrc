@@ -79,5 +79,8 @@ ZSH_THEME="sunrise"
 # Do the My My Zsh stuff.
 source ${ZSH}/oh-my-zsh.sh
 
+# Don't let Zsh refusing exiting when running background jobs are active.
+setopt nocheckjobs
+
 # Source .myrc -- this is where all the magic happens.
 source ${HOME}/.myrc
