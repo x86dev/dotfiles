@@ -1,0 +1,13 @@
+#!/bin/sh
+
+. ${HOME}/.functions.work
+
+__vbx_vakit_env ${1}
+
+# Spawn a new sub shell which inherits the exported variables by __vbx_vakit_env().
+# and directly go to $MY_VBOX_PATH_OUT.
+if [ -d "$MY_VBOX_PATH_OUT" ]; then
+    cd "$MY_VBOX_PATH_OUT"
+fi
+
+${SHELL}
