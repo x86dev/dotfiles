@@ -1,14 +1,3 @@
 #!/bin/sh
 
-. ${HOME}/.functions.work
-
-__vbx_env_current
-
-MY_SCM_PATH=${1}
-if [ -z ${MY_SCM_PATH} ]; then
-  MY_SCM_PATH=${PWD}
-fi
-
-echo "Fixing using SCM at: $MY_SCM_PATH ..."
-
-"$MY_VBOX_PATH_OUT/tools/scm" --real-run ${MY_SCM_PATH}/*
+"$MY_VBOX_PATH_OUT/tools/scm" --real-run --quiet $@
