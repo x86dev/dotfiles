@@ -2,6 +2,10 @@
 export DOTFILES=~/.dotfiles
 export DOTFILES_PRIV=~/.dotfiles-private
 
+# Default default locale.
+# Mostly for supressing the annoying Perl warnings.
+export LC_ALL=C
+
 # Add binaries into the path.
 PATH=${DOTFILES}/bin:${PATH}
 
