@@ -2,5 +2,8 @@
 # Warning: Includes this *first*, so that GEF down below does the final changes.
 source ~/.gdbinit-kde-devel-gdb
 
+# Use  STL GDB evaluators/views/utilities.
+source ~/.gdbinit-stl
+
 # Use GEF (GDB Enhanced Features) -- https://github.com/hugsy/gef
 source ~/.gdbinit-gef.py
