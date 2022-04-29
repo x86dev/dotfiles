@@ -38,6 +38,10 @@ if has("terminfo")
     let &t_Sb="\<Esc>[4%dm"
 endif
 
+" Wildmenu
+set wildmenu
+set wildmode=longest:list,full
+
 " Tab settings.
 set tabstop=4 softtabstop=0 expandtab shiftwidth=4 smarttab
 

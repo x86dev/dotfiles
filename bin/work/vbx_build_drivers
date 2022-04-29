@@ -52,10 +52,17 @@ case "$MY_VBOX_TARGET_OS" in
             RuntimeR3 \
             RuntimeBldProg \
             VBoxRT \
-            VBoxDrv \
-            VBoxDrv-inf \
             SUPInstall \
             SUPUninstall"
+        case "$MY_VBOX_BRANCH" in
+            6.1)
+                MY_VBOX_DRV_SUP="VBoxDrv VBoxDrv-inf"
+                ;;
+            *)
+                MY_VBOX_DRV_SUP="VBoxSup VBoxSup-inf"
+                ;;
+        esac
+        MY_VBOX_DRV_DEPS="$MY_VBOX_DRV_DEPS $MY_VBOX_DRV_SUP"
         MY_VBOX_DRV_OPTS="VBOX_SIGNING_MODE=test"
         ;;
     *)

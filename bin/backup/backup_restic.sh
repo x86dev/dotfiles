@@ -59,6 +59,31 @@ SCRIPT_PATH=$(readlink -f $0 | xargs dirname)
 SCRIPT_EXITCODE=0
 
 
+cleanup()
+{
+    MY_TRAP_ERR=$?
+
+    trap '' EXIT INT TERM
+
+    ${ECHO} "Cleaning up ..."
+
+    if [ -n "$BACKUP_LOCKFILE" ]; then
+        rm "$BACKUP_LOCKFILE"
+    fi
+
+    # Make sure that we unset the password, no matter if we defined it or not.
+    unset $RESTIC_PASSWORD
+
+    exit $MY_TRAP_ERR
+}
+
+sig_cleanup()
+{
+    trap '' EXIT # Some shells will call EXIT after the INT handler
+    false # Sets $?
+    cleanup
+}
+
 backup_detect_mail()
 {
     # Detect mail agent to use, try s-nail first.
@@ -384,6 +409,10 @@ show_help()
     exit 1
 }
 
+# Install trap handlers.
+trap cleanup EXIT
+trap sig_cleanup INT QUIT TERM
+
 if [ $# -lt 1 ]; then
     ${ECHO} "ERROR: No main command given" 1>&2
     ${ECHO} "" 1>&2
@@ -594,7 +623,5 @@ case "$SCRIPT_CMD" in
         SCRIPT_EXITCODE=1
         ;;
 esac
-
-rm "$BACKUP_LOCKFILE"
 
 exit ${SCRIPT_EXITCODE}
