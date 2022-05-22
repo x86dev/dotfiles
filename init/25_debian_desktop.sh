@@ -8,7 +8,7 @@ sudo add-apt-repository -y ppa:phoerious/keepassxc
 
 sudo apt-get update
 
-sudo apt-get install -y keepassxc meld nautilus-compare nautilus-nextcloud thunderbird
+sudo apt-get install -y keepassxc meld nautilus-nextcloud thunderbird
 
 # Install Joplin.
 # Yes, I know, potentially dangerous as hell.
