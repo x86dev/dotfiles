@@ -52,7 +52,7 @@ PROFILE_GPG_PASSPHRASE=""
 
 PROFILE_EMAIL_ENABLED=0
 PROFILE_EMAIL_FROM_ADDRESS=""
-PROFILE_EMAIL_SMTP=""
+PROFILE_EMAIL_SMTP_HOSTNAME=""
 
 ## @todo Does not work on OS X -- flag "-f" does not exist there.
 SCRIPT_PATH=$(readlink -f $0 | xargs dirname)
@@ -122,12 +122,9 @@ backup_send_email()
     echo "$2" | ${SCRIPT_MAIL_BIN} \
         -s "$1" \
         -S from="$PROFILE_EMAIL_FROM_ADDRESS" \
-        -S smtp="$PROFILE_EMAIL_SMTP" \
-        -S smtp-use-starttls \
+        -S mta=smtps://${PROFILE_EMAIL_USERNAME}@$PROFILE_EMAIL_SMTP_HOSTNAME \
         -S smtp-auth=login \
-        -S smtp-auth-user="$PROFILE_EMAIL_USERNAME" \
         -S smtp-auth-password="$PROFILE_EMAIL_PASSWORD" \
-        -S ssl-verify=strict \
         ${PROFILE_EMAIL_TO_ADDRESS}
 }
 
