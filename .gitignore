@@ -2,6 +2,9 @@
 /caches/
 /backups/
 
+# Not needed (temporary?) config stuff.
+/config/lazygit/*
+
 # Don't store Vim's history.
 /link/.config/
 
