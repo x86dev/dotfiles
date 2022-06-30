@@ -5,8 +5,9 @@
 __vbx_vakit_env "$MY_VBOX_BRANCH"
 
 MY_VM_NAME=${1}
-MY_TESTCASE_NAME=${2}
-MY_TESTCASE_OPTS=${3}
+shift
+MY_TESTCASE_NAME=${1}
+shift
 
 if [ -z "$MY_VM_NAME" ]; then
     echo "Must specify a test VM name (e.g. tst-xpsp2)."
@@ -18,8 +19,6 @@ if [ -z "$MY_TESTCASE_NAME" ]; then
     exit 1
 fi
 
-__vbx_kill
-
 ( cd "$VBOX_VALIDATIONKIT_TESTS_PATH" && \
     python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
-    --test-vms ${MY_VM_NAME} --no-wipe-clean cleanup-before verify config )
+    --test-vms ${MY_VM_NAME} -v -v --no-wipe-clean cleanup-before verify config $@ )
