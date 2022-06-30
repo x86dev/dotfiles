@@ -10,6 +10,9 @@ sudo apt-get update
 
 sudo apt-get install -y keepassxc meld nautilus-nextcloud thunderbird
 
+# Clipboard utilities for Wayland. Needed for tmux, for instance.
+sudo apt-get install -y wl-clipboard
+
 # Install Joplin.
 # Yes, I know, potentially dangerous as hell.
 wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh | bash
