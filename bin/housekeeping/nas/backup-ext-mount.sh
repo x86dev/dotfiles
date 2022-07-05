@@ -12,7 +12,7 @@ if [ $# -lt 1 ]; then
 fi
 
 # Unmount first.
-source ${SCRIPT_PATH}/backup-ext-umount.sh
+. ${SCRIPT_PATH}/backup-ext-umount.sh
 
 # Mount.
 cryptsetup luksOpen /dev/$1 backup_ext_enc
