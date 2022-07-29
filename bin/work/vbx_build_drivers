@@ -55,7 +55,7 @@ case "$MY_VBOX_TARGET_OS" in
             SUPInstall \
             SUPUninstall"
         case "$MY_VBOX_BRANCH" in
-            6.1)
+            6.0)
                 MY_VBOX_DRV_SUP="VBoxDrv VBoxDrv-inf"
                 ;;
             *)
