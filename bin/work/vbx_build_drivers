@@ -56,7 +56,6 @@ case "$MY_VBOX_TARGET_OS" in
             NetAdpUninstall \
             NetAdp6Install \
             NetAdp6Uninstall \
-            NetFlt \
             NetFltInstall \
             NetFltUninstall \
             NetLwfInstall \
