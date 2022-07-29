@@ -149,7 +149,11 @@ __vbx_drv_install()
         ;;
     win)
         ./SUPInstall.exe
-        ## @todo Add more.
+        ./NetLwfInstall.exe
+        ./NetAdpInstall.exe
+        ./NetAdp6Install.exe
+        ./NetFltInstall.exe
+        ./USBInstall.exe
         ;;
     *)
         ;;
@@ -168,8 +172,9 @@ __vbx_drv_uninstall()
     win)
         ./NetLwfUninstall.exe
         ./NetAdpUninstall.exe
-        ./NetAdp6uninstall.exe
-        ./NetFltuninstall.exe
+        ./NetAdp6Uninstall.exe
+        ./NetFltUninstall.exe
+        ./USBUninstall.exe
         ./SUPUninstall.exe
         ;;
     *)

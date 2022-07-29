@@ -52,8 +52,19 @@ case "$MY_VBOX_TARGET_OS" in
             RuntimeR3 \
             RuntimeBldProg \
             VBoxRT \
+            NetAdpInstall \
+            NetAdpUninstall \
+            NetAdp6Install \
+            NetAdp6Uninstall \
+            NetFlt \
+            NetFltInstall \
+            NetFltUninstall \
+            NetLwfInstall \
+            NetLwfUninstall \
             SUPInstall \
-            SUPUninstall"
+            SUPUninstall \
+            USBInstall \
+            USBUninstall"
         case "$MY_VBOX_BRANCH" in
             6.0)
                 MY_VBOX_DRV_SUP="VBoxDrv VBoxDrv-inf"
