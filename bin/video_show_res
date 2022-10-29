@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Shows the resolution of common video files.
+
+OIFS="$IFS"
+IFS=$'\n'
+
+files=$(find ./ -type f -exec ls {} + | grep ".*\.mpg$\|.*\.avi$\|.*\.mkv$\|.*\.mp4$"| cut -c3-)
+
+for f in ${files}
+do
+    resolution=$(ffprobe -v error -select_streams v:0 -show_entries stream=width:stream=height -of csv=s=x:p=0 ${f})
+    printf "%-100s %-10s\n" $f $resolution
+done
