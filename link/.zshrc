@@ -84,3 +84,5 @@ setopt nocheckjobs
 
 # Source .myrc -- this is where all the magic happens.
 source ${HOME}/.myrc
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
