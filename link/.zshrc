@@ -64,7 +64,7 @@ ZSH_THEME="agnoster"
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # My fzf base path.
-export FZF_BASE=${HOME}/.dotfiles/vendor/fzf/
+export FZF_BASE=${HOME}/.fzf/
 
 # Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
