@@ -21,3 +21,10 @@ export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
 if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
     eval "`dircolors -b ~/.dircolors/dircolors.256dark`"
 fi
+
+# Stuff for tldr
+export TLDR_HEADER='magenta bold underline'
+export TLDR_QUOTE='italic'
+export TLDR_DESCRIPTION='green'
+export TLDR_CODE='yellow'
+export TLDR_PARAM='white'

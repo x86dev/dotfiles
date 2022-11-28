@@ -5,6 +5,9 @@ source ~/.gdbinit-kde-devel-gdb
 # Use  STL GDB evaluators/views/utilities.
 source ~/.gdbinit-stl
 
+# Misc functions / aliases etc.
+source ~/.gdbinit-misc.py
+
 # Use GEF (GDB Enhanced Features) -- https://github.com/hugsy/gef
 source ~/.gdbinit-gef.py
 
