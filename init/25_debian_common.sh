@@ -27,5 +27,8 @@ $(cd "$DOTFILES"; \
   git config --global credential.helper store; \
   git config remote.origin.push HEAD )
 
-# Install latest tldr
+# Install latest tldr.
 curl -o "$MY_LOCAL_BIN/tldr" https://raw.githubusercontent.com/raylee/tldr/master/tldr && chmod +x "$MY_LOCAL_BIN/tldr"
+
+# Install latest cheat sheet.
+curl -o "$MY_LOCAL_BIN/cht.sh" https://cht.sh/:cht.sh && chmod +x "$MY_LOCAL_BIN/cht.sh"
