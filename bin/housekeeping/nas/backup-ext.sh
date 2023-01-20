@@ -17,6 +17,12 @@ MY_DIRS="${MY_ROOT}/audiobooks \
          ${MY_ROOT}/music \
          ${MY_ROOT}/pictures \
          ${MY_ROOT}/srv/photoprism"
-MY_TARGET=/media/backup_ext
+MY_MOUNT=/media/backup_ext
 
+set -e
+
+# Make sure that mount target exists.
+cd ${MY_MOUNT}
+MY_TARGET=${MY_MOUNT}/$(date +%Y%m%d)
+mkdir -p ${MY_TARGET}
 rsync -aAX --progress --stats ${MY_DIRS} ${MY_TARGET} --log-file ${MY_TARGET}/rsync_last_run.log
