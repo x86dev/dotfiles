@@ -7,8 +7,13 @@ mkdir -p "$MY_LOCAL_BIN"
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
 
 # Install lazygit + delta.
-MY_FLAVOR=${MY_OS}_$(uname -m); curl -s -L $(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | tar xzf - -C "$MY_LOCAL_BIN" lazygit
-MY_FLAVOR=$(uname -m)-unknown-*${MY_OS}-gnu; curl -s -L $(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | tar xzf - --strip-components=1 -C "$MY_LOCAL_BIN" --wildcards "*/delta"
+#MY_FLAVOR=${MY_OS}_$(uname -m); curl -s -L $(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | tar xzf - -C "$MY_LOCAL_BIN" lazygit
+#MY_FLAVOR=$(uname -m)-unknown-*${MY_OS}-gnu; curl -s -L $(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | tar xzf - --strip-components=1 -C "$MY_LOCAL_BIN" --wildcards "*/delta"
+
+# Install gitui
+MY_GITUI_FLAVOR=linux-musl
+MY_GITUI_VER=v0.22.1
+curl -L https://github.com/extrawurst/gitui/releases/download/${MY_GITUI_VER}/gitui-${MY_GITUI_FLAVOR}.tar.gz | tar xvzf - -C "$MY_LOCAL_BIN"
 
 # Install Oh My Zsh.
 sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended --keep-zshrc"
@@ -22,5 +27,8 @@ $(cd "$DOTFILES"; \
   git config --global credential.helper store; \
   git config remote.origin.push HEAD )
 
-# Install latest tldr
+# Install latest tldr.
 curl -o "$MY_LOCAL_BIN/tldr" https://raw.githubusercontent.com/raylee/tldr/master/tldr && chmod +x "$MY_LOCAL_BIN/tldr"
+
+# Install latest cheat sheet.
+curl -o "$MY_LOCAL_BIN/cht.sh" https://cht.sh/:cht.sh && chmod +x "$MY_LOCAL_BIN/cht.sh"
