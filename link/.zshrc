@@ -64,7 +64,7 @@ ZSH_THEME="agnoster"
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # My fzf base path.
-export FZF_BASE=${HOME}/.dotfiles/vendor/fzf/
+export FZF_BASE=${HOME}/.fzf/
 
 # Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
@@ -79,5 +79,10 @@ ZSH_THEME="sunrise"
 # Do the My My Zsh stuff.
 source ${ZSH}/oh-my-zsh.sh
 
+# Don't let Zsh refusing exiting when running background jobs are active.
+setopt nocheckjobs
+
 # Source .myrc -- this is where all the magic happens.
 source ${HOME}/.myrc
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

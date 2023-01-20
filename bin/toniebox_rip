@@ -1,0 +1,23 @@
+#!/bin/sh
+
+if [ $# -lt 2 ]; then
+    echo "Rips audio files from a Toniebox SD card and converts it into MP3 files."
+    echo "$0 [input directory] [output directory]"
+    exit 1
+fi
+
+MY_SRC_DIR=${1}
+MY_DST_DIR=${2}
+
+files=$(find ${1} -type f -exec ls {} +)
+
+for f in ${files}
+    do
+        MY_BASENAME=$(basename ${f})
+        MY_FILE_SRC=${f}
+        MY_FILE_TRIMMED=${MY_DST_DIR}/${MY_BASENAME}_trimmed.ogg
+        MY_FILE_DST=$(mktemp ${MY_DST_DIR}/toniebox-XXXXXXXXX.mp3)
+        dd bs=4092 skip=1 if=${MY_FILE_SRC} of=${MY_FILE_TRIMMED}
+        ffmpeg -y -i ${MY_FILE_TRIMMED} ${MY_FILE_DST}
+        rm ${MY_FILE_TRIMMED}
+    done

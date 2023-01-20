@@ -52,12 +52,37 @@ PROFILE_GPG_PASSPHRASE=""
 
 PROFILE_EMAIL_ENABLED=0
 PROFILE_EMAIL_FROM_ADDRESS=""
-PROFILE_EMAIL_SMTP=""
+PROFILE_EMAIL_SMTP_HOSTNAME=""
 
 ## @todo Does not work on OS X -- flag "-f" does not exist there.
 SCRIPT_PATH=$(readlink -f $0 | xargs dirname)
 SCRIPT_EXITCODE=0
 
+
+cleanup()
+{
+    MY_TRAP_ERR=$?
+
+    trap '' EXIT INT TERM
+
+    ${ECHO} "Cleaning up ..."
+
+    if [ -n "$BACKUP_LOCKFILE" ]; then
+        rm "$BACKUP_LOCKFILE"
+    fi
+
+    # Make sure that we unset the password, no matter if we defined it or not.
+    unset $RESTIC_PASSWORD
+
+    exit $MY_TRAP_ERR
+}
+
+sig_cleanup()
+{
+    trap '' EXIT # Some shells will call EXIT after the INT handler
+    false # Sets $?
+    cleanup
+}
 
 backup_detect_mail()
 {
@@ -97,12 +122,9 @@ backup_send_email()
     echo "$2" | ${SCRIPT_MAIL_BIN} \
         -s "$1" \
         -S from="$PROFILE_EMAIL_FROM_ADDRESS" \
-        -S smtp="$PROFILE_EMAIL_SMTP" \
-        -S smtp-use-starttls \
+        -S mta=smtps://${PROFILE_EMAIL_USERNAME}@$PROFILE_EMAIL_SMTP_HOSTNAME \
         -S smtp-auth=login \
-        -S smtp-auth-user="$PROFILE_EMAIL_USERNAME" \
         -S smtp-auth-password="$PROFILE_EMAIL_PASSWORD" \
-        -S ssl-verify=strict \
         ${PROFILE_EMAIL_TO_ADDRESS}
 }
 
@@ -384,6 +406,10 @@ show_help()
     exit 1
 }
 
+# Install trap handlers.
+trap cleanup EXIT
+trap sig_cleanup INT QUIT TERM
+
 if [ $# -lt 1 ]; then
     ${ECHO} "ERROR: No main command given" 1>&2
     ${ECHO} "" 1>&2
@@ -594,7 +620,5 @@ case "$SCRIPT_CMD" in
         SCRIPT_EXITCODE=1
         ;;
 esac
-
-rm "$BACKUP_LOCKFILE"
 
 exit ${SCRIPT_EXITCODE}

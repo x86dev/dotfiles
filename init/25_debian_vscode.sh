@@ -11,5 +11,5 @@ sudo update-alternatives --set editor /usr/bin/code
 xdg-mime default code.desktop text/plain
 
 # Install extensions
-code --install-extension Shan.code-settings-sync
+code --install-extension ms-python.python ms-vscode-remote.remote-ssh platformio.platformio-ide
 code --list-extensions

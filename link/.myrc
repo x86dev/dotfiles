@@ -1,6 +1,7 @@
 # Where the magic happens.
 export DOTFILES=~/.dotfiles
 export DOTFILES_PRIV=~/.dotfiles-private
+export MY_LOCAL_BIN=~/.local/bin
 
 # Default default locale.
 # Mostly for supressing the annoying Perl warnings.
@@ -16,6 +17,9 @@ PATH=${DOTFILES}/bin/work:${PATH}
 if [ -n "$DOTFILES_PRIV" ]; then
   PATH=${DOTFILES_PRIV}/bin:${PATH}
 fi
+
+# Add local binaries to path. Use them first, always.
+PATH=${MY_LOCAL_BIN}:${PATH}
 
 export PATH
 
@@ -41,7 +45,7 @@ __my_src_all()
 }
 
 # Run dotfiles script, then source.
-dotfiles() 
+dotfiles()
 {
   $DOTFILES/bin/dotfiles "$@" && src_all
 }

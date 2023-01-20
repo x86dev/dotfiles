@@ -97,6 +97,7 @@ __vbx_env()
         # Starting at 6.0 the frontend has a different image name.
         MY_VBOX_VM_FRONTEND=VirtualBoxVM
     fi
+    export MY_VBOX_VM_FRONTEND
 
     export MY_VBOX_BRANCH=${MY_VBOX_BRANCH}
     export MY_VBOX_TYPE=${MY_VBOX_TYPE}
@@ -148,7 +149,11 @@ __vbx_drv_install()
         ;;
     win)
         ./SUPInstall.exe
-        ## @todo Add more.
+        ./NetLwfInstall.exe
+        ./NetAdpInstall.exe
+        ./NetAdp6Install.exe
+        ./NetFltInstall.exe
+        ./USBInstall.exe
         ;;
     *)
         ;;
@@ -167,8 +172,9 @@ __vbx_drv_uninstall()
     win)
         ./NetLwfUninstall.exe
         ./NetAdpUninstall.exe
-        ./NetAdp6uninstall.exe
-        ./NetFltuninstall.exe
+        ./NetAdp6Uninstall.exe
+        ./NetFltUninstall.exe
+        ./USBUninstall.exe
         ./SUPUninstall.exe
         ;;
     *)
@@ -181,34 +187,41 @@ __vbx_vakit_env()
     __vbx_env ${1}
 
     export VBOX_INSTALL_PATH=${MY_VBOX_PATH_OUT}
-    if [ -d "$HOME/validationkit" ]; then
-        export VBOX_VALIDATIONKIT_PATH=${HOME}/validationkit
-    else
-        export VBOX_VALIDATIONKIT_PATH=${VBOX_USER_HOME}
-    fi
-
     export VBOX_VALIDATIONKIT_LOG_DEST=${VBOX_LOG_DEST}
-    export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="-v -v -d --vbox-session-type gui --quick \
-                                                       --vbox-session-log-flags \"time,thread,group\" \
-                                                       --vbox-session-log-dest ${VBOX_LOG_DEST}"
+    # Note: Logging groups + dest will be set via the regular VBOX_LOG_FLAGS / VBOX_LOG_DEST env vars.
+    export VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS="-d --vbox-session-type gui"
     # Always use tests from trunk.
     export VBOX_VALIDATIONKIT_TESTS_PATH=${MY_VBOX_PATH_HOME}/trunk/src/VBox/ValidationKit/tests
 
+    if [ -z "$VBOX_VALIDATIONKIT_PATH" ]; then
+        VBOX_VALIDATIONKIT_PATH=${HOME}/validationkit
+    fi
+    if [ ! -d "$VBOX_VALIDATIONKIT_PATH" ]; then
+        echo "Error: Validation Kit root directory '$VBOX_VALIDATIONKIT_PATH' does not exist."
+        exit 1
+    fi
+    export VBOX_VALIDATIONKIT_PATH
+
     export TESTBOX_PATH_SCRATCH=${VBOX_VALIDATIONKIT_PATH}/scratch
     export TESTBOX_PATH_RESOURCES=${VBOX_VALIDATIONKIT_PATH}/res
+    export TESTBOX_PATH_USER_HOME=$TESTBOX_PATH_SCRATCH/VBoxUserHome
+    if [ ! -d "$TESTBOX_PATH_RESOURCES" ]; then
+        echo "Error: Validation Kit resources directory '$TESTBOX_PATH_RESOURCES' does not exist."
+        exit 1
+    fi
 
     # The testdriver framework uses this for determining the VBox installation location.
     export VBOX_TD_DEV_TREE=${VBOX_INSTALL_PATH}
 
     export KBUILD_TYPE=${MY_VBOX_TYPE}
 
-    echo "Validation Kit resources at: $VBOX_VALIDATIONKIT_PATH"
-    echo "Validation Kit user home at: $VBOX_USER_HOME"
+    echo "Validation Kit root at     : $VBOX_VALIDATIONKIT_PATH"
+    echo "Validation Kit resources at: $TESTBOX_PATH_RESOURCES"
+    echo "Validation Kit scratch at  : $TESTBOX_PATH_SCRATCH"
+    echo "Validation Kit user home at: $TESTBOX_PATH_USER_HOME"
 
-    if [ ! -d "$VBOX_VALIDATIONKIT_PATH" ]; then
-        echo "Error: Validation Kit resources directory '$VBOX_VALIDATIONKIT_PATH' does not exist."
-        exit 1
-    fi
+    # Explicitly (re-)set the VBox user home, so that other stuff also finds the new (Validation Kit) home.
+    export VBOX_USER_HOME=${TESTBOX_PATH_USER_HOME}
 
     # Override the default "gdb" to let the test driver debugger logic do its thing.
     export VBOX_ASSERT=disabled
@@ -231,6 +244,7 @@ __vbx_dbg()
             return 1
         fi
     fi
+
     ${MY_VBOX_DEBUG_CMD} ./${MY_VBOX_VM_FRONTEND} --startvm "$1"
     return $?
 }
