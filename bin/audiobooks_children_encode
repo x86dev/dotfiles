@@ -20,7 +20,7 @@ find . -iname '*.mp3' -print0 | while read -d $'\0' m; do
         MY_OPUSENC_CMD="$MY_OPUSENC_CMD --picture \"$MY_FILE_COVER\""
     fi
     MY_OPUSENC_HAS_OPT_TRACKNUMBER="opusenc | grep -i \"--tracknumber\""
-    if [ $? -eq 0 ]; then
+    if [ -n "$MY_OPUSENC_HAS_OPT_TRACKNUMBER" ]; then
         MY_OPUSENC_CMD="$MY_OPUSENC_CMD --tracknumber \"$MY_TRACK_NO\""
     fi
     MY_OPUSENC_CMD="$MY_OPUSENC_CMD --artist \"$MY_ARTIST\" --album \"$MY_ALBUM\" --title \"$MY_TITLE\" - \"$MY_FILE_OUT\""
