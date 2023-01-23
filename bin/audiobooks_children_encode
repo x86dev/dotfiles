@@ -1,23 +1,33 @@
 #!/bin/bash
 
-set -e
+#set -e
+set -x
 
-#set -x
-#rm *.wav; rm *.jpg; rm *.opus
-
-IFS=$'\n'; set -f
-
-for m in $(find . -iname "*.mp3"); do \
+find . -iname '*.mp3' -print0 | while read -d $'\0' m; do
     MY_DIR=$(dirname "$m")
-    MY_FILE=$(basename "$m" .mp3); \
-    MY_ARTIST=$(ffprobe "$m" -show_entries format_tags=artist -of compact=p=0:nk=1 -v 0)
-    MY_ALBUM=$(ffprobe "$m" -show_entries format_tags=album -of compact=p=0:nk=1 -v 0)
-    MY_TITLE=$(ffprobe "$m" -show_entries format_tags=title -of compact=p=0:nk=1 -v 0)
-    MY_TRACK_NO=$(ffprobe "$m" -show_entries format_tags=track -of compact=p=0:nk=1 -v 0)
-    ffmpeg -i "$m" "$MY_DIR/$MY_FILE.jpg"; \
-    ffmpeg -i "$m" -f wav - | opusenc --vbr --bitrate 64k --artist "$MY_ARTIST" --album "$MY_ALBUM" --title "$MY_TITLE" --tracknumber "$MY_TRACK_NO" --picture "$MY_DIR/$MY_FILE.jpg" - "$MY_DIR/$MY_FILE.opus"; \
-    rm "$MY_DIR/$MY_FILE.jpg"; \
-    rm "$m";
+    MY_FILE_IN="$m"
+    MY_FILE_BASE="$MY_DIR/$(basename "$MY_FILE_IN" .mp3)"
+    MY_FILE_OUT="$MY_FILE_BASE.opus"
+    MY_FILE_COVER="$MY_FILE_BASE.jpg"
+    MY_ARTIST=$(ffprobe "$MY_FILE_IN" -show_entries format_tags=artist -of compact=p=0:nk=1 -v 0) 2>&1 > /dev/null
+    MY_ALBUM=$(ffprobe "$MY_FILE_IN" -show_entries format_tags=album -of compact=p=0:nk=1 -v 0) 2>&1 > /dev/null
+    MY_TITLE=$(ffprobe "$MY_FILE_IN" -show_entries format_tags=title -of compact=p=0:nk=1 -v 0) 2>&1 > /dev/null
+    MY_TRACK_NO=$(ffprobe "$m" -show_entries format_tags=track -of compact=p=0:nk=1 -v 0) 2>&1 > /dev/null
+    echo "Converting \"$MY_FILE_IN\" to \"$MY_FILE_OUT\""
+    MY_OPUSENC_CMD="opusenc --vbr --bitrate 64k"
+    ffmpeg -loglevel quiet -y -i "$MY_FILE_IN" "$MY_FILE_COVER" 2>&1 > /dev/null
+    if [ $? -eq 0 ]; then
+        MY_OPUSENC_CMD="$MY_OPUSENC_CMD --picture \"$MY_FILE_COVER\""
+    fi
+    MY_OPUSENC_HAS_OPT_TRACKNUMBER="opusenc | grep -i \"--tracknumber\""
+    if [ $? -eq 0 ]; then
+        MY_OPUSENC_CMD="$MY_OPUSENC_CMD --tracknumber \"$MY_TRACK_NO\""
+    fi
+    MY_OPUSENC_CMD="$MY_OPUSENC_CMD --artist \"$MY_ARTIST\" --album \"$MY_ALBUM\" --title \"$MY_TITLE\" - \"$MY_FILE_OUT\""
+    ffmpeg -loglevel quiet -y -i "$MY_FILE_IN" -f wav - | eval "$MY_OPUSENC_CMD"
+    if [ $? -ne 0 ]; then
+        echo "Encoding failed!"
+        continue
+    fi
+    rm "$MY_FILE_COVER"
 done
-
-unset IFS; set +f
