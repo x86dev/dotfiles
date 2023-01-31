@@ -1,0 +1,6 @@
+#!/bin/sh
+MY_DIR="$PWD"
+if [ $# -gt 0 ]; then
+    MY_DIR="${1}"
+fi
+find "$MY_DIR" -type f | sed -n 's/..*\.//p' | sort | uniq -c
