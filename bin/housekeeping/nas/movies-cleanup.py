@@ -61,7 +61,6 @@ def getModTime(sPath):
     return datetime.datetime.fromtimestamp(mTime)
 
 def deleteFile(sFile):
-    global g_fDryRun
     print("\tDeleting file: %s" % sFile)
     if g_fDryRun:
         return
@@ -71,7 +70,6 @@ def deleteFile(sFile):
         print("\tError deleting file \"%s\": %s" % (sFile, str(e)))
 
 def deleteDir(sDir, fRecursive):
-    global g_fDryRun
     print("\tDeleting directory: %s" % sDir)
     if g_fDryRun:
         return
@@ -165,8 +163,6 @@ def printHelp():
     print("\n")
 
 def main():
-    global g_cDupesTotal
-    global g_cbDupesTotal
     global g_fDryRun
     global g_fRecursive
     global g_cVerbosity
@@ -176,14 +172,14 @@ def main():
         sys.exit(2)
 
     try:
-        aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hRv", ["delete", "help", "recursive" ])
+        aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hRv", ["delete", "help", "recursive", "verbose" ])
     except getopt.error as msg:
         print(msg)
         print("For help use --help")
         sys.exit(2)
 
-    for o in aOpts:
-        if o == "--delete":
+    for o, a in aOpts:
+        if o in "--delete":
             g_fDryRun = False
         if o in ("-h", "--help"):
             printHelp()
