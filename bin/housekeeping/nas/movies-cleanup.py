@@ -133,7 +133,7 @@ def cleanupDupes(sDir, fRecursive):
                                 else:
                                     deleteDir(sCurSimDir, True)
                         except OSError as e:
-                            print("Error handling \"%s\": %s", sCurSimDir, str(e))
+                            print("Error handling \"%s\": %s" % (sCurSimDir, str(e)))
                 aDirSimilar = []
             else: # Do not delete delete similar dirs.
                 for sSubDir in sorted(aSubDirs):
