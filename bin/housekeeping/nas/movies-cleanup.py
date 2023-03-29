@@ -110,7 +110,6 @@ def cleanupDupes(sDir, fRecursive):
                             if not sDirSimilarCur or sDirSimilarCur != res.group(1):
                                 aDirSimilar = []
                                 sDirSimilarCur = res.group(1)
-                                print("cur rel: %s" % (sDirSimilarCur))
                             if res.group(1) == sDirSimilarCur:
                                 aDirSimilar.append(sSubDirAbs)
 
