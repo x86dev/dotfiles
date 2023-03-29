@@ -113,7 +113,7 @@ def cleanupDupes(sDir, fRecursive):
                             if res.group(1) == sDirSimilarCur:
                                 aDirSimilar.append(sSubDirAbs)
 
-                if aDirSimilar:
+                if len(aDirSimilar) >= 2:
                     if g_cVerbosity:
                         print("Found %d similar directories of \"%s\"" % (len(aDirSimilar), sDirSimilarCur))
                     tsDirNewest = datetime.datetime(1970, 1, 1)
@@ -128,17 +128,17 @@ def cleanupDupes(sDir, fRecursive):
                                 sDirNewest  = sCurSimDir
                             print("Directory \"%s\" is the newest one" % (sDirNewest))
                             for sCurSimDir in aDirSimilar:
-                                if sCurSimDir == sDirNewest:
-                                    cleanupDupes(sCurSimDir, fRecursive)
-                                else:
+                                if sCurSimDir != sDirNewest:
                                     deleteDir(sCurSimDir, True)
                         except OSError as e:
                             print("Error handling \"%s\": %s" % (sCurSimDir, str(e)))
                 aDirSimilar = []
-            else: # Do not delete delete similar dirs.
-                for sSubDir in sorted(aSubDirs):
-                    sSubDirAbs = os.path.join(sDir, sSubDir)
+
+            for sSubDir in sorted(aSubDirs):
+                sSubDirAbs = os.path.join(sDir, sSubDir)
+                if os.path.exists(sSubDirAbs):
                     cleanupDupes(sSubDirAbs, fRecursive)
+
         mtimeDir = os.path.getmtime(sCurDir)
         arrDupes = []
         for sFile in aFiles:
