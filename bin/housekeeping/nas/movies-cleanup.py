@@ -45,7 +45,7 @@ g_cbVideoSizeMin = 700 * (1024 * 1024) ## @todo Use a constant for MB as bytes?
 g_aRegExDirsToDelete = [ '.*/_UNPACK_*' ]
 
 # Array of regular expressions to use detecting similar release directories.
-g_aRegExDirsSimilar = [ '.*[\.| +][0-9][0-9][0-9][0-9][\.| +].*' ]
+g_aRegExDirsSimilar = [ r'.*[\.| +][0-9][0-9][0-9][0-9][\.| +].*' ]
 
 g_aFileExtsToDelete = [ 'url', 'nzb', 'exe', 'com', 'bat', 'cmd', 'sample', 'scr', 'rar', 'zip', '7z' ]
 
@@ -121,16 +121,19 @@ def cleanupDupes(sDir, fRecursive):
                     for sCurSimDir in aDirSimilar:
                         if g_cVerbosity:
                             print("Directory \"%s\" is similar" % (sCurSimDir))
-                        tsDirLastMod = getModTime(sCurSimDir)
-                        if tsDirLastMod > tsDirNewest:
-                            tsDirNewest = tsDirLastMod
-                            sDirNewest  = sCurSimDir
-                    print("Directory \"%s\" is the newest one" % (sDirNewest))
-                    for sCurSimDir in aDirSimilar:
-                        if sCurSimDir == sDirNewest:
-                            cleanupDupes(sCurSimDir, fRecursive)
-                        else:
-                            deleteDir(sCurSimDir, True)
+                        try:
+                            tsDirLastMod = getModTime(sCurSimDir)
+                            if tsDirLastMod > tsDirNewest:
+                                tsDirNewest = tsDirLastMod
+                                sDirNewest  = sCurSimDir
+                            print("Directory \"%s\" is the newest one" % (sDirNewest))
+                            for sCurSimDir in aDirSimilar:
+                                if sCurSimDir == sDirNewest:
+                                    cleanupDupes(sCurSimDir, fRecursive)
+                                else:
+                                    deleteDir(sCurSimDir, True)
+                        except OSError as e:
+                            print("Error handling \"%s\": %s", sCurSimDir, str(e))
                 aDirSimilar = []
             else: # Do not delete delete similar dirs.
                 for sSubDir in sorted(aSubDirs):
@@ -224,7 +227,7 @@ def main():
         print("For help use --help")
         sys.exit(2)
 
-    for o, a in aOpts:
+    for o, _ in aOpts:
         if o in "--delete":
             g_fDryRun = False
         if o in "--delete-similar":
