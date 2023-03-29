@@ -3,9 +3,10 @@
 #set -e
 set -x
 
-find . -iname '*.mp3' -print0 | while read -d $'\0' m; do
-    MY_DIR=$(dirname "$m")
-    MY_FILE_IN="$m"
+file_encode()
+{
+    MY_DIR=$(dirname "$1")
+    MY_FILE_IN="$1"
     MY_FILE_BASE="$MY_DIR/$(basename "$MY_FILE_IN" .mp3)"
     MY_FILE_OUT="$MY_FILE_BASE.opus"
     MY_FILE_COVER="$MY_FILE_BASE.jpg"
@@ -19,15 +20,31 @@ find . -iname '*.mp3' -print0 | while read -d $'\0' m; do
     if [ $? -eq 0 ]; then
         MY_OPUSENC_CMD="$MY_OPUSENC_CMD --picture \"$MY_FILE_COVER\""
     fi
-    opusenc | grep "--tracknumber"
-    if [ $? -eq 0 ]; then
+    echo "Encoding to .WAV ..."
+    ffmpeg -loglevel quiet -y -i "$MY_FILE_IN" -f wav "$MY_FILE_BASE.wav" 2>&1 > /dev/null
+    MY_OPUSENC_HAS_TRACKNUMBER=$(opusenc |& grep -- --tracknumber)
+    if [ -n "$MY_OPUSENC_HAS_TRACKNUMBER" ]; then
         MY_OPUSENC_CMD="$MY_OPUSENC_CMD --tracknumber \"$MY_TRACK_NO\""
     fi
-    MY_OPUSENC_CMD="$MY_OPUSENC_CMD --artist \"$MY_ARTIST\" --album \"$MY_ALBUM\" --title \"$MY_TITLE\" - \"$MY_FILE_OUT\""
-    ffmpeg -loglevel quiet -y -i "$MY_FILE_IN" -f wav - | eval "$MY_OPUSENC_CMD"
+    echo "Encoding to .opus ..."
+    MY_OPUSENC_CMD="$MY_OPUSENC_CMD --artist \"$MY_ARTIST\" --album \"$MY_ALBUM\" --title \"$MY_TITLE\" \"$MY_FILE_BASE.wav\" \"$MY_FILE_OUT\""
+    rm "$MY_FILE_BASE.wav"
+    eval "$MY_OPUSENC_CMD"
+    rm "$MY_FILE_COVER"
     if [ $? -ne 0 ]; then
         echo "Encoding failed!"
-        continue
+        return 1
     fi
-    rm "$MY_FILE_COVER"
-done
+}
+
+#if [ $# -gt 0 ]; then
+#    file_encode "$1"
+#    exit 0
+#fi
+#
+#find . -iname '*.mp3' -print0 | while read -d $'\0' m; do
+#    file_encode "$m"
+#done
+
+find -iname "*.mp3" -type f | parallel -I% --max-args 1  \
+  "ffmpeg -i % -strict -2 -c:a opus -b:a 64k -vbr on -map_metadata 0 -compression_level 10 -y %.opus;touch -r % %.opus"
