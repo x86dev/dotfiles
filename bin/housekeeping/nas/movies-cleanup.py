@@ -23,15 +23,16 @@ g_cbDupesTotal   = 0
 g_cbDupesRemoved = 0
 g_sLogFile       = ''
 g_fRecursive     = False
+g_fDeleteSimilar = False
 g_cVerbosity     = 0
 
 tFileDupe = namedtuple('tFileDupe', 'ext, prio')
 
-g_arrVideoTypes = [ tFileDupe('mkv' , 0),
-                   tFileDupe('avi' , 10),
-                   tFileDupe('mp4' , 20),
-                   tFileDupe('divx', 30),
-                   tFileDupe('wmv' , 50) ]
+g_aVideoTypes = [ tFileDupe('mkv' , 0),
+                  tFileDupe('avi' , 10),
+                  tFileDupe('mp4' , 20),
+                  tFileDupe('divx', 30),
+                  tFileDupe('wmv' , 50) ]
 
 # Minimum size a video file must have (in bytes).
 # This is useful for not treating a video file as the newest (=best) file
@@ -40,9 +41,13 @@ g_arrVideoTypes = [ tFileDupe('mkv' , 0),
 # Set to 0 to disable this check.
 g_cbVideoSizeMin = 700 * (1024 * 1024) ## @todo Use a constant for MB as bytes?
 
-g_arrDirsToDelete = [ '.*/_UNPACK_*' ]
+# Array of regular expressions to detect directories to delete. BE CAUTIOUS HERE!
+g_aRegExDirsToDelete = [ '.*/_UNPACK_*' ]
 
-g_arrFileExtsToDelete = [ 'url', 'nzb', 'exe', 'com', 'bat', 'cmd', 'sample', 'scr', 'rar', 'zip', '7z' ]
+# Array of regular expressions to use detecting similar release directories.
+g_aRegExDirsSimilar = [ '.*[\.| +][0-9][0-9][0-9][0-9][\.| +].*' ]
+
+g_aFileExtsToDelete = [ 'url', 'nzb', 'exe', 'com', 'bat', 'cmd', 'sample', 'scr', 'rar', 'zip', '7z' ]
 
 # Taken from: http://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
 # Slightly modified to handle byte sizes as well.
@@ -88,9 +93,50 @@ def fileIsMultipart(sDir, sFile):
 def cleanupDupes(sDir, fRecursive):
     global g_cDupesTotal
     global g_cbDupesTotal
+    if g_cVerbosity:
+        print("Handling directory \"%s\"" % (sDir))
     for sCurDir, aSubDirs, aFiles in os.walk(sDir):
-        for sDir in aSubDirs:
-            cleanupDupes(sDir, fRecursive)
+        if g_fRecursive:
+            if g_fDeleteSimilar:
+                aDirSimilar    = [] # Contains all similar releases.
+                sDirSimilarCur = '' # Name of the current similar directory prefix to handle.
+                # Note: This ASSUMES that the directory output is alphabetically sorted!
+                for sSubDir in sorted(aSubDirs):
+                    sSubDirAbs = os.path.join(sDir, sSubDir)
+                    for sRegEx in g_aRegExDirsSimilar:
+                        rec = re.compile(r"(\b(.*)\b)" + sRegEx)
+                        res = re.search(rec, sSubDirAbs)
+                        if res:
+                            if not sDirSimilarCur or sDirSimilarCur != res.group(1):
+                                aDirSimilar = []
+                                sDirSimilarCur = res.group(1)
+                                print("cur rel: %s" % (sDirSimilarCur))
+                            if res.group(1) == sDirSimilarCur:
+                                aDirSimilar.append(sSubDirAbs)
+
+                if aDirSimilar:
+                    if g_cVerbosity:
+                        print("Found %d similar directories of \"%s\"" % (len(aDirSimilar), sDirSimilarCur))
+                    tsDirNewest = datetime.datetime(1970, 1, 1)
+                    sDirNewest  = ''
+                    for sCurSimDir in aDirSimilar:
+                        if g_cVerbosity:
+                            print("Directory \"%s\" is similar" % (sCurSimDir))
+                        tsDirLastMod = getModTime(sCurSimDir)
+                        if tsDirLastMod > tsDirNewest:
+                            tsDirNewest = tsDirLastMod
+                            sDirNewest  = sCurSimDir
+                    print("Directory \"%s\" is the newest one" % (sDirNewest))
+                    for sCurSimDir in aDirSimilar:
+                        if sCurSimDir == sDirNewest:
+                            cleanupDupes(sCurSimDir, fRecursive)
+                        else:
+                            deleteDir(sCurSimDir, True)
+                aDirSimilar = []
+            else: # Do not delete delete similar dirs.
+                for sSubDir in sorted(aSubDirs):
+                    sSubDirAbs = os.path.join(sDir, sSubDir)
+                    cleanupDupes(sSubDirAbs, fRecursive)
         mtimeDir = os.path.getmtime(sCurDir)
         arrDupes = []
         for sFile in aFiles:
@@ -99,10 +145,10 @@ def cleanupDupes(sDir, fRecursive):
             sName = sName.lower()
             if len(sExt) > 1: # Skip the dot (.)
                 sExt = sExt[1:]
-            for curType in g_arrVideoTypes:
+            for curType in g_aVideoTypes:
                 if curType.ext == sExt:
                     arrDupes.append(sFileAbs)
-            for curExt in g_arrFileExtsToDelete:
+            for curExt in g_aFileExtsToDelete:
                 if curExt == sExt:
                     print("File \"%s\" is junk" % sFileAbs)
                     deleteFile(sFileAbs)
@@ -131,7 +177,7 @@ def cleanupDupes(sDir, fRecursive):
                 print("\tWarning: Unable to determine newest file!")
 
         # Delete unwanted junk.
-        for sRegEx in g_arrDirsToDelete:
+        for sRegEx in g_aRegExDirsToDelete:
             if   re.compile(sRegEx).match(sCurDir) \
             and  sCurDir \
             and  sCurDir != "/":
@@ -165,6 +211,7 @@ def printHelp():
 def main():
     global g_fDryRun
     global g_fRecursive
+    global g_fDeleteSimilar
     global g_cVerbosity
 
     if len(sys.argv) <= 1:
@@ -172,7 +219,7 @@ def main():
         sys.exit(2)
 
     try:
-        aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hRv", ["delete", "help", "recursive", "verbose" ])
+        aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hRv", ["delete", "delete-similar", "help", "recursive", "verbose" ])
     except getopt.error as msg:
         print(msg)
         print("For help use --help")
@@ -181,6 +228,8 @@ def main():
     for o, a in aOpts:
         if o in "--delete":
             g_fDryRun = False
+        if o in "--delete-similar":
+            g_fDeleteSimilar = True
         if o in ("-h", "--help"):
             printHelp()
             sys.exit(0)
