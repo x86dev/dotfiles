@@ -5,9 +5,9 @@ MY_SSH_PASS=sshpass
 type "$MY_SSH_PASS" 2>&1 >/dev/null
 if [ $? -eq 0 ]; then
     if [ -z "$MY_VBOX_GUEST_PASSWORD" ]; then
-        MY_VBOX_GUEST_PASSWORD=vbox
+        MY_VBOX_GUEST_PASSWORD=password
     fi
     MY_HAVE_SSH_PASS="$MY_SSH_PASS -p $MY_VBOX_GUEST_PASSWORD"
 fi
 
-${MY_HAVE_SSH_PASS} scp -P 2222 -v "$@" vbox@127.0.0.1:/tmp
+${MY_HAVE_SSH_PASS} scp -o StrictHostKeyChecking=no -P 2222 -v "$@" vbox@127.0.0.1:/tmp
