@@ -58,5 +58,5 @@ set -x
 
 ( cd "$VBOX_VALIDATIONKIT_TESTS_PATH" && \
   python "$MY_TESTCASE_FILENAME" ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} ${MY_TESTCASE_OPTS} ${MY_TESTCASE_OPTS_VM} \
-  --no-wipe-clean cleanup-before execute --test-vms ${MY_VM_NAME} $@
+  --no-wipe-clean cleanup-before config execute --test-vms ${MY_VM_NAME} $@
   2>&1 | tee ${MY_TESTDRIVER_LOG} )
