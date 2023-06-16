@@ -8,7 +8,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="agnoster"
+ZSH_THEME="sunrise"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -73,9 +73,6 @@ export FZF_BASE=${HOME}/opt/fzf
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(dirhistory fzf git)
 
-# Use lightweight themes.
-ZSH_THEME="sunrise"
-
 # Do the My My Zsh stuff.
 source ${ZSH}/oh-my-zsh.sh
 
@@ -85,3 +82,5 @@ setopt nocheckjobs
 # Source .myrc -- this is where all the magic happens.
 source ${HOME}/.myrc
 
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
