@@ -22,3 +22,6 @@ alias docker_shell='_(){ docker exec -it $1 /bin/sh }; _'
 
 # Lazy alias for lazygit.
 alias lg='lazygit'
+
+# Always make tmux use UTF-8, even if LC_ALL and others don't explicitly specify this.
+alias tmux='tmux -u'
