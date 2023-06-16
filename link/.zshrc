@@ -63,8 +63,8 @@ ZSH_THEME="agnoster"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
-# My fzf base path.
-export FZF_BASE=${HOME}/.fzf/
+# My fzf config + base path.
+export FZF_BASE=${HOME}/opt/fzf
 
 # Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
@@ -85,4 +85,3 @@ setopt nocheckjobs
 # Source .myrc -- this is where all the magic happens.
 source ${HOME}/.myrc
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
