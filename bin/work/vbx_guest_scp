@@ -10,4 +10,8 @@ if [ $? -eq 0 ]; then
     MY_HAVE_SSH_PASS="$MY_SSH_PASS -p $MY_VBOX_GUEST_PASSWORD"
 fi
 
-${MY_HAVE_SSH_PASS} scp -o StrictHostKeyChecking=no -P 2222 -v "$@" vbox@127.0.0.1:/tmp
+${MY_HAVE_SSH_PASS} scp -o StrictHostKeyChecking=no -P 2222 "$@" vbox@127.0.0.1:/tmp
+if [ $? -ne 0 ]; then
+    echo "!!! Error: Copying to guest failed !!!"
+    exit 1
+fi
