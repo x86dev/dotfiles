@@ -4,7 +4,13 @@ MY_LOCAL_BIN="$HOME/.local/bin/"
 mkdir -p "$MY_LOCAL_BIN"
 
 # Install fzf.
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+MY_FZF_DIR=$HOME/opt/fzf
+MY_FZF_REPO=https://github.com/junegunn/fzf.git
+mkdir -p "$MY_FZF_DIR"
+if [ ! -d "$MY_FZF_DIR" ]; then
+    git clone --depth 1 "$MY_FZF_REPO"
+fi
+$(cd "$MY_FZF_DIR" && git pull ${MY_FZF_REPO} && ${MY_FZF_DIR}/install --all)
 
 # Install lazygit + delta.
 #MY_FLAVOR=${MY_OS}_$(uname -m); curl -s -L $(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | tar xzf - -C "$MY_LOCAL_BIN" lazygit
