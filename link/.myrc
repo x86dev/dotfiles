@@ -5,7 +5,7 @@ export MY_LOCAL_BIN=~/.local/bin
 
 # Default default locale.
 # Mostly for supressing the annoying Perl warnings.
-export LC_ALL=C
+export LC_ALL=en_US.UTF-8
 
 # Add binaries into the path.
 PATH=${DOTFILES}/bin:${PATH}
