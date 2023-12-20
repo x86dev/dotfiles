@@ -8,6 +8,8 @@ SCRIPT_EXITCODE=0
 if [ $# -lt 1 ]; then
     echo "Must specify a device to mount!"
     echo "Usage: $0 </dev/sdXXX>"
+    echo ""
+    echo "Example: $0 /dev/sde"
     exit
 fi
 
@@ -15,6 +17,6 @@ fi
 . ${SCRIPT_PATH}/backup-ext-umount.sh
 
 # Mount.
-cryptsetup luksOpen /dev/$1 backup_ext_enc
+cryptsetup luksOpen $1 backup_ext_enc
 mkdir -p /media/backup_ext
 mount /dev/mapper/backup_ext_enc /media/backup_ext
