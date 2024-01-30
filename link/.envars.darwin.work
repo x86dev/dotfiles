@@ -1,6 +1,7 @@
 export VBOX_USER_HOME=/Users/vbox/Library/VirtualBox
-export VBOX_LOG=dev_hda.e.l2.l3.f+audio_drv.e.l2.l3+audio_host_drv.e.l2.l3
-export VBOX_LOG=dev_audio_mixer.e.l.l2.l3.l4.f
 export VBOX_LOG_DEST=dir=/Users/vbox/vbox/logs
 export VBOX_LOG_FLAGS="time thread tid"
 export MY_VBOX_TARGET_ARCH=arm64
+
+    export VBOX_LOG=dev_hda.e.l2.l3.f+audio_drv.e.l2.l3+audio_host_drv.e.l2.l3
+export VBOX_LOG=dev_sb16.e.l.l2.l3.f+dev_audio_mixer.e.l.l2.l3.l4.f
