@@ -50,6 +50,9 @@ for _CUR_SETUP in ${_SETUP}; do
 		${MY_OS}.${MY_SHELL}   \
 		${MY_HOST}.${MY_SHELL} \
 		${MY_OS}.${MY_HOST}.${MY_SHELL} \
+		${MY_HOST}.work \
+		${MY_OS}.work \
+		${MY_OS}.${MY_HOST}.work \
 		; do
 		if test -r ${HOME}/.${_CUR_SETUP}.${_WHAT}; then
 			${_PRINT} "  ${_WHAT} specific"
