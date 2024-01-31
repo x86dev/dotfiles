@@ -10,4 +10,8 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Install stuff.
 brew doctor
-brew install fzf htop git lazygit ncdu tmux zsh
+brew install alacritty fzf htop git lazygit ncdu tmux zsh
+
+# Alacritty themes
+mkdir -p ~/.config/alacritty/themes
+git clone https://github.com/alacritty/alacritty-theme ~/.config/alacritty/themes
