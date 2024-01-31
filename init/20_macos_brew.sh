@@ -12,6 +12,5 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 brew doctor
 brew install alacritty fzf htop git lazygit ncdu tmux zsh
 
-# Alacritty themes
-mkdir -p ~/.config/alacritty/themes
-git clone https://github.com/alacritty/alacritty-theme ~/.config/alacritty/themes
+# Install key bindings for fzf.
+$(brew --prefix)/opt/fzf/install --all
