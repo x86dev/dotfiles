@@ -82,12 +82,12 @@ mods = "Alt"
 [[keyboard.bindings]]
 action = "Paste"
 key = "V"
-mods = "Control"
+mods = "Control|Shift"
 
 [[keyboard.bindings]]
 action = "Copy"
 key = "C"
-mods = "Control"
+mods = "Control|Shift"
 
 [[keyboard.bindings]]
 action = "ResetFontSize"
