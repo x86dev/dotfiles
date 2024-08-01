@@ -5,20 +5,22 @@
 __vbx_vakit_env "$MY_VBOX_BRANCH"
 
 MY_VM_NAME=${1}
-shift
-MY_TESTCASE_NAME=${1}
-shift
+MY_TESTDRIVER_PATH=${2}
 
 if [ -z "$MY_VM_NAME" ]; then
     echo "Must specify a test VM name (e.g. tst-xpsp2)."
     exit 1
 fi
 
-if [ -z "$MY_TESTCASE_NAME" ]; then
-    echo "Must specify a test name (e.g. additions/tdAddBasic1.py)."
+if [ -z "$MY_TESTDRIVER_PATH" ]; then
+    echo "Must specify a test driver (e.g. additions/tdAddBasic1.py)."
     exit 1
 fi
 
+# Shift arguments, so that we can use $@ below.
+shift
+shift
+
 ( cd "$VBOX_VALIDATIONKIT_TESTS_PATH" && \
-    python ${MY_TESTCASE_NAME} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
-    --test-vms ${MY_VM_NAME} -v -v --no-wipe-clean cleanup-before verify config $@ )
+    python ${MY_TESTDRIVER_PATH} ${VBOX_VALIDATIONKIT_TESTDRIVER_DEFAULT_OPTS} \
+    --test-vms ${MY_VM_NAME} -v -v --no-wipe-clean cleanup-before verify config $@)

@@ -47,6 +47,7 @@ case "$MY_VBOX_TARGET_OS" in
             Scripts-darwin-adp"
         ;;
     win)
+        # Trunk defs first.
         MY_VBOX_DRV_DEPS="\
             RuntimeR0 \
             RuntimeR3 \
@@ -64,15 +65,21 @@ case "$MY_VBOX_TARGET_OS" in
             SUPUninstall \
             USBInstall \
             USBUninstall"
+        MY_VBOX_DRV_SUP="VBoxSup VBoxSup-inf VBoxSupLib"
+        MY_VBOX_DRV_NET="VBoxNetAdp VBoxNetAdp-inf VBoxNetAdp6 VBoxNetAdp6-inf VBoxNetFlt VBoxNetFlt-inf VBoxNetLwf VBoxNetLwf-inf"
+        MY_VBOX_DRV_USB="VBoxUSBMon VBoxUSBMon VBoxUSB-inf"
+        # Per-branch tweaks.
         case "$MY_VBOX_BRANCH" in
             6.0)
                 MY_VBOX_DRV_SUP="VBoxDrv VBoxDrv-inf"
                 ;;
+            7.0)
+                MY_VBOX_DRV_USB="VBoxUSBMon VBoxUSBMon install-infs"
+                ;;
             *)
-                MY_VBOX_DRV_SUP="VBoxSup VBoxSup-inf"
                 ;;
         esac
-        MY_VBOX_DRV_DEPS="$MY_VBOX_DRV_DEPS $MY_VBOX_DRV_SUP"
+        MY_VBOX_DRV_DEPS="$MY_VBOX_DRV_DEPS $MY_VBOX_DRV_SUP $MY_VBOX_DRV_NET $MY_VBOX_DRV_USB"
         MY_VBOX_DRV_OPTS="VBOX_SIGNING_MODE=test"
         ;;
     *)

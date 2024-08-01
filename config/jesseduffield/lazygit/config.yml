@@ -1,8 +1,15 @@
 reporting: "off"
 startuppopupversion: 1
+update:
+  method: background
+  days: 14
 gui:
   sidePanelWidth: 0.2
 git:
   paging:
     colorArg: always
     pager: delta --dark --paging=never --line-numbers --side-by-side
+keybinding:
+  universal:
+    nextTab: '#'
+    prevTab: 'ä'

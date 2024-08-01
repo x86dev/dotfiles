@@ -118,6 +118,9 @@ function set_env()
 		esac
 	fi
 
+  # Transform OS name to be always lowercase.
+  MY_OS=$(echo "$MY_OS" | tr '[:upper:]' '[:lower:]')
+
 	if test "x${HOME}" = x; then
 		HOME=/root    # FreeBSD: in single user mode HOME is not set.
 		export HOME   # This makes the /bin/sh read the files in /root.
