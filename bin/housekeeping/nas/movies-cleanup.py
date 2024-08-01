@@ -47,6 +47,7 @@ g_aRegExDirsToDelete = [ '.*/_UNPACK_*' ]
 # Array of regular expressions to use detecting similar release directories.
 g_aRegExDirsSimilar = [ r'.*[\.| +][0-9][0-9][0-9][0-9][\.| +].*' ]
 
+# Array of file extensions to delete by default.
 g_aFileExtsToDelete = [ 'url', 'nzb', 'exe', 'com', 'bat', 'cmd', 'sample', 'scr', 'rar', 'zip', '7z' ]
 
 # Taken from: http://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
