@@ -18,9 +18,8 @@ import shutil # For rmtree().
 import sys
 
 g_fDryRun        = True
-g_cDupesTotal    = 0
-g_cbDupesTotal   = 0
-g_cbDupesRemoved = 0
+g_cTotalDupes    = 0
+g_cbTotalDeleted = 0
 g_sLogFile       = ''
 g_fRecursive     = False
 g_fDeleteSimilar = False
@@ -39,7 +38,7 @@ g_aVideoTypes = [ tFileDupe('mkv' , 0),
 # if this file is just e.g. a sample / demo file.
 #
 # Set to 0 to disable this check.
-g_cbVideoSizeMin = 700 * (1024 * 1024) ## @todo Use a constant for MB as bytes?
+g_cbVideoSizeMin = 500 * (1024 * 1024) ## @todo Use a constant for MB as bytes?
 
 # Array of regular expressions to detect directories to delete. BE CAUTIOUS HERE!
 g_aRegExDirsToDelete = [ '.*/_UNPACK_*' ]
@@ -48,7 +47,7 @@ g_aRegExDirsToDelete = [ '.*/_UNPACK_*' ]
 g_aRegExDirsSimilar = [ r'.*[\.| +][0-9][0-9][0-9][0-9][\.| +].*' ]
 
 # Array of file extensions to delete by default.
-g_aFileExtsToDelete = [ 'url', 'nzb', 'exe', 'com', 'bat', 'cmd', 'sample', 'scr', 'rar', 'zip', '7z' ]
+g_aRegExFilesToDelete = [ '.*url$', '.*nzb$', '.*exe$', '.*com$', '.*bat$', '.*cmd$', '.*\-sample\..*', '.*\.sample\..*', '.*scr$', '.*rar$', '.*r\d+$', '.*zip$', '.*7z$' ]
 
 # Taken from: http://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
 # Slightly modified to handle byte sizes as well.
@@ -92,10 +91,10 @@ def fileIsMultipart(sDir, sFile):
     _ = sFile
 
 def cleanupDupes(sDir, fRecursive):
-    global g_cDupesTotal
-    global g_cbDupesTotal
-    if g_cVerbosity:
-        print("Handling directory \"%s\"" % (sDir))
+    global g_cTotalDupes
+    global g_cbTotalDeleted
+    #if g_cVerbosity:
+    #    print("Handling directory \"%s\"" % (sDir))
     for sCurDir, aSubDirs, aFiles in os.walk(sDir):
         if g_fRecursive:
             if g_fDeleteSimilar:
@@ -152,30 +151,36 @@ def cleanupDupes(sDir, fRecursive):
             for curType in g_aVideoTypes:
                 if curType.ext == sExt:
                     arrDupes.append(sFileAbs)
-            for curExt in g_aFileExtsToDelete:
-                if curExt == sExt:
-                    print("File \"%s\" is junk" % sFileAbs)
+            for sRegEx in g_aRegExFilesToDelete:
+                if re.compile(sRegEx).match(sFileAbs):
+                    cbFileSize = os.path.getsize(sFileAbs)
+                    g_cbTotalDeleted += cbFileSize
+                    print("File \"%s\" matched for deletion" % sFileAbs)
                     deleteFile(sFileAbs)
 
         if len(arrDupes) >= 2:
-            print("Directory \"%s\" contains %d entries:" % (sCurDir, len(arrDupes)))
+            print("Directory \"%s\" contains %d similar entries:" % (sCurDir, len(arrDupes)))
             tsFileNewest = datetime.datetime(1970, 1, 1)
             sFileNewest  = ''
             for curDupe in arrDupes:
-                tsFileLastMod = getModTime(curDupe)
-                cbFileSize    = os.path.getsize(curDupe)
-                print("\t%s (last modified %s, %s)" % (curDupe, tsFileLastMod, fileSizeToStr(cbFileSize)))
-                if tsFileLastMod >  tsFileNewest \
-                and cbFileSize   >= g_cbVideoSizeMin:
-                    sFileNewest  = curDupe
-                    tsFileNewest = tsFileLastMod
+                try:
+                    tsFileLastMod = getModTime(curDupe)
+                    cbFileSize    = os.path.getsize(curDupe)
+                    print("\t%s (last modified %s, %s)" % (curDupe, tsFileLastMod, fileSizeToStr(cbFileSize)))
+                    if tsFileLastMod >  tsFileNewest \
+                    and cbFileSize   >= g_cbVideoSizeMin:
+                        sFileNewest  = curDupe
+                        tsFileNewest = tsFileLastMod
+                except FileNotFoundError:
+                    pass
             if sFileNewest:
                 print("\tNewest file: %s" % sFileNewest)
                 for curDupe in arrDupes:
                     if      curDupe != sFileNewest \
                     and not fileIsMultipart(sCurDir, curDupe):
-                        g_cDupesTotal  += 1
-                        g_cbDupesTotal += os.path.getsize(curDupe)
+                        g_cTotalDupes  += 1
+                        cbFileSize = os.path.getsize(curDupe)
+                        g_cbTotalDeleted += cbFileSize
                         deleteFile(curDupe)
             else:
                 print("\tWarning: Unable to determine newest file!")
@@ -256,7 +261,8 @@ def main():
         print("Processing: %s" % sDir)
         cleanupDupes(sDir, g_fRecursive)
 
-    print("Total dupes: %ld (%s)" % (g_cDupesTotal, fileSizeToStr(g_cbDupesTotal)))
+    print("Total dupes: %ld" % (g_cTotalDupes))
+    print("Total bytes deleted: %s" % (fileSizeToStr(g_cbTotalDeleted)))
 
     if g_fDryRun:
         print("*** Dryrun mode -- no files/directories deleted! ***")
