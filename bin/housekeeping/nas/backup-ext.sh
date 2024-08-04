@@ -25,4 +25,4 @@ set -e
 cd ${MY_MOUNT}
 MY_TARGET=${MY_MOUNT}/$(date +%Y%m%d)
 mkdir -p ${MY_TARGET}
-rsync -aAX --progress --stats ${MY_DIRS} ${MY_TARGET} --log-file ${MY_TARGET}/rsync_last_run.log
+nohup rsync -aAX --progress --stats ${MY_DIRS} ${MY_TARGET} --log-file ${MY_TARGET}/rsync_last_run.log &
