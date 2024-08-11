@@ -179,9 +179,12 @@ def cleanupDupes(sDir, fRecursive):
                     if      curDupe != sFileNewest \
                     and not fileIsMultipart(sCurDir, curDupe):
                         g_cTotalDupes  += 1
-                        cbFileSize = os.path.getsize(curDupe)
-                        g_cbTotalDeleted += cbFileSize
-                        deleteFile(curDupe)
+                        try:
+                            cbFileSize = os.path.getsize(curDupe)
+                            g_cbTotalDeleted += cbFileSize
+                            deleteFile(curDupe)
+                        except FileNotFoundError:
+                            print("\tWarning: Could not determine size, skipping ...")
             else:
                 print("\tWarning: Unable to determine newest file!")
 
