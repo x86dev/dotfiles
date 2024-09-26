@@ -19,6 +19,8 @@ import requests
 g_fDryRun        = True
 g_cVerbosity     = 0
 g_dbRatingMin    = 0.0
+g_uWidthMin      = 0
+g_uHeightMin     = 0
 g_fRatingNone    = False
 g_tdOlderThan    = datetime.timedelta(days=0)
 g_sProvider      = ""
@@ -58,7 +60,7 @@ def embyCleanup():
                 'X-MediaBrowser-Token' : emby_access_token}
 
     # Retrieve all items
-    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate,CommunityRating"
+    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate,CommunityRating,Width,Height"
     resp = requests.get(get_url, headers=get_header)
 
     if resp.ok:
@@ -79,6 +81,8 @@ def embyCleanup():
         movie_date_premiere = movie.get(u'PremiereDate')
         movie_rating = float(movie.get(u'CommunityRating', 0.0))
         movie_rating = round(movie_rating, 2)
+        movie_width = int(movie.get(u'Width'))
+        movie_height = int(movie.get(u'Height'))
 
         sItem = ("Processing '%s' ...\n" % (movie_name))
 
@@ -87,6 +91,16 @@ def embyCleanup():
 
         # Whether to use the provider lookup or not.
         fUseProvider = False
+
+        if g_uWidthMin > 0 \
+        and movie_width < g_uWidthMin:
+            sItem = sItem + ("\tHas lower width resolution (%d)\n" % (movie_width,))
+            fDelete = True
+        
+        if g_uHeightMin > 0 \
+        and movie_height < g_uHeightMin:
+            sItem = sItem + ("\tHas lower height resolution (%d)\n" % (movie_height,))
+            fDelete = True
 
         if  g_fRatingNone is True \
         and movie_rating == 0.0:
@@ -203,6 +217,8 @@ def main():
     global g_fDryRun
     global g_cVerbosity
     global g_dbRatingMin
+    global g_uWidthMin
+    global g_uHeightMin
     global g_fRatingNone
     global g_tdOlderThan
     global g_sProvider
@@ -217,7 +233,7 @@ def main():
 
     try:
         aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hv", \
-            [ "delete", "help", "older-than-days=", "password=", "rating-min=", "rating-none", "username=", "provider=" ])
+            [ "delete", "help", "older-than-days=", "password=", "rating-min=", "rating-none", "width-min=", "height-min=", "username=", "provider=" ])
     except getopt.error as msg:
         print(msg)
         print("For help use --help")
@@ -239,6 +255,10 @@ def main():
             g_fRatingNone = True
         elif o in "--rating-min":
             g_dbRatingMin = float(a)
+        elif o in "--width-min":
+            g_uWidthMin = int(a)
+        elif o in "--height-min":
+            g_uHeightMin = int(a)
         elif o in "--username":
             g_sUsername = a
         elif o in "-v":
