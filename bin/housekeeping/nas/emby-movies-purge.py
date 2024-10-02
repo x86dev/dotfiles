@@ -81,8 +81,15 @@ def embyCleanup():
         movie_date_premiere = movie.get(u'PremiereDate')
         movie_rating = float(movie.get(u'CommunityRating', 0.0))
         movie_rating = round(movie_rating, 2)
-        movie_width = int(movie.get(u'Width'))
-        movie_height = int(movie.get(u'Height'))
+        movie_width = 0
+        movie_height = 0
+        v = movie.get(u'Width')
+        if v:
+            movie_width = int(v)
+
+        v = movie.get(u'Height')
+        if v:
+            movie_height = int(v)
 
         sItem = ("Processing '%s' ...\n" % (movie_name))
 
@@ -91,7 +98,7 @@ def embyCleanup():
 
         # Whether to use the provider lookup or not.
         fUseProvider = False
-
+        
         if g_uWidthMin > 0 \
         and movie_width < g_uWidthMin:
             sItem = sItem + ("\tHas lower width resolution (%d)\n" % (movie_width,))
@@ -300,6 +307,8 @@ def main():
     print("Connecting to: %s" % (g_sHost))
 
     embyCleanup()
+
+    print("Cleanup done.")
 
     if g_fDryRun:
         print("*** Dryrun mode -- no items changed! ***")
