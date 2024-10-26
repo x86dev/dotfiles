@@ -16,6 +16,8 @@ import requests
 # pylint: disable=C0301
 # pylint: disable=global-statement
 
+
+g_sCollection    = None
 g_fDryRun        = True
 g_cVerbosity     = 0
 g_dbRatingMin    = 0.0
@@ -59,10 +61,33 @@ def embyCleanup():
     get_header = {'content-type': 'application/json',
                 'X-MediaBrowser-Token' : emby_access_token}
 
-    # Retrieve all items
-    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate,CommunityRating,Width,Height"
-    resp = requests.get(get_url, headers=get_header)
+    # If a collection is specified, get its ID.
+    if g_sCollection:
+        get_url = g_sHost + "/Users/" + emby_user_id + "/Views"
+        resp = requests.get(get_url, headers=get_header)
 
+        if resp.ok:
+            resp_data = resp.json()
+            #print(json.dumps(resp_data, indent=4))
+        else:
+            resp.raise_for_status()
+            return
+
+        idCollection = None
+        for view in resp_data['Items']:
+            if view['Name'] == g_sCollection:
+                idCollection = view['Id']
+                break
+        if not idCollection:
+            print("Collection not found or invalid!")
+            return
+
+    # Retrieve all items
+    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?"
+    if g_sCollection:
+        get_url += "parentId=" + idCollection + "&"
+    get_url += "Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate,CommunityRating,Width,Height"
+    resp = requests.get(get_url, headers=get_header)
     if resp.ok:
         resp_data = resp.json()
         #print(resp_data)
@@ -75,6 +100,9 @@ def embyCleanup():
     cErrors      = 0
 
     tsNow = datetime.datetime.now()
+
+    if g_sCollection:
+        print("Processing collection \"%s\"" % (g_sCollection));
 
     for movie in resp_data[u'Items']:
         movie_name = movie.get(u'Name')
@@ -194,6 +222,8 @@ def printHelp():
     """
     Prints syntax help.
     """
+    print("--collection <name>")
+    print("    Specifies the collection to process.")
     print("--delete")
     print("    Deletion mode: Items *are* removed.")
     print("--help or -h")
@@ -221,6 +251,7 @@ def main():
     """
     Main function.
     """
+    global g_sCollection
     global g_fDryRun
     global g_cVerbosity
     global g_dbRatingMin
@@ -240,14 +271,17 @@ def main():
 
     try:
         aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hv", \
-            [ "delete", "help", "older-than-days=", "password=", "rating-min=", "rating-none", "width-min=", "height-min=", "username=", "provider=" ])
+            [ "collection=", "delete", "help", "older-than-days=", "password=", \
+              "rating-min=", "rating-none", "width-min=", "height-min=", "username=", "provider=" ])
     except getopt.error as msg:
         print(msg)
         print("For help use --help")
         sys.exit(2)
 
     for o, a in aOpts:
-        if o in "--delete":
+        if o in "--collection":
+            g_sCollection = a
+        elif o in "--delete":
             g_fDryRun = False
         elif o in ("-h", "--help"):
             printHelp()
