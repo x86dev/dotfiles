@@ -15,7 +15,8 @@ import requests
 
 # pylint: disable=C0301
 # pylint: disable=global-statement
-
+# pylint: disable=invalid-name
+# pylint: disable=consider-using-f-string
 
 g_sCollection    = None
 g_fDryRun        = True
@@ -36,10 +37,6 @@ def embyCleanup():
     """
     Does the actual cleanup by using the Emby API.
     """
-    global g_fDryRun
-    global g_cVerbosity
-    global g_dbRatingMin
-    global g_fRatingNone
 
     # Authenticate.
     post_url = g_sHost + "/Users/AuthenticateByName"
@@ -47,15 +44,16 @@ def embyCleanup():
                 'Authorization' : 'Emby Client="Android", Device="Generic", DeviceId="Custom", Version="1.0.0.0"'}
 
     post_data = {"Username": g_sUsername, "Pw": g_sPassword, "appName": "foo" }
-    resp = requests.post(post_url, json=post_data, headers=post_header)
+    resp = requests.post(post_url, json=post_data, headers=post_header, timeout=30)
 
     if resp.ok:
         resp_data = resp.json()
         #print(resp_data)
-        emby_user_id=resp_data[u'SessionInfo'][u'UserId']
-        emby_access_token=resp_data[u'AccessToken']
+        emby_user_id=resp_data['SessionInfo']['UserId']
+        emby_access_token=resp_data['AccessToken']
     else:
         resp.raise_for_status()
+        return
 
     # Construct new header containing the retrieved access token.
     get_header = {'content-type': 'application/json',
@@ -64,7 +62,7 @@ def embyCleanup():
     # If a collection is specified, get its ID.
     if g_sCollection:
         get_url = g_sHost + "/Users/" + emby_user_id + "/Views"
-        resp = requests.get(get_url, headers=get_header)
+        resp = requests.get(get_url, headers=get_header, timeout=30)
 
         if resp.ok:
             resp_data = resp.json()
@@ -87,7 +85,7 @@ def embyCleanup():
     if g_sCollection:
         get_url += "parentId=" + idCollection + "&"
     get_url += "Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate,CommunityRating,Width,Height"
-    resp = requests.get(get_url, headers=get_header)
+    resp = requests.get(get_url, headers=get_header, timeout=30)
     if resp.ok:
         resp_data = resp.json()
         #print(resp_data)
@@ -102,36 +100,36 @@ def embyCleanup():
     tsNow = datetime.datetime.now()
 
     if g_sCollection:
-        print("Processing collection \"%s\"" % (g_sCollection));
+        print("Processing collection \"%s\"" % (g_sCollection))
 
-    for movie in resp_data[u'Items']:
-        movie_name = movie.get(u'Name')
-        movie_date_premiere = movie.get(u'PremiereDate')
-        movie_rating = float(movie.get(u'CommunityRating', 0.0))
+    for movie in resp_data['Items']:
+        movie_name = movie.get('Name')
+        movie_date_premiere = movie.get('PremiereDate')
+        movie_rating = float(movie.get('CommunityRating', 0.0))
         movie_rating = round(movie_rating, 2)
         movie_width = 0
         movie_height = 0
-        v = movie.get(u'Width')
+        v = movie.get('Width')
         if v:
             movie_width = int(v)
 
-        v = movie.get(u'Height')
+        v = movie.get('Height')
         if v:
             movie_height = int(v)
 
-        sItem = ("Processing '%s' ...\n" % (movie_name))
+        sItem = "Processing '%s' ...\n" % (movie_name)
 
         # Don't delete any items by default.
         fDelete = False
 
         # Whether to use the provider lookup or not.
         fUseProvider = False
-        
+
         if g_uWidthMin > 0 \
         and movie_width < g_uWidthMin:
             sItem = sItem + ("\tHas lower width resolution (%d)\n" % (movie_width,))
             fDelete = True
-        
+
         if g_uHeightMin > 0 \
         and movie_height < g_uHeightMin:
             sItem = sItem + ("\tHas lower height resolution (%d)\n" % (movie_height,))
@@ -149,14 +147,14 @@ def embyCleanup():
             # Do we want to query OMDB for a rating?
             if g_sProvider == 'omdb':
                 url = "http://www.omdbapi.com/?t=" + urllib.parse.quote(movie.get('Name'))
-                resp = requests.get(url)
+                resp = requests.get(url, timeout=30)
                 if resp.ok:
                     omdb = json.loads(resp.text)
-                    if omdb.get(u'Response') == 'True':
-                        movie_rating = float(omdb.get(u'imdbRating', 0.0))
+                    if omdb.get('Response') == 'True':
+                        movie_rating = float(omdb.get('imdbRating', 0.0))
                         if g_cVerbosity >= 2:
                             sItem = sItem + ("\tOMDB rating = %f\n" % (movie_rating))
-                        movie_date_premiere = omdb.get(u'Released')
+                        movie_date_premiere = omdb.get('Released')
                         if g_cVerbosity >= 2:
                             sItem = sItem + ("\tOMDB release date = %s\n" % (movie_date_premiere))
 
@@ -193,17 +191,17 @@ def embyCleanup():
         if fDelete:
             print("\tDeleting ...")
             if g_fDryRun is False:
-                movie_id = movie.get(u'Id')
+                movie_id = movie.get('Id')
                 if movie_id is not None:
                     get_url = g_sHost + "/Items/" + movie_id
-                    resp = requests.delete(get_url, headers=get_header)
+                    resp = requests.delete(get_url, headers=get_header, timeout=30)
                     if resp.ok:
                         print("\tSucessfully deleted")
                     else:
                         try:
                             cErrors += 1
                             resp.raise_for_status()
-                        except:
+                        except resp.HTTPError:
                             pass
                 else:
                     print("\tID for item not found")
