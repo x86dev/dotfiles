@@ -45,13 +45,11 @@ packages=(
   git-core
   htop
   mc
-  meld
   ncdu
   strace
   tmux
   vim
   wget
-  xclip
   zsh
 )
 
