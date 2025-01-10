@@ -13,6 +13,10 @@ fi
 $(cd "$MY_FZF_DIR" && git pull ${MY_FZF_REPO} && ${MY_FZF_DIR}/install --all)
 
 # Install lazygit + delta.
+# Note: There is no "wsl" version for those, so we tweak $MY_OS accordingly.
+if [ "$MY_OS" = "wsl" ]; then
+    MY_OS=linux
+fi
 MY_FLAVOR=${MY_OS}_$(uname -m); curl -s -L $(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | tar xzf - -C "$MY_LOCAL_BIN" lazygit
 MY_FLAVOR=$(uname -m)-unknown-*${MY_OS}-gnu; curl -s -L $(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep -i "$MY_FLAVOR") | tar xzf - --strip-components=1 -C "$MY_LOCAL_BIN" --wildcards "*/delta"
 
