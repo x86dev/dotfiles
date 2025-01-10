@@ -6,9 +6,8 @@ mkdir -p "$MY_LOCAL_BIN"
 # Install fzf.
 MY_FZF_DIR=$HOME/opt/fzf
 MY_FZF_REPO=https://github.com/junegunn/fzf.git
-mkdir -p "$MY_FZF_DIR"
 if [ ! -d "$MY_FZF_DIR" ]; then
-    git clone --depth 1 "$MY_FZF_REPO"
+    git clone --depth 1 "$MY_FZF_REPO" "$MY_FZF_DIR"
 fi
 $(cd "$MY_FZF_DIR" && git pull ${MY_FZF_REPO} && ${MY_FZF_DIR}/install --all)
 
