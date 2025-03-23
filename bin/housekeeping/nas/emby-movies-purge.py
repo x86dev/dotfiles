@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-Purges movies which are too old.
+Purges items from Emby.
+See syntax help for options and usage.
 """
 
 import sys
 import codecs
+from collections import defaultdict
 import datetime
 import json
 import getopt
@@ -19,6 +21,9 @@ import requests
 # pylint: disable=consider-using-f-string
 
 g_sCollection    = None
+g_fDuplicates    = False
+g_fNoMetadata    = False
+g_fDeleteUnrated = False
 g_fDryRun        = True
 g_cVerbosity     = 0
 g_dbRatingMin    = 0.0
@@ -28,70 +33,123 @@ g_fRatingNone    = False
 g_tdOlderThan    = datetime.timedelta(days=0)
 g_sProvider      = ""
 
+# Emby state
+g_EmbyUserId = None
+g_EmbyAPIKey = None
+
 # Configuration
 g_sHost = ""
 g_sUsername = ""
 g_sPassword = ""
+
+def login():
+    url = f'{g_sHost}/Users/AuthenticateByName'
+    headers = {
+        'content-type': 'application/json',
+        'Authorization' : 'Emby Client="Android", Device="Generic", DeviceId="Custom", Version="1.0.0.0"'
+    }
+    params = {
+        'Username': g_sUsername,
+        'Pw': g_sPassword,
+        'appName': "foo"
+    }
+    resp = requests.post(url, headers=headers, json=params, timeout=30)
+    resp_data = resp.json()
+    global g_EmbyUserId
+    g_EmbyUserId=resp_data['SessionInfo']['UserId']
+    global g_EmbyAPIKey
+    g_EmbyAPIKey=resp_data['AccessToken']
+    return True
+
+# Get all collections from Jellyfin
+def get_collections():
+    url = f'{g_sHost}/Users/{g_EmbyUserId}/Views'
+    headers = {
+        'X-Emby-Token': g_EmbyAPIKey
+    }
+    params = {
+        'IncludeItemTypes': 'BoxSet',
+        'Recursive': 'true'
+    }
+    params = None
+    response = requests.get(url, headers=headers, params=params, timeout=30)
+    response.raise_for_status()
+    return response.json()['Items']
+
+# Get collection ID by name
+def get_collection_id_by_name(collections, name):
+    for collection in collections:
+        if collection['Name'].lower() == name.lower():
+            return collection['Id']
+    return None
+
+def get_items(collection_id=None):
+    url = f'{g_sHost}/Users/{g_EmbyUserId}/Items'
+    headers = {
+        'X-Emby-Token': g_EmbyAPIKey
+    }
+    params = {
+        'IncludeItemTypes': 'Movie',
+        'Fields' : 'DateCreated,Overview,PremiereDate,CommunityRating,Width,Height',
+        'Recursive': 'true'
+    }
+    if collection_id:
+        params['ParentId'] = collection_id
+    response = requests.get(url, headers=headers, params=params, timeout=30)
+    response.raise_for_status()
+    return response.json()['Items']
+
+# Delete an item by ID
+def delete_item(item_id):
+    if g_fDryRun is False:
+        url = f'{g_sHost}/Items/{item_id}'
+        headers = {
+            'X-Emby-Token': g_EmbyAPIKey
+        }
+        resp = requests.delete(url, headers=headers, timeout=30)
+        if resp.ok:
+            return True
+        else:
+            try:
+                resp.raise_for_status()
+            except resp.HTTPError:
+                pass
+        return False
+    return True
+
+# Detect duplicate items by title and year
+def detect_duplicates(items):
+    duplicates = defaultdict(list)
+    for cur_item in items:
+        title = cur_item['Name']
+        year = cur_item.get('ProductionYear')
+        key = f'{title} ({year})' if year else title
+        duplicates[key].append(cur_item)
+
+    return {key: items for key, items in duplicates.items() if len(items) > 1}
 
 def embyCleanup():
     """
     Does the actual cleanup by using the Emby API.
     """
 
-    # Authenticate.
-    post_url = g_sHost + "/Users/AuthenticateByName"
-    post_header = {'content-type': 'application/json',
-                'Authorization' : 'Emby Client="Android", Device="Generic", DeviceId="Custom", Version="1.0.0.0"'}
-
-    post_data = {"Username": g_sUsername, "Pw": g_sPassword, "appName": "foo" }
-    resp = requests.post(post_url, json=post_data, headers=post_header, timeout=30)
-
-    if resp.ok:
-        resp_data = resp.json()
-        #print(resp_data)
-        emby_user_id=resp_data['SessionInfo']['UserId']
-        emby_access_token=resp_data['AccessToken']
-    else:
-        resp.raise_for_status()
-        return
-
-    # Construct new header containing the retrieved access token.
-    get_header = {'content-type': 'application/json',
-                'X-MediaBrowser-Token' : emby_access_token}
+    if not login():
+        return False
 
     # If a collection is specified, get its ID.
+    coll_id = None
     if g_sCollection:
-        get_url = g_sHost + "/Users/" + emby_user_id + "/Views"
-        resp = requests.get(get_url, headers=get_header, timeout=30)
+        coll = get_collections()
+        if coll:
+            coll_id = get_collection_id_by_name(coll, g_sCollection)
+            if not coll_id:
+                print(f"No collection found with the name: {g_sCollection}")
+                return False
 
-        if resp.ok:
-            resp_data = resp.json()
-            #print(json.dumps(resp_data, indent=4))
-        else:
-            resp.raise_for_status()
-            return
-
-        idCollection = None
-        for view in resp_data['Items']:
-            if view['Name'] == g_sCollection:
-                idCollection = view['Id']
-                break
-        if not idCollection:
-            print("Collection not found or invalid!")
-            return
-
-    # Retrieve all items
-    get_url = g_sHost + "/Users/" + emby_user_id + "/Items?"
-    if g_sCollection:
-        get_url += "parentId=" + idCollection + "&"
-    get_url += "Recursive=true&IncludeItemTypes=Movie&Fields=PremiereDate,CommunityRating,Width,Height"
-    resp = requests.get(get_url, headers=get_header, timeout=30)
-    if resp.ok:
-        resp_data = resp.json()
-        #print(resp_data)
-    else:
-        resp.raise_for_status()
-        return
+    items = get_items(coll_id)
+    if not items:
+        print("Error retrieving items")
+        return False
 
     cItemsPurged = 0
     cItemsProc   = 0
@@ -102,22 +160,22 @@ def embyCleanup():
     if g_sCollection:
         print("Processing collection \"%s\"" % (g_sCollection))
 
-    for movie in resp_data['Items']:
-        movie_name = movie.get('Name')
-        movie_date_premiere = movie.get('PremiereDate')
-        movie_rating = float(movie.get('CommunityRating', 0.0))
-        movie_rating = round(movie_rating, 2)
-        movie_width = 0
-        movie_height = 0
-        v = movie.get('Width')
+    for cur_item in items:
+        item_name = cur_item.get('Name')
+        item_date_premiere = cur_item.get('PremiereDate')
+        item_rating = float(cur_item.get('CommunityRating', 0.0))
+        item_rating = round(item_rating, 2)
+        item_width = 0
+        item_height = 0
+        v = cur_item.get('Width')
         if v:
-            movie_width = int(v)
+            item_width = int(v)
 
-        v = movie.get('Height')
+        v = cur_item.get('Height')
         if v:
-            movie_height = int(v)
+            item_height = int(v)
 
-        sItem = "Processing '%s' ...\n" % (movie_name)
+        sItem = "Processing '%s' ...\n" % (item_name)
 
         # Don't delete any items by default.
         fDelete = False
@@ -126,46 +184,46 @@ def embyCleanup():
         fUseProvider = False
 
         if g_uWidthMin > 0 \
-        and movie_width < g_uWidthMin:
-            sItem = sItem + ("\tHas lower width resolution (%d)\n" % (movie_width,))
+        and item_width < g_uWidthMin:
+            sItem = sItem + ("\tHas lower width resolution (%d)\n" % (item_width,))
             fDelete = True
 
         if g_uHeightMin > 0 \
-        and movie_height < g_uHeightMin:
-            sItem = sItem + ("\tHas lower height resolution (%d)\n" % (movie_height,))
+        and item_height < g_uHeightMin:
+            sItem = sItem + ("\tHas lower height resolution (%d)\n" % (item_height,))
             fDelete = True
 
         if  g_fRatingNone is True \
-        and movie_rating == 0.0:
+        and item_rating == 0.0:
             fUseProvider = True
 
         if  g_tdOlderThan.days > 0 \
-        and movie_date_premiere is None:
+        and item_date_premiere is None:
             fUseProvider = True
 
         if fUseProvider:
             # Do we want to query OMDB for a rating?
             if g_sProvider == 'omdb':
-                url = "http://www.omdbapi.com/?t=" + urllib.parse.quote(movie.get('Name'))
+                url = "http://www.omdbapi.com/?t=" + urllib.parse.quote(cur_item.get('Name'))
                 resp = requests.get(url, timeout=30)
                 if resp.ok:
                     omdb = json.loads(resp.text)
                     if omdb.get('Response') == 'True':
-                        movie_rating = float(omdb.get('imdbRating', 0.0))
+                        item_rating = float(omdb.get('imdbRating', 0.0))
                         if g_cVerbosity >= 2:
-                            sItem = sItem + ("\tOMDB rating = %f\n" % (movie_rating))
-                        movie_date_premiere = omdb.get('Released')
+                            sItem = sItem + ("\tOMDB rating = %f\n" % (item_rating))
+                        item_date_premiere = omdb.get('Released')
                         if g_cVerbosity >= 2:
-                            sItem = sItem + ("\tOMDB release date = %s\n" % (movie_date_premiere))
+                            sItem = sItem + ("\tOMDB release date = %s\n" % (item_date_premiere))
 
                     # Still no rating found?
-                    if movie_rating == 0.0:
+                    if item_rating == 0.0:
                         sItem = sItem + ("\tNo OMDB movie rating found!\n")
                         fDelete = True
 
         if g_tdOlderThan.days > 0:
-            if movie_date_premiere:
-                tsPremiere = datetime.datetime.strptime(movie_date_premiere[:19], '%Y-%m-%dT%H:%M:%S')
+            if item_date_premiere:
+                tsPremiere = datetime.datetime.strptime(item_date_premiere[:19], '%Y-%m-%dT%H:%M:%S')
                 tdAge      = tsNow - tsPremiere
                 if tdAge.days > g_tdOlderThan.days:
                     sItem = sItem + ("\tToo old (%s days)\n" % tdAge.days)
@@ -174,14 +232,14 @@ def embyCleanup():
                 sItem = sItem + ("\tWarning: No premiere date found!\n")
 
         if  g_fRatingNone is True \
-        and movie_rating == 0.0:
+        and item_rating == 0.0:
             sItem = sItem + ("\tNo rating found\n")
             fDelete = True
 
         if  g_dbRatingMin > 0.0 \
-        and movie_rating > 0.0  \
-        and movie_rating < g_dbRatingMin:
-            sItem = sItem + ("\tHas a lower rating (%f)\n" % movie_rating)
+        and item_rating > 0.0  \
+        and item_rating < g_dbRatingMin:
+            sItem = sItem + ("\tHas a lower rating (%f)\n" % item_rating)
             fDelete = True
 
         if fDelete or g_cVerbosity >= 1:
@@ -191,29 +249,45 @@ def embyCleanup():
         if fDelete:
             print("\tDeleting ...")
             if g_fDryRun is False:
-                movie_id = movie.get('Id')
-                if movie_id is not None:
-                    get_url = g_sHost + "/Items/" + movie_id
-                    resp = requests.delete(get_url, headers=get_header, timeout=30)
-                    if resp.ok:
-                        print("\tSucessfully deleted")
-                    else:
-                        try:
-                            cErrors += 1
-                            resp.raise_for_status()
-                        except resp.HTTPError:
-                            pass
-                else:
-                    print("\tID for item not found")
-                    cErrors += 1
+                item_id = cur_item.get('Id')
+                if item_id is not None:
+                    if not delete_item(item_id):
+                        cErrors += 1
 
             cItemsPurged += 1
 
         cItemsProc += 1
 
+    # Refresh list
+    items = get_items(coll_id)
+
+    # Process duplicates
+    if g_fDuplicates:
+        duplicates = detect_duplicates(items)
+        if duplicates:
+            print("Duplicate emtries detected:")
+            for _, items in duplicates.items():
+                # Sort items by DateCreated to keep the newest entry
+                items.sort(key=lambda x: x['DateCreated'], reverse=True)
+                print(f"Keeping: {items[0]['Name']} (Added: {items[0]['DateCreated']})")
+                for cur_item in items[1:]:  # Skip the newest entry
+                    print(f"Deleting {cur_item['Name']} (Added: {cur_item['DateCreated']})")
+                    delete_item(cur_item['Id'])
+                    cItemsPurged += 1
+        else:
+            print("No duplicate entries found.")
+
+    # Delete items with no metadata
+    if g_fNoMetadata:
+        print("Searching for items with no metadata ...")
+        for cur_item in items:
+            if not cur_item.get('Overview'):
+                print(f"Deleting {cur_item['Name']}")
+                delete_item(cur_item['Id'])
+                cItemsPurged += 1
+
     if cErrors:
         print("Warning: %ld errors occurred" % cErrors)
-
     print("Deleted %ld / %ld items" % (cItemsPurged, cItemsProc))
 
 def printHelp():
@@ -224,6 +298,10 @@ def printHelp():
     print("    Specifies the collection to process.")
     print("--delete")
     print("    Deletion mode: Items *are* removed.")
+    print("--delete-duplicates")
+    print("    Deletes duplicate items.")
+    print("--delete-unknown")
+    print("    Deletes items with no meta data.")
     print("--help or -h")
     print("    Prints this help text.")
     print("--host <http://host:port>")
@@ -250,6 +328,8 @@ def main():
     Main function.
     """
     global g_sCollection
+    global g_fDuplicates
+    global g_fNoMetadata
     global g_fDryRun
     global g_cVerbosity
     global g_dbRatingMin
@@ -269,7 +349,7 @@ def main():
 
     try:
         aOpts, aArgs = getopt.gnu_getopt(sys.argv[1:], "hv", \
-            [ "collection=", "delete", "help", "older-than-days=", "password=", \
+            [ "collection=", "delete", "duplicates", "no-meta-data", "help", "older-than-days=", "password=", \
               "rating-min=", "rating-none", "width-min=", "height-min=", "username=", "provider=" ])
     except getopt.error as msg:
         print(msg)
@@ -281,6 +361,10 @@ def main():
             g_sCollection = a
         elif o in "--delete":
             g_fDryRun = False
+        elif o in "--duplicates":
+            g_fDuplicates = True
+        elif o in "--no-meta-data":
+            g_fNoMetadata = True
         elif o in ("-h", "--help"):
             printHelp()
             sys.exit(0)
