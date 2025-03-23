@@ -109,7 +109,7 @@ function set_env()
 			IRIX\ 5*)  MY_OS=irix;;
 			HP*)       MY_OS=hp-ux;;
 			# For Windows WSL(2) we search for the "Microsoft" string.
-			*Microsoft)MY_OS=win;;
+			*Microsoft)MY_OS=wsl;;
 			Linux*)    MY_OS=linux;;
 			*)         MY_OS=generic
 				echo "Warning: can't map \"`uname -sr`\" to an OS string, assuming ${MY_OS}."

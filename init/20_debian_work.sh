@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sudo apt-get install -y --no-install-recommends yasm git subversion meld
+sudo apt-get install -y --no-install-recommends yasm git subversion meld python3-pip
 
 # Install GEF (GDB Enhanced Features -- https://github.com/hugsy/gef). Requires Python 3.
 wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
