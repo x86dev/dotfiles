@@ -119,12 +119,22 @@ backup_send_email()
         return
     fi
 
-    echo "$2" | ${SCRIPT_MAIL_BIN} \
+    MY_SNAIL_MTA=${PROFILE_EMAIL_USERNAME}:${PROFILE_EMAIL_PASSWORD}@${PROFILE_EMAIL_SMTP_HOSTNAME}
+    MY_SNAIL_MTA_ENC_USER=$(printf %s "${PROFILE_EMAIL_USERNAME}" | jq -sRr @uri)
+    MY_SNAIL_MTA_ENC_HOSTNAME=$(printf %s "${PROFILE_EMAIL_SMTP_HOSTNAME}" | jq -sRr @uri)
+
+    # jq 1.6 did not percent encode all reserved characters such as '!', '*', '(') and ')'
+    # So passwords must be encoded by hand for now.
+    # MY_SNAIL_MTA_ENC_PASSWORD=$(printf %s "${PROFILE_EMAIL_PASSWORD}" | jq -sRr @uri)
+    MY_SNAIL_MTA_ENC_PASSWORD=${PROFILE_EMAIL_PASSWORD}
+    echo "Note: Workaround for jq <= 1.6 active for passwords!"
+
+    echo "$2" | env LC_ALL=C ${SCRIPT_MAIL_BIN} -:/ \
         -s "$1" \
-        -S from="$PROFILE_EMAIL_FROM_ADDRESS" \
-        -S mta=smtps://${PROFILE_EMAIL_USERNAME}@$PROFILE_EMAIL_SMTP_HOSTNAME \
+        -S v15-compat \
+        -S mta=smtps://${MY_SNAIL_MTA_ENC_USER}:${MY_SNAIL_MTA_ENC_PASSWORD}@${MY_SNAIL_MTA_ENC_HOSTNAME} \
         -S smtp-auth=login \
-        -S smtp-auth-password="$PROFILE_EMAIL_PASSWORD" \
+        -S from="$PROFILE_EMAIL_FROM_ADDRESS" \
         ${PROFILE_EMAIL_TO_ADDRESS}
 }
 
