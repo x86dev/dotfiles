@@ -263,9 +263,10 @@ def embyCleanup():
 
     # Process duplicates
     if g_fDuplicates:
+        print("Searching for duplicate items ...")
         duplicates = detect_duplicates(items)
         if duplicates:
-            print("Duplicate emtries detected:")
+            print("Duplicate entries detected:")
             for _, items in duplicates.items():
                 # Sort items by DateCreated to keep the newest entry
                 items.sort(key=lambda x: x['DateCreated'], reverse=True)
@@ -288,7 +289,10 @@ def embyCleanup():
 
     if cErrors:
         print("Warning: %ld errors occurred" % cErrors)
-    print("Deleted %ld / %ld items" % (cItemsPurged, cItemsProc))
+    if cItemsPurged:
+        assert cItemsProc >= cItemsPurged
+        print("Deleted %ld / %ld items" % (cItemsPurged, cItemsProc))
+        print("Now %ld items in collection" % (cItemsProc - cItemsPurged))
 
 def printHelp():
     """
