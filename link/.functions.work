@@ -245,6 +245,5 @@ __vbx_dbg()
         fi
     fi
 
-    ${MY_VBOX_DEBUG_CMD} ./${MY_VBOX_VM_FRONTEND} --startvm "$1"
     return $?
 }
