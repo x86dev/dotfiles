@@ -22,7 +22,7 @@ __vbx_env()
 
     if [ -z "$MY_VBOX_PATH_HOME" ]; then
         case "$MY_OS" in
-            win)
+            wsl)
                 MY_VBOX_PATH_HOME=/mnt/v/VBox
                 ;;
             *)
@@ -64,7 +64,7 @@ __vbx_env()
             MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/dist/VirtualBox.app/Contents/MacOS/
             MY_VBOX_KMK=kmk
             ;;
-        win)
+        wsl)
             MY_VBOX_TARGET_OS=win
             MY_VBOX_PATH_OUT=${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/${MY_VBOX_TYPE}/bin/
             MY_VBOX_KMK=${MY_VBOX_PATH_ROOT}/kBuild/bin/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/kmk.exe
@@ -130,7 +130,7 @@ __vbx_kill()
     pkill ${MY_PKILL_OPTS} VBoxXPCOMIPCD
 
     case "$MY_VBOX_TARGET_OS" in
-        win)
+        wsl)
             pkill ${MY_PKILL_OPTS} VBoxSDS
             ;;
         *)
@@ -142,17 +142,15 @@ __vbx_drv_install()
 {
     cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/
 
-    case "$MY_VBOX_TARGET_OS" in
+    case "$MY_OS" in
     linux)
         ;;
     darwin)
         ;;
-    win)
+    wsl)
         ./SUPInstall.exe
         ./NetLwfInstall.exe
-        ./NetAdpInstall.exe
         ./NetAdp6Install.exe
-        ./NetFltInstall.exe
         ./USBInstall.exe
         ;;
     *)
@@ -164,16 +162,14 @@ __vbx_drv_uninstall()
 {
     cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/release/bin/
 
-    case "$MY_VBOX_TARGET_OS" in
+    case "$MY_OS" in
     linux)
         ;;
     darwin)
         ;;
-    win)
+    wsl)
         ./NetLwfUninstall.exe
-        ./NetAdpUninstall.exe
         ./NetAdp6Uninstall.exe
-        ./NetFltUninstall.exe
         ./USBUninstall.exe
         ./SUPUninstall.exe
         ;;

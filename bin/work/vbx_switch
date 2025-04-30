@@ -2,6 +2,8 @@
 
 . ${HOME}/.functions.work
 
+set -x
+
 __vbx_env ${1} ${2}
 
 __vbx_kill
@@ -23,7 +25,7 @@ case "$MY_VBOX_TARGET_OS" in
         cd ${MY_VBOX_PATH_OUT}/
         ./VirtualBox &
         ;;
-    win)
+    wsl)
         cd ${MY_VBOX_PATH_ROOT}/out/${MY_VBOX_TARGET_OS}.${MY_VBOX_TARGET_ARCH}/debug/bin/
         sudo ${MY_WIN_CMD_EXE} /C comregister.cmd
         ./VirtualBox.exe &
