@@ -18,6 +18,11 @@ bash -c "$(curl -fsSL https://raw.github.com/x86dev/dotfiles/master/bin/dotfiles
 cd; git clone --recursive https://github.com/x86dev/dotfiles.git .dotfiles && source ~/.dotfiles/bin/dotfiles
 ```
 
+Using a (global) proxy with git:
+```bash
+git config --global http.proxy http://proxyUsername:proxyPassword@proxy.server.com:port
+```
+
 ### Update
 
 To update, just do:
