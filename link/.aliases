@@ -6,6 +6,7 @@ alias diff='delta --line-numbers --side-by-side --diff-highlight --hyperlinks'
 # Removes all exited Docker containers.
 alias docker_rm='docker rm -v $(docker ps --filter status=exited -q 2>/dev/null) 2>/dev/null'
 # Removes all dangling / unnamed Docker images.
+alias podman_rmi='podman image prune -a --force'
 alias docker_rmi='docker rmi $(docker images --filter dangling=true -q 2>/dev/null) 2>/dev/null'
 # Removes all dangling / unnamed Docker named volumes.
 alias docker_rmv='docker volume rm $(docker volume ls -q -f dangling=true)'
